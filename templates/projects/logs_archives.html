@@ -1,0 +1,53 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/logs/"><strong>Historiques</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+			<table>
+				<thead>
+					<tr>
+						<th><input type="checkbox" name="all" onchange="toggle(this)" /></th>
+						<th>Nom de fichier</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for f in files %}
+					<tr>
+						<td><input type="checkbox" name="files" value="{{ f }}" /></td>
+						<td><a href="/logs/{{ f }}">{{ f }}</a></td>
+					</tr>
+				{% endfor %}
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="2"><input type="submit" value="Supprimer" /></td>
+					</tr>
+				</tfoot>
+			</table>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		function toggle(checkbox) {
+			var inputs = document.getElementsByTagName('input');
+			for (var i = 0; i < inputs.length; i++) {
+				var input = inputs[i];
+				if (input.type == 'checkbox' &&	input.name == 'files')
+					input.checked = checkbox.checked;
+			}
+		}
+	</script>
+{% endblock %}
+
+{% block legend %}{% endblock %}
+{% block config %}{% endblock %}

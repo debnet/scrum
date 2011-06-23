@@ -1,0 +1,68 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt dict %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+			&nbsp;(
+				&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
+				&nbsp;-&nbsp;{% if title %}{{ title }}{% endif %} 
+			&nbsp;)
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<table class="releases">
+			<thead>
+				<tr>
+					<th>Type</th>
+					<th>Fonctionnalit&eacute;</th>
+					<th>Titre</th>
+					<th>Options</th>
+					<th></th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for r in releases %}
+				<tr class="{{ r.note.priorite|var2css:"p" }}">
+					<td>{{ r.note.type|var2txt:"t" }}</td>
+					<td><a href="../../../features/?target={{ r.note.feature.id }}">{{ r.note.feature.titre }}</a></td>
+					<td><a href="../../../features/{{ r.note.feature.id }}/notes?target={{ r.note.id }}">{{ r.note.titre }}</a></td>
+					<td>
+						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+							<input name="id" type="hidden" value="{{ r.note.id }}" />
+							<input name="livrer" type="submit" value="Livrer" style="width: 60px;" {% ifequal r.status "1" %}disabled{% else %}{% ifequal r.status "3" %}disabled{% endifequal %}{% endifequal %} />
+							<input name="refuser" type="submit" value="Refuser" style="width: 60px;" {% ifequal r.status "1" %}{% else %}disabled{% endifequal %} />
+							<input name="valider" type="submit" value="Valider" style="width: 60px;" {% ifequal r.status "1" %}{% else %}disabled{% endifequal %} />
+							<input name="terminer" type="submit" value="Terminer" style="width: 60px;" {% ifequal r.status "3" %}{% else %}disabled{% endifequal %} />
+						</form>
+					</td>
+					<td>[&nbsp;<a href="?id={{ r.note.id }}">Historique</a>&nbsp;]</td>
+					<td style="background-color:#eee; font-weight:bold"><img src="{{ home }}media/img/status/i{{ r.status }}.png" />&nbsp;{{ r.status|var2txt:"s" }}</td>
+				</tr>
+				{% ifequal r.note.id note %}
+					{% for d in details %}
+						<tr>
+							<td colspan="2">Le {{ d.date_creation|date:"l d F Y" }} &agrave; {{ d.date_creation|date:"H:i:s" }}</td>
+							<td>Par {{ d.utilisateur }}</td>
+							<td colspan="3" style="font-weight:bold"><img src="{{ home }}media/img/status/i{{ d.status }}.png" />&nbsp;{{ d.status|var2txt:"s" }}</td>
+						</tr>
+					{% endfor %}
+				{% endifequal %}
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}

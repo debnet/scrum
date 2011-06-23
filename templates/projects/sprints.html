@@ -1,0 +1,72 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div align="center" id="content-main">
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='new'" class="menu">
+						Nouveau sprint
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<a href="?sort=-date_debut">Trier par date d&eacute;croissante</a> ( Exclure <a href="?todo&sort=-date_debut">&quot;termin&eacute;s&quot;</a> )
+		&nbsp;|&nbsp;
+		<a href="?sort=date_debut">Trier par date croissante</a> ( Exclure <a href="?todo&sort=date_debut">&quot;termin&eacute;s&quot;</a> )
+		<br /><br />
+		<table class="notes">
+		{% for list in sprints %}
+			<tr>
+			{% for sprint in list %}
+				<td>
+					<div onclick="document.location='{{ sprint.id }}/'" class="note {{ sprint.urgence }} {{ sprint.etat }}">
+						<div class="bloc titre">{{ sprint.titre }}</div>
+						<div class="element gauche">{{ sprint.date_debut|date:"d/m/Y" }}</div>
+						<div class="element droite">{{ sprint.date_fin|date:"d/m/Y" }}</div>
+						<div class="bloc description">{{ sprint.objectif }}</div>
+						<div class="element gauche">{{ sprint.temps_realise }} / {{ sprint.temps_estime }} ({{ sprint.notes }})</div>
+						<div class="element droite">
+							<a href="?d={{ sprint.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" /></a>
+							<a href="?s={{ sprint.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" /></a>
+							<a href="?p={{ sprint.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" /></a>
+						</div>
+					</div>
+					{% if user.is_superuser %}
+					<div class="formulaire">
+					<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+						<label>Dates du sprint :</label><br />
+						<input name="date_debut" type="text" size="10" value="{{ sprint.date_debut|date:"Y-m-d" }}" />
+						<input name="date_fin" type="text" size="10" value="{{ sprint.date_fin|date:"Y-m-d" }}" />
+						<input type="hidden" name="id" value="{{ sprint.id }}" />
+						<input type="submit" value="OK" />
+					</form>
+					</div>
+					{% endif %}
+					<div onclick="document.location='{{ sprint.id }}/burndown/'" class="graphique">
+						<img src="{{ sprint.url }}" />
+					</div>
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}

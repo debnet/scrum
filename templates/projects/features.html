@@ -1,0 +1,71 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center" >	
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='new'" class="menu">
+						Nouvelle fonctionnalit&eacute;
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<a href="?sort=-priorite">Trier par priorit&eacute;</a> ( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> )
+		<br /><br />
+		<table class="notes">
+		{% for list in features %}
+			<tr>
+			{% for feature in list %}
+				<td>
+					<div onclick="document.location='{{ feature.id }}/notes/'" class="note {{ feature.priorite|var2css:"p" }}{% if feature.termine %} done{% endif %}{% if feature.target %} cible{% endif %}">
+						<div class="bloc titre">{{ feature.titre }}</div>
+						<div class="element gauche">{{ feature.priorite|var2txt:"p" }}</div>
+						<div class="element droite">{% if feature.termine %}Termin&eacute;e{% else %}&Agrave; faire{% endif %}</div>
+						<div class="bloc description">{{ feature.description }}</div>
+						<div class="element gauche">{{ feature.temps_realise }} / {{ feature.temps_estime }} ({{ feature.notes }})</div>
+						<div class="element droite">
+							<a class="image" href="?d={{ feature.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ feature.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ feature.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ feature.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ feature.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ feature.confiance_po }}.png" /></a>
+						</div>
+					</div>
+					<div class="formulaire">
+						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+							<select name="priorite" onchange="submit()">
+								<option value="0" {% ifequal feature.priorite '0' %}selected{% endifequal %}>Aucune</option>
+								<option value="1" {% ifequal feature.priorite '1' %}selected{% endifequal %}>&Eacute;limin&eacute;(e)</option>
+								<option value="2" {% ifequal feature.priorite '2' %}selected{% endifequal %}>Possible</option>
+								<option value="3" {% ifequal feature.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
+								<option value="4" {% ifequal feature.priorite '4' %}selected{% endifequal %}>Indispensable</option>
+								<option value="5" {% ifequal feature.priorite '5' %}selected{% endifequal %}>Report&eacute;(e)</option>
+							</select>
+							<input type="checkbox" name="termine" {% if feature.termine %}checked{% else %}{% endif %} onchange="submit()" />
+							<label>Termin&eacute;</label>
+							<input type="hidden" name="id" value="{{ feature.id }}" />
+						</form>
+					</div>
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}

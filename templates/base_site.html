@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Outil Scrum {% if title %}| {{ title }}{% endif %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">Outil Scrum</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}<link rel="stylesheet" type="text/css" href="{{ theme }}css/perso.css" />{% endblock %}
+
+{% block extrahead %}
+<![if !IE 6]>
+<link rel="stylesheet" type="text/css" href="{{ theme }}css/not-iewin.css" />
+<![endif]>
+
+<!--[if IE 6]>
+<link rel="stylesheet" type="text/css" href="{{ theme }}css/with-iewin.css" />
+<![endif]-->
+{% endblock %}
+
+{% block legend %}
+<br /><br />
+<div class="legende">
+    <table>
+        <tr>
+            <td class="none">Aucune</td>
+            <td class="trivial">&Eacute;limin&eacute;(e)</td>
+            <td class="minor">Possible</td>
+            <td class="major">Souhaitable</td>
+            <td class="critical">Indispensable</td>
+            <td class="blocking">Report&eacute;(e)</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}
+
+{% block config %}
+<div class="config">
+    <form enctype="multipart/form-data" action="." method="post">{% csrf_token %}
+        <select name="nb_notes" title="Nombre de notes par ligne" onchange="submit()">
+            <option value="3" {% if nb_notes == 3 %}selected{% endif %}>3</option>
+            <option value="4" {% if nb_notes == 4 %}selected{% endif %}>4</option>
+            <option value="5" {% if nb_notes == 5 %}selected{% endif %}>5</option>
+            <option value="6" {% if nb_notes == 6 %}selected{% endif %}>6</option>
+            <option value="7" {% if nb_notes == 7 %}selected{% endif %}>7</option>
+            <option value="8" {% if nb_notes == 8 %}selected{% endif %}>8</option>
+            <option value="9" {% if nb_notes == 9 %}selected{% endif %}>9</option>
+        </select>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<strong>Projets</strong>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center" >
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='new'" class="menu">Nouveau projet</div>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<table class="notes">
+		{% for list in projects %}
+			<tr>
+			{% for projet in list %}
+				<td>
+					<div class="note none" onclick="document.location='{{ projet.id }}'">
+							<div class="bloc titre">{{ projet.titre }}</div>
+							<div class="bloc projet">{{ projet.description }}</div>
+							<div class="bloc membres">
+							{% for m in projet.membres.all %}{% ifnotequal m.user.username "admin" %}{{ m.user.username }} &nbsp; {% endifnotequal %}{% endfor %}
+							</div>
+					</div>
+					<div onclick="document.location='{{ projet.id }}/documents/'" class="sousmenu minor">Documents</div>
+					<div onclick="document.location='{{ projet.id }}/scrumwall/'" class="sousmenu major">Scrum Wall</div>
+					{% if projet.running %}
+					<div onclick="document.location='{{ projet.id }}/sprints/{{ projet.sprint }}'" class="sousmenu critical">Sprint en cours</div>
+					{% endif %}
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}
+
+{% block legend %}{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+			&nbsp;(
+				&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
+			&nbsp;)
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='notes'" class="button">
+						Notes
+						<br /><br />
+						<span class="info">{{ nbn }}</span>
+					</div>
+				</td>
+				<td>
+					<div onclick="document.location='tasks'" class="button">
+						T&acirc;ches
+						<br /><br />
+						<span class="info">{{ nbt }}</span>
+					</div>
+				</td>
+				<td>
+					<div onclick="document.location='burndown'" class="button">
+						Burndown Chart
+						<br /><br />
+						</span class="info">&nbsp;</span>
+					</div>
+				</td>
+				<td>
+					<div onclick="document.location='releases'" class="button">
+						Livraisons
+						<br /><br />
+						</span class="info">&nbsp;</span>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br /><br />
+		<h1>Notes de sprint urgentes</h1>
+		<br />
+		<table class="notes">
+		{% for list in notes %}
+			<tr>
+			{% for note in list %}
+				<td>
+					<div class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}">
+						<div class="bloc titre">{{ note.titre }}</div>
+						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
+						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
+						<div class="bloc description">{{ note.description }}</div>
+						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }}</div>
+						<div class="element droite">
+							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" />
+							<img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ note.confiance_sm }}.png" />
+							<img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" />
+						</div>
+					</div>
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+		<br /><br />
+		<h1>T&acirc;ches urgentes</h1>
+		<br />
+		<table class="notes">
+			{% for list in tasks %}
+				<tr>
+				{% for task in list %}
+					<td>
+						<div class="note {{ task.priorite|var2css:"p" }} {{ task.etat|var2css:"e" }}">
+							<div class="bloc titre">{{ task.titre }}</div>
+							<div class="element gauche">{{ task.priorite|var2txt:"p" }}</div>
+							<div class="element droite">{{ task.etat|var2txt:"e" }}</div>
+							<div class="bloc description">{{ task.description }}</div>
+							<div class="element gauche"></div>
+							<div class="element droite">
+								<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ task.confiance_dev }}.png" />
+								<img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ task.confiance_sm }}.png" />
+								<img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ task.confiance_po }}.png" />
+							</div>
+						</div>
+					</td>
+				{% endfor %}
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+{% endblock %}

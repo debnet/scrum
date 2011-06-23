@@ -1,0 +1,237 @@
+.none { 
+	background-color: #eee; 
+	border: 2px solid #999; 
+}
+.trivial { 
+	background-color: #cff; 
+	border: 2px solid #6fccca; 
+}
+.minor { 
+	background-color: #cfc; 
+	border: 2px solid #9bcc9a; 
+}
+.major { 
+	background-color: #ffc; 
+	border: 2px solid #cacc9b; 
+}
+.critical { 
+	background-color: #fc9; 
+	border: 2px solid #f5643b; 
+}
+.blocking { 
+	background-color: #cecaff; 
+	border: 2px solid #9a98ca; 
+}
+.done {
+	background-color: #fff; 
+}
+
+table tr td {
+	vertical-align: middle;
+}
+
+table.menus {
+	border-collapse: separate;
+	border-spacing: 5px 0px;
+}
+
+div.menu { 
+	width: 200px; 
+	height: 20px; 
+	margin: 5px; 
+	padding-top: 5px; 
+	text-align: center; 
+	font-size: 14px; 
+	font-variant: small-caps; 
+	color: #999; 
+	border: 1px solid #ccc; 
+	background-image:url(../img/admin/nav-bg.gif); 
+	background-position:bottom; 
+	cursor: pointer; 
+}
+
+div.menu:hover { 
+	background-image:url(../img/admin/nav-bg-reverse.gif); 
+	background-position:top; 
+	cursor: pointer; 
+}
+
+div.button { 
+	width: 120px;
+	font-size: 14px;
+	text-align: center;
+	padding: 10px;
+	background-image: url(../img/admin/button-bg.png); 
+	background-position: bottom; 
+	cursor: pointer; 
+}
+
+div.button:hover {
+	background-image: url(../img/admin/button-bg-reverse.png);
+	background-position: top; 
+	cursor: pointer; 
+}
+
+table.notes {
+	border-collapse: separate;
+	border-spacing: 10px 10px;
+}
+
+div.note {
+	width: 200px;
+	height: 200px;
+	overflow: hidden;
+}
+
+div.note:hover { 
+	opacity: 0.5; 
+	filter: alpha(opacity = 50); 
+	cursor: pointer; 
+}
+
+div.bloc {
+	width: 190px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 5px;
+	position: relative;
+	top: 0px;
+	overflow: hidden;
+	border-bottom: solid 1px silver;
+}
+
+div.titre {
+	height: 40px;
+	font-variant: small-caps;
+	font-size: 14px;
+	text-align: center;
+}
+
+div.projet { 
+	height: 100px;
+	font-size: 10px; 
+	text-align: justify;
+}
+
+div.description {
+	height: 85px;
+	font-size: 10px; 
+	text-align: justify;
+	border-top: solid 1px silver;
+}
+
+div.membres {
+	height: 30px;
+	font-size: 10px;
+	font-weight: bold;
+	text-align: center;
+}
+
+div.element {
+	width: 90px;
+	height: 15px;
+	padding: 5px;
+	font-weight: bold;
+	position: relative;
+	top: 0px;
+	overflow: hidden;
+}
+
+div.gauche {
+	text-align: left;
+	float: left;
+}
+
+div.droite {
+	text-align: right;
+	float: right;
+}
+
+div.cible {
+	font-weight: bold;
+	color: red;
+}
+
+table.scrumwall {
+	border-collapse: separate;
+	border-spacing: 0px 2px;
+}
+
+table.scrumwall tr td {
+	vertical-align: top;
+}
+
+td.cellule:hover {
+	opacity: 0.5; 
+	filter: alpha(opacity = 50); 
+	cursor: pointer; 
+}
+
+a.image:hover {
+	z-index: 10;
+	cursor: crosshair; 
+}
+
+div.sousmenu {
+	width: 190px;
+	text-align: center;
+	padding: 5px;
+	position: relative;
+	margin-top: 5px;
+}
+
+div.sousmenu:hover { 
+	opacity: 0.5; 
+	filter: alpha(opacity = 50); 
+	cursor: pointer; 
+}
+
+div.formulaire {
+	width: 190px;
+	text-align: center;
+	padding: 5px;
+	position: relative;
+	margin-top: 5px;
+	border: 2px solid silver;
+}
+
+div.graphique {
+	width: 200px;
+	position: relative;
+	margin-top: 5px;
+}
+
+div.graphique:hover {
+	opacity: 0.5; 
+	filter: alpha(opacity = 50); 
+	cursor: pointer; 
+}
+
+span.info { 
+	font-size: 12px; 
+}
+
+div.legende {
+	position: fixed; 
+	right: 50px; 
+	bottom: 5px; 
+	text-align: center; 
+	z-index: 10; 
+}
+
+div.legende table {
+	border-collapse: separate;
+	border-spacing: 0px 0px;
+}
+
+div.legende table tr td { 
+	width: 70px; 
+}
+
+div.config {
+	position: fixed; 
+	right: 5px; 
+	bottom: 5px; 
+	text-align: center; 
+	z-index: 10; 
+}

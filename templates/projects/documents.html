@@ -1,0 +1,54 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<br />
+		<form enctype="multipart/form-data" action="." method="post">{% csrf_token %}
+			<table>
+			{{ form }}
+			</table>
+			<input type="submit" value="Enregistrer" />
+		</form>
+		<br /><br />
+		<table>
+			<thead>
+				<tr>
+					<th>Fichier</th>
+					<th>Description</th>
+					<th>Taille</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for document in documents %}
+				<tr>
+					<th>{{ document.fichier }}</th>
+					<td>{{ document.titre }}</td>
+					<td>{{ document.fichier.size }} octets</td>
+					<td>
+						<strong>[</strong>&nbsp;<a href="{{ document.fichier.url }}">T&eacute;l&eacute;charger</a>&nbsp;<strong>]</strong>
+						<strong>[</strong>&nbsp;<a href="?delete={{ document.id }}">Supprimer</a>&nbsp;<strong>]</strong>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block legend %}{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main">
+		<br />
+		<form enctype="multipart/form-data" action="." method="post">{% csrf_token %}
+			<table>
+			{{ form }}
+			</table>
+			<input type="submit" value="Enregistrer" />
+		</form>
+	</div>
+{% endblock %}
+
+{% block legend %}{% endblock %}
+{% block config %}{% endblock %}

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<holiday year="2011" lang="fr">
+	<day>2011-01-01</day> <!-- Jour de l'an -->
+	<day>2011-04-25</day> <!-- Lundi de Paques -->
+	<day>2011-05-01</day> <!-- Fete du travail -->
+	<day>2011-05-08</day> <!-- Armistice 1945 -->
+	<day>2011-06-02</day> <!-- Jeudi de l'Ascension -->
+	<day>2011-06-13</day> <!-- Lundi de Pentecote -->
+	<day>2011-07-14</day> <!-- Fete nationale -->
+	<day>2011-08-15</day> <!-- Assomption -->
+	<day>2011-11-01</day> <!-- Toussaint -->
+	<day>2011-11-11</day> <!-- Armistice 1918 -->
+	<day>2011-12-25</day> <!-- Noel -->
+</holiday>

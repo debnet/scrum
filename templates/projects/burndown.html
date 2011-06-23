@@ -1,0 +1,75 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt dict %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+			&nbsp;(
+				&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
+				&nbsp;-&nbsp;{% if title %}{{ title }}{% endif %} 
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
+			&nbsp;)
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<br />
+		<a href="?done">Afficher les &eacute;l&eacute;ments termin&eacute;s</a>
+		&nbsp;|&nbsp;
+		<a href=".">Exclure les &eacute;l&eacute;ments termin&eacute;s</a>
+		<br /><br /><br />
+		<table>
+			<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Fonctionnalit&eacute;</th>
+						<th>Titre</th>
+						{% for d in days %}
+						<th {% ifequal d date %}style="color:red"{% endifequal %}>{{ d|date:"d/m" }}</th>
+						{% endfor %}
+						<th>Temps total</th>
+						<th>Termin&eacute;e ?</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for item in times %}
+					<tr class="{{ item|var2css:"p" }}">
+						<td>{{ item|dict:"type" }}</td>
+						<td><a href="../../../features/?target={{ item|dict:"bid" }}">{{ item|dict:"base" }}</a></td>
+						<td><a href="../{{ item|dict:"url" }}/?target={{ item|dict:"id" }}">{{ item|dict:"name" }}</a></td>
+						{% for time in item|dict:"time" %}
+						<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 150)">
+							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
+						</td>
+						{% endfor %}
+						<td>{{ item|dict:"done" }} / {{ item|dict:"todo" }}</td>
+						<td><input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="checkbox" {% if item|dict:"test" %}disabled checked{% endif %} /></td>
+					</tr>
+				{% endfor %}
+					<tr>
+						<td colspan="{{ days.count }}">
+							<input type="hidden" name="lock" value="{{ lock }}" />
+							<input type="submit" value="Enregistrer" />
+						</td>
+						<td colspan="5" style="color:red">
+							{{ erreur }}
+						</td>
+					</tr>
+				</tbody>
+			</form>
+		</table>
+		<br /><br />
+		<img style="width: 800px; height: 350px;" src="{{ url }}" />
+	</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+			&nbsp;(
+				&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				&nbsp;-&nbsp;{% if title %}{{ title }}{% endif %}
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
+				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
+			&nbsp;)
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div align="center" id="content-main">
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='new'" class="menu">
+						Nouvelle t&acirc;che
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<a href="?sort=etat">Trier par &eacute;tat</a> ( Exclure <a href="?todo&sort=etat&todo">&quot;termin&eacute;s&quot;</a> )
+		&nbsp;|&nbsp;
+		<a href="?sort=-priorite">Trier par priorit&eacute;</a> ( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> )
+		<br /><br />
+		<table class="notes">
+		{% for list in tasks %}
+			<tr>
+			{% for task in list %}
+				<td>
+					<div onclick="document.location='{{ home }}admin/projects/task/{{ task.id }}/'" class="note {{ task.priorite|var2css:"p" }} {{ task.etat|var2css:"e" }}{% if task.target %} cible{% endif %}">
+						<div class="bloc titre">{{ task.titre }}</div>
+						<div class="element gauche">{{ task.priorite|var2txt:"p" }}</div>
+						<div class="element droite">{{ task.etat|var2txt:"e" }}</div>
+						<div class="bloc description">{{ task.description }}</div>
+						<div class="element gauche">{{ task.temps_realise }} / {{ task.temps_estime }} ({{ task.effort }})</div>
+						<div class="element droite">
+							<a class="image" href="?d={{ task.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ task.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ task.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ task.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ task.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ task.confiance_po }}.png" /></a>
+						</div>
+					</div>
+					<div class="formulaire">
+						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+							<select name="etat" onchange="submit()">
+								<option value="0" {% ifequal task.etat '0' %}selected{% endifequal %}>&Agrave; faire</option>
+								<option value="1" {% ifequal task.etat '1' %}selected{% endifequal %}>En cours</option>
+								<option value="2" {% ifequal task.etat '2' %}selected{% endifequal %}>Termin&eacute;</option>
+							</select>
+							<select name="priorite" onchange="submit()">
+								<option value="0" {% ifequal task.priorite '0' %}selected{% endifequal %}>Aucune</option>
+								<option value="1" {% ifequal task.priorite '1' %}selected{% endifequal %}>&Eacute;limin&eacute;(e)</option>
+								<option value="2" {% ifequal task.priorite '2' %}selected{% endifequal %}>Possible</option>
+								<option value="3" {% ifequal task.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
+								<option value="4" {% ifequal task.priorite '4' %}selected{% endifequal %}>Indispensable</option>
+								<option value="5" {% ifequal task.priorite '5' %}selected{% endifequal %}>Report&eacute;(e)</option>
+							</select>
+							<br />
+							<label>Temps : </label><input type="text" name="temps" value="{{ task.temps_estime }}" size="2" onfocus="" />
+							<input type="hidden" name="id" value="{{ task.id }}" />
+							<input type="submit" value="OK" />
+						</form>
+					</div>
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}

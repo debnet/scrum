@@ -1,0 +1,90 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/logs/archives/"><strong>Archives</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+			<label>Logs de :</label>
+			<select name="luser">
+				<option value="0">( Tous )</option>
+			{% for user in users %}
+				<option value="{{ user.id }}">{{ user }}</option>
+			{% endfor %}
+			</select>
+			<input name="lselect" type="submit" value="Afficher" />
+			<input name="ldelete" type="submit" value="Supprimer" />
+		</form>
+		<br /><br />
+		<table>
+			<thead>
+				<th>ID</th>
+				<th>Objet</th>
+				<th>Type</th>
+				<th>Action</th>
+				<th>Utilisateur</th>
+				<th>Message</th>
+				<th>Date</th>
+				<th>&nbsp;</th>
+			</thead>
+			<tbody>
+			{% for log in logs %}
+				<tr>
+					<td>{{ log.object_id }}</a></td>
+					<td>{{ log.object_repr }}</td>
+					<td>{{ log.content_type }}</td>
+					<td>{% ifequal log.action_flag 1 %}Ajout{% else %}{% ifequal log.action_flag 2 %}Modification{% else %}Suppression{% endifequal %}{% endifequal %}</td>
+					<td>{{ log.user }}</td>
+					<td>{{ log.change_message }}</td>
+					<td>{{ log.action_time|date:"l d F Y H:i:s" }}</td>
+					<td>[ <a href="{{ home }}admin/{{ log.content_type.app_label }}/{{ log.content_type.model }}/{{ log.object_id }}/">Modifier</a> ]</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		<br /><br /><br />
+		<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+			<label>Historiques de :</label>
+			<select name="huser">
+				<option value="0">( Tous )</option>
+			{% for user in users %}
+				<option value="{{ user.id }}">{{ user }}</option>
+			{% endfor %}
+			</select>
+			<input name="hselect" type="submit" value="Afficher" />
+			<input name="hdelete" type="submit" value="Supprimer" />
+		</form>
+		<br /><br />
+		<table>
+			<thead>
+				<th>ID</th>
+				<th>Utilisateur</th>
+				<th>URL</th>
+				<th>Date</th>
+				<th>&nbsp;</th>
+			</thead>
+			<tbody>
+			{% for h in history %}
+				<tr>
+					<td>{{ h.id }}</a></td>
+					<td>{{ h.utilisateur }}</td>
+					<td><a href="{{ h.url }}">{{ h.url }}</a></td>
+					<td>{{ h.date_creation|date:"l d F Y H:i:s" }}</td>
+					<td>[ <a href="{{ home }}admin/projects/history/{{ h.id }}/">Modifier</a> ]</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block legend %}{% endblock %}
+{% block config %}{% endblock %}

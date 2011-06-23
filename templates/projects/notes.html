@@ -1,0 +1,87 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+			&nbsp;(
+				&nbsp;{% if title %}{{ title }}{% endif %}
+			&nbsp;)
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div align="center" id="content-main">
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='new'" class="menu">
+						Nouvelle note
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<a href="?sort=etat">Trier par &eacute;tat</a> 
+		( Exclure <a href="?todo&sort=etat">&quot;termin&eacute;s&quot;</a> ou <a href="?toset&sort=etat">notes de sprint</a> )
+		&nbsp;|&nbsp;
+		<a href="?sort=-priorite">Trier par priorit&eacute;</a> 
+		( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> ou <a href="?toset&sort=-priorite">notes de sprint</a> )
+		<br /><br />
+		<table class="notes">
+		{% for list in notes %}
+			<tr>
+			{% for note in list %}
+				<td>
+					<div onclick="document.location='{{ home }}admin/projects/note/{{ note.id }}/'" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
+						<div class="bloc titre">{{ note.titre }}</div>
+						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
+						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
+						<div class="bloc description">{{ note.description }}</div>
+						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }} ({{ note.effort }})</div>
+						<div class="element droite">
+							<a class="image" href="?d={{ note.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ note.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ note.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ note.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" /></a>
+						</div>
+					</div>
+					<div class="formulaire">
+						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+							<select name="sprint" onchange="submit()">
+								<option value="">{% if note.sprint.id %}( Dissocier du sprint ){% else %}( Associer &agrave; un sprint ){% endif %}</option>
+							{% for s in sprints %}
+								<option value="{{ s.id }}" {% ifequal s.id note.sprint.id %}selected{% endifequal %}>{{ s.titre }}</option>
+							{% endfor %}
+							</select>
+							<a href="{{ note.id }}/sprint/"><img src="{{ home }}media/img/admin/icon_addlink.gif" /></a>
+							<br />
+							<select name="priorite" onchange="submit()">
+								<option value="0" {% ifequal note.priorite '0' %}selected{% endifequal %}>Aucune</option>
+								<option value="1" {% ifequal note.priorite '1' %}selected{% endifequal %}>&Eacute;limin&eacute;(e)</option>
+								<option value="2" {% ifequal note.priorite '2' %}selected{% endifequal %}>Possible</option>
+								<option value="3" {% ifequal note.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
+								<option value="4" {% ifequal note.priorite '4' %}selected{% endifequal %}>Indispensable</option>
+								<option value="5" {% ifequal note.priorite '5' %}selected{% endifequal %}>Report&eacute;(e)</option>
+							</select>
+							<br />
+							<label>Temps : </label><input type="text" name="temps" value="{{ note.temps_estime }}" size="2" />
+							<input type="hidden" name="id" value="{{ note.id }}" />
+							<input type="submit" value="OK" />
+						</form>
+					</div>
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}

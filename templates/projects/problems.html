@@ -1,0 +1,71 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}	
+	<div align="center" id="content-main">
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='new'" class="menu">
+						Nouveau probl&egrave;me
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<a href="?sort=-priorite">Trier par priorit&eacute;</a> ( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> )
+		<br /><br />
+		<table class="notes">
+		{% for list in problems %}
+			<tr>
+			{% for probleme in list %}
+				<td>
+					<div onclick="document.location='{{ home }}admin/projects/problem/{{ probleme.id }}/'" class="note {{ probleme.priorite|var2css:"p" }}{% if probleme.resolu %} done{% endif %}">
+						<div class="bloc titre">{{ probleme.titre }}</div>
+						<div class="element gauche">{{ probleme.priorite|var2txt:"p" }}</div>
+						<div class="element droite">{% if probleme.termine %}R&eacute;solu{% else %}&Agrave; r&eacute;soudre{% endif %}</div>
+						<div class="bloc description">{{ probleme.description }}</div>
+						<div class="element gauche">{{ probleme.effort }}</div>
+						<div class="element droite">
+							<a class="image" href="?d={{ probleme.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ probleme.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ probleme.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ probleme.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ probleme.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ probleme.confiance_po }}.png" /></a>
+						</div>
+					</div>
+					<div class="formulaire">
+						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+							<select name="priorite" onchange="submit()">
+								<option value="0" {% ifequal probleme.priorite '0' %}selected{% endifequal %}>Aucune</option>
+								<option value="1" {% ifequal probleme.priorite '1' %}selected{% endifequal %}>&Eacute;limin&eacute;(e)</option>
+								<option value="2" {% ifequal probleme.priorite '2' %}selected{% endifequal %}>Possible</option>
+								<option value="3" {% ifequal probleme.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
+								<option value="4" {% ifequal probleme.priorite '4' %}selected{% endifequal %}>Indispensable</option>
+								<option value="5" {% ifequal probleme.priorite '5' %}selected{% endifequal %}>Report&eacute;(e)</option>
+							</select>
+							<input type="checkbox" name="resolu" onchange="submit()" {% if probleme.resolu %}checked{% else %}{% endif %} />
+							<label>R&eacute;solu</label>
+							<input type="hidden" name="id" value="{{ probleme.id }}" />
+						</form>
+					</div>
+				</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}

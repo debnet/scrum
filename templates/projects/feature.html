@@ -1,0 +1,65 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+			&nbsp;(
+				&nbsp;<a href="{{ home }}projects/{{ project.id }}/features/{{ feature.id }}/notes/">Notes de backlog</a>  
+			&nbsp;)
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block pretitle %}
+
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<br />
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='notes'" class="button">
+						Notes
+						<br /><br />
+						<span class="info">{{ nbn }}</span>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br /><br />
+		<h1>Notes de backlog urgentes</h1>
+		<br />
+		<table class="notes">
+		{% for list in notes %}
+			<tr>
+			{% for note in list %}
+				<td>
+					<div class="note {{ note.priorite|var2css:"p" }}">
+						<div class="bloc titre">{{ note.titre }}</div>
+						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
+						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
+						<div class="bloc description">{{ note.description }}</div>
+						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }} ({{ note.effort }})</div>
+						<div class="element droite">
+							<img class="image" title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" />
+							<img class="image" title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ note.confiance_sm }}.png" />
+							<img class="image" title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" />
+						</div>
+					</div>
+				</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+{% endblock %}

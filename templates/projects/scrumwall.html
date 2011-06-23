@@ -1,0 +1,78 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt dict %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<br />
+		<table class="scrumwall" width="{{ taille }}px">
+			<thead>
+				<th style="width:25%;">Fonctionnalit&eacute;</th>
+				<th style="width:25%;">&Agrave; faire</th>
+				<th style="width:25%;">En cours</th>
+				<th style="width:25%;">Termin&eacute;e</th>
+			</thead>
+			<tbody>
+				{% for s in scrumwall %}
+				<tr>
+					<td style="width:25%;">
+						<table width="100%">
+							<tr>
+								<td class="cellule {{ s|var2css:"p" }}" onclick="document.location='../features/?target={{ s|dict:"id" }}'">
+									{{ s|dict:"name" }}
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td style="width:25%;">
+						<table width="100%">
+							{% for t in s|dict:"todo" %}
+							<tr>
+								<td class="cellule {{ t.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}'">
+									{{ t.titre }}
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</td>
+					<td style="width:25%;">
+						<table width="100%">
+							{% for r in s|dict:"run" %}
+							<tr>
+								<td class="cellule {{ r.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ r.id }}'">
+									{{ r.titre }}
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</td>
+					<td style="width:25%;">
+						<table width="100%">
+							{% for d in s|dict:"done" %}
+							<tr>
+								<td class="cellule {{ d.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ d.id }}'">
+									{{ d.titre }}
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}

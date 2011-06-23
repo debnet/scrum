@@ -1,0 +1,79 @@
+body, html { 
+	height: 100%; 
+	margin: 0; 
+	padding: 0; 
+}
+
+html { 
+	overflow: visible; 
+}
+
+body { 
+	overflow: auto; 
+	z-index:0; 
+}
+
+/*
+#content { margin-top:100px; margin-bottom:50px; }
+#content.login { margin-top:50px; margin-bottom:0px; }
+*/
+
+#header.nologin { 
+	position: absolute; 
+	left: 0px; 
+	top: 0px; 
+	height: 40px; 
+	z-index: 5; 
+}
+#header.login { 
+	position:absolute; 
+}
+
+#footer { 
+	height: 25px; 
+	width: 100%; 
+	background: #417690; 
+	color: #ffc; 
+	overflow: hidden; 
+	text-align: center; 
+	padding-top:10px; 
+}
+#footer.nologin { 
+	position: absolute; 
+	bottom: 0px; 
+	z-index: 5; 
+}
+#footer.login { 
+	position: absolute; 
+}
+#footer a:link, #footer a:visited { 
+	color: white; 
+}
+#footer a:hover { 
+	text-decoration: underline; 
+}
+
+div.breadcrumbs { 
+	position: absolute; 
+	top: 40px; 
+	left: 0px; 
+	width: 100%; 
+	background: white url(../img/admin/nav-bg-reverse.gif) 0 -10px repeat-x; 
+	padding: 2px 8px 3px 8px; 
+	font-size: 13px; 
+	color: #999; 
+	border-top: 1px solid white; 
+	border-bottom: 1px solid #ccc; 
+	text-align: left; 
+	z-index: 5; 
+}
+
+ul.messagelist { 
+	position: absolute; 
+	top: 63px; 
+	left: 0px; 
+	width: 100%; 
+	padding: 0 0 5px 0; 
+	margin: 0; 
+	z-index: 5; 
+}
