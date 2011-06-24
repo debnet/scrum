@@ -530,7 +530,7 @@ def project(request, project_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Projet : ' + unicode(project.titre)
+    title = u'Projet - "' + unicode(project.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id
     
@@ -577,7 +577,7 @@ def features(request, project_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Fonctionnalités'
+    title = u'Fonctionnalités - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -650,7 +650,7 @@ def feature(request, project_id, feature_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Fonctionnalité : ' + unicode(feature.titre)
+    title = u'Fonctionnalité - "' + unicode(feature.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id
     
@@ -679,7 +679,7 @@ def notes(request, project_id, feature_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Notes de backlog'
+    title = u'Notes de backlog - Fonctionnalité "' + unicode(feature.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -768,7 +768,7 @@ def note(request, project_id, feature_id, note_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Note de backlog : ' + unicode(note.titre)
+    title = u'Note de backlog - "' + unicode(note.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id
     
@@ -790,7 +790,7 @@ def sprints(request, project_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Sprints'
+    title = u'Sprints - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -900,7 +900,7 @@ def sprint(request, project_id, sprint_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Sprint : ' + unicode(sprint.titre)
+    title = u'Sprint - "' + unicode(sprint.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id
     
@@ -932,7 +932,7 @@ def snotes(request, project_id, sprint_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Notes de sprint'
+    title = u'Notes de sprint - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1009,7 +1009,7 @@ def snote(request, project_id, sprint_id, note_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Note de sprint : ' + unicode(note.titre)
+    title = u'Note de sprint - "' + unicode(note.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes/' + note_id
     
@@ -1032,7 +1032,7 @@ def tasks(request, project_id, sprint_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Tâches'
+    title = u'Tâches - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1111,7 +1111,7 @@ def task(request, project_id, sprint_id, task_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Tâche : ' + unicode(task.titre)
+    title = u'Tâche - Sprint "' + unicode(task.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/' + task_id
     
@@ -1134,7 +1134,7 @@ def releases(request, project_id, sprint_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Livraisons'
+    title = u'Livraisons - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
     
@@ -1188,7 +1188,7 @@ def release(request, project_id, sprint_id, release_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Livraison'
+    title = u'Livraison - "' + unicode(release.note.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases/' + release_id
     
@@ -1210,7 +1210,7 @@ def problems(request, project_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Problèmes'
+    title = u'Problèmes - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1283,7 +1283,7 @@ def problem(request, project_id, problem_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Problème : ' + unicode(problem.titre)
+    title = u'Problème - "' + unicode(problem.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/problems/' + problem_id
     
@@ -1307,7 +1307,7 @@ def burndown(request, project_id, sprint_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Burndown Chart'
+    title = u'Burndown Chart - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     erreur = ''
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/burndown'
@@ -1500,7 +1500,7 @@ def velocity(request, project_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Velocité'
+    title = u'Velocité - Projet "' + unicode(project.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/velocity'
     
@@ -1543,6 +1543,7 @@ def velocity(request, project_id):
     url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
     url1 += '&chd=t:' + '|'.join('%s' % (','.join('%s' % (v) for v in values)) for values in data)
     
+    first = True
     cumul = 0
     max = 0
     charge1 = list()
@@ -1554,6 +1555,9 @@ def velocity(request, project_id):
             n += note.effort
         charge1.append(cumul + n)
         cumul += n
+        if first:
+            charge2.append(sprint.effort)
+            first = False
         charge2.append(sprint.effort)
         if sprint.effort > max:
             max = sprint.effort
@@ -1572,7 +1576,7 @@ def velocity(request, project_id):
     url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,000000,1,-1,11|s,00aa00,2,-1,5'
     url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
     url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in charge1)
-    url2 += '|-1|' + str(charge2[0]) + ',' + ','.join('%s' % (y) for y in charge2)
+    url2 += '|-1|' + ','.join('%s' % (y) for y in charge2)
     
     return render_to_response('projects/velocity.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1634,7 +1638,7 @@ def scrumwall(request, project_id):
         raise Exception, NOT_MEMBER_MSG
     
     user = request.user.get_profile()
-    title = u'Scrum Wall'
+    title = u'Scrum Wall - Projet "' + unicode(project.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/scrumwall'
     

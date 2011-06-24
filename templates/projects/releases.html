@@ -5,16 +5,17 @@
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
-			&nbsp;(
-				&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
-				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
-				&nbsp;-&nbsp;<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
-				&nbsp;-&nbsp;{% if title %}{{ title }}{% endif %} 
+			&nbsp;(&nbsp;
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
+				&nbsp;-&nbsp; Livraisons
 			&nbsp;)
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
@@ -23,7 +24,7 @@
 
 {% block content %}
 	<div id="content-main" align="center">
-		<table class="releases">
+		<table class="releases table">
 			<thead>
 				<tr>
 					<th>Type</th>

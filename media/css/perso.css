@@ -152,13 +152,13 @@ div.cible {
 	color: red;
 }
 
-table.scrumwall {
-	border-collapse: separate;
-	border-spacing: 0px 2px;
-}
-
 table.scrumwall tr td {
 	vertical-align: top;
+}
+
+table.table {
+	border-collapse: separate;
+	border-spacing: 0px 1px;
 }
 
 td.cellule:hover {
