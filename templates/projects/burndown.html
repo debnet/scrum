@@ -61,7 +61,7 @@
 					<tr>
 						<td colspan="{{ days.count }}">
 							<input type="hidden" name="lock" value="{{ lock }}" />
-							<input type="submit" value="Enregistrer" />
+							<input type="submit" value="Enregistrer" {% if not user.is_staff %}disabled{% endif %}/>
 						</td>
 						<td colspan="5" style="color:red">
 							{{ erreur }}

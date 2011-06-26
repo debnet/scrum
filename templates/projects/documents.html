@@ -22,7 +22,7 @@
 			<table>
 			{{ form }}
 			</table>
-			<input type="submit" value="Enregistrer" />
+			<input type="submit" value="Enregistrer" {% if not user.is_staff %}disabled{% endif %} />
 		</form>
 		<br /><br />
 		<table>
@@ -41,8 +41,10 @@
 					<td>{{ document.titre }}</td>
 					<td>{{ document.fichier.size }} octets</td>
 					<td>
+						{% if user.is_staff %}
 						<strong>[</strong>&nbsp;<a href="{{ document.fichier.url }}">T&eacute;l&eacute;charger</a>&nbsp;<strong>]</strong>
 						<strong>[</strong>&nbsp;<a href="?delete={{ document.id }}">Supprimer</a>&nbsp;<strong>]</strong>
+						{% endif %}
 					</td>
 				</tr>
 				{% endfor %}

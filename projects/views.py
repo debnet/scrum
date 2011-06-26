@@ -1870,8 +1870,8 @@ def new_user(request):
         if form.is_valid():
             u = form.save()
             u.set_password(request.POST['password'])
-            u.is_staff = True
             u.is_active = True
+            u.is_staff = False
             u.is_superuser = False
             u.save()
             messages.append(u'Utilisateur ajouté avec succès !')

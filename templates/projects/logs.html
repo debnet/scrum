@@ -21,7 +21,7 @@
 			{% endfor %}
 			</select>
 			<input name="lselect" type="submit" value="Afficher" />
-			<input name="ldelete" type="submit" value="Supprimer" />
+			<input name="ldelete" type="submit" value="Supprimer" {% if not user.is_staff %}disabled{% endif %} />
 		</form>
 		<br /><br />
 		<table>
@@ -60,7 +60,7 @@
 			{% endfor %}
 			</select>
 			<input name="hselect" type="submit" value="Afficher" />
-			<input name="hdelete" type="submit" value="Supprimer" />
+			<input name="hdelete" type="submit" value="Supprimer" {% if not user.is_staff %}disabled{% endif %} />
 		</form>
 		<br /><br />
 		<table>

@@ -25,7 +25,7 @@
         <div id="branding">
         {% block branding %}{% endblock %}
         </div>
-        {% if user.user.is_authenticated and user.user.is_staff %}
+        {% if user.user.is_authenticated %}
         <div id="user-tools">
             <span style="color:yellow">{% trans 'Welcome,' %} <strong>{% firstof user.user.first_name user.user.username %}</strong>.</span> 
             {% block userlinks %}{% url django-admindocs-docroot as docsroot %}{% if docsroot %}<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %}<a href="{{ home }}accounts/password_change/">{% trans 'Change password' %}</a> / <a href="{{ home }}accounts/logout/">{% trans 'Log out' %}</a> / <a style="color:yellow" href="{{ home }}admin/">Administration</a>{% endblock %}</div>

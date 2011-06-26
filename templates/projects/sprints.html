@@ -51,13 +51,13 @@
 					</div>
 					{% if user.is_superuser %}
 					<div class="formulaire">
-					<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
-						<label>Dates du sprint :</label><br />
-						<input name="date_debut" type="text" size="10" value="{{ sprint.date_debut|date:"Y-m-d" }}" />
-						<input name="date_fin" type="text" size="10" value="{{ sprint.date_fin|date:"Y-m-d" }}" />
-						<input type="hidden" name="id" value="{{ sprint.id }}" />
-						<input type="submit" value="OK" />
-					</form>
+						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+							<label>Dates du sprint :</label><br />
+							<input name="date_debut" type="text" size="10" value="{{ sprint.date_debut|date:"Y-m-d" }}" />
+							<input name="date_fin" type="text" size="10" value="{{ sprint.date_fin|date:"Y-m-d" }}" />
+							<input type="hidden" name="id" value="{{ sprint.id }}" />
+							<input type="submit" value="OK" />
+						</form>
 					</div>
 					{% endif %}
 					<div onclick="document.location='{{ sprint.id }}/burndown/'" class="graphique">

@@ -47,6 +47,7 @@
 							<a class="image" href="?p={{ feature.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ feature.confiance_po }}.png" /></a>
 						</div>
 					</div>
+					{% if user.is_staff %}
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
 							<select name="priorite" onchange="submit()">
@@ -62,6 +63,7 @@
 							<input type="hidden" name="id" value="{{ feature.id }}" />
 						</form>
 					</div>
+					{% endif %}
 				</td>
 			{% endfor %}
 			</tr>
