@@ -30,7 +30,7 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<td colspan="2"><input type="submit" value="Supprimer" {% if not user.is_staff %}disabled{% endif %} /></td>
+						<td colspan="2"><input type="submit" value="Supprimer" {% if not user.user.is_staff %}disabled{% endif %} /></td>
 					</tr>
 				</tfoot>
 			</table>

@@ -31,4 +31,4 @@ urlpatterns = patterns('',
 )
 
 # Fix urls in admin panel
-admin.site.root_path = ''
+admin.site.root_path = '/admin/'

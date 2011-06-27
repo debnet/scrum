@@ -22,7 +22,7 @@
 			<table>
 			{{ form }}
 			</table>
-			<input type="submit" value="Enregistrer" {% if not user.is_staff %}disabled{% endif %} />
+			<input type="submit" value="Enregistrer" {% if not user.user.is_staff %}disabled{% endif %} />
 		</form>
 	</div>
 {% endblock %}

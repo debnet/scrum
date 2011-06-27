@@ -55,7 +55,7 @@
 							<a class="image" href="?p={{ note.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" /></a>
 						</div>
 					</div>
-					{% if user.is_staff %}
+					{% if user.user.is_staff %}
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
 							<select name="sprint" onchange="submit()">
