@@ -516,9 +516,16 @@ def projects(request):
     
     projects = list_projects(nb_notes)
     
+    membres = dict()
+    for p in Project.objects.all():
+        membres[p.id] = list()
+        for m in p.membres.all():
+            if not m.user.is_superuser:
+                membres[p.id].append(m.user.username)
+    
     return render_to_response('projects/projects.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
-         'projects': projects, 'nb_notes': nb_notes, })
+         'projects': projects, 'membres': membres, 'nb_notes': nb_notes, })
 
 # ------------------------------------------------
 @login_required
