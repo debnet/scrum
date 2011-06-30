@@ -28,9 +28,12 @@
 		<a href="?done">Afficher les &eacute;l&eacute;ments termin&eacute;s</a>
 		&nbsp;|&nbsp;
 		<a href=".">Exclure les &eacute;l&eacute;ments termin&eacute;s</a>
-		<br /><br /><br />
+		<br /><br />
+		{% if erreur %}
+		<span class="erreur">{{ erreur }}</span><br />
+		{% endif %}
+		<br />
 		<table class="burndown table">
-			<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
 				<thead>
 					<tr>
 						<th>Type</th>
@@ -46,29 +49,39 @@
 				<tbody>
 				{% for item in times %}
 					<tr class="{{ item|var2css:"p" }}">
-						<td>{{ item|dict:"type" }}</td>
-						<td><a href="../../../features/?target={{ item|dict:"bid" }}">{{ item|dict:"base" }}</a></td>
-						<td><a href="../{{ item|dict:"url" }}/?target={{ item|dict:"id" }}">{{ item|dict:"name" }}</a></td>
-						{% for time in item|dict:"time" %}
-						<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 150)">
-							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
-						</td>
-						{% endfor %}
-						<td>{{ item|dict:"done" }} / {{ item|dict:"todo" }}</td>
-						<td><input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="checkbox" {% if item|dict:"test" %}disabled checked{% endif %} /></td>
+						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+							<td>{{ item|dict:"type" }}</td>
+							<td>
+								<a href="../../../features/?target={{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
+							</td>
+							<td>
+								<a href="../{{ item|dict:"url" }}/?target={{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+							</td>
+							{% for time in item|dict:"time" %}
+							<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 150)">
+								<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
+							</td>
+							{% endfor %}
+							<td {% ifequal item|dict:"done" item|dict:"todo" %}style="color:red; font-weight:bold"{% endifequal %}>
+								{{ item|dict:"done" }} / {{ item|dict:"todo" }}
+							</td>
+							<td>
+								<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="checkbox" {% if item|dict:"test" %}checked disabled{% endif %} />
+								&nbsp;
+								<input type="hidden" name="lock" value="{{ lock }}" />
+								<input type="submit" value="OK" {% if not user.user.is_staff %}disabled{% endif %}/>
+							</td>
+						</form>	
 					</tr>
 				{% endfor %}
-					<tr>
-						<td colspan="{{ days.count }}">
-							<input type="hidden" name="lock" value="{{ lock }}" />
-							<input type="submit" value="Enregistrer" {% if not user.user.is_staff %}disabled{% endif %}/>
-						</td>
-						<td colspan="5" style="color:red">
-							{{ erreur }}
-						</td>
-					</tr>
+				<!--
+				<tr>
+					<td colspan="{{ days.count }}">&nbsp;</td>
+					<td colspan="5" style="color:red">{{ erreur }}</td>
+				</tr>
+				-->
 				</tbody>
-			</form>
+			
 		</table>
 		<br /><br />
 		<img style="width: 800px; height: 350px;" src="{{ url }}" />

@@ -1375,6 +1375,7 @@ def burndown(request, project_id, sprint_id):
         else:
             erreur = u'Les informations ont été modifiées pendant votre saisie !'
     
+    lock = sprint.date_modification.isoformat(' ')
     holidays = get_holidays(datetime.date.today().year)
     
     times = list()

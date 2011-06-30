@@ -211,6 +211,12 @@ span.info {
 	font-size: 12px; 
 }
 
+span.erreur {
+	color: red;
+	border: 1px dashed red;
+	padding: 5px;
+}
+
 div.legende {
 	position: fixed; 
 	right: 50px; 
