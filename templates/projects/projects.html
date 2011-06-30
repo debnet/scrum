@@ -25,11 +25,9 @@
 			{% for projet in list %}
 				<td>
 					<div class="note none" onclick="document.location='{{ projet.id }}'">
-							<div class="bloc titre">{{ projet.titre }}</div>
-							<div class="bloc projet">{{ projet.description }}</div>
-							<div class="bloc membres">
-							{% for m in projet.membres.all %}{% ifnotequal m.user.username "admin" %}{{ m.user.username }} &nbsp; {% endifnotequal %}{% endfor %}
-							</div>
+						<div class="bloc titre">{{ projet.titre }}</div>
+						<div class="bloc projet">{{ projet.description }}</div>
+						<div class="bloc membres">{{ projet.membres.all|join:" &nbsp; " }}</div>
 					</div>
 					<div onclick="document.location='{{ projet.id }}/documents/'" class="sousmenu minor">Documents</div>
 					<div onclick="document.location='{{ projet.id }}/scrumwall/'" class="sousmenu major">Scrum Wall</div>
