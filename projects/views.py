@@ -126,8 +126,6 @@ def write_logs():
             file = codecs.open(path1, mode='a', encoding='utf-8')
         file.write('<tr><td>%s</td><td>%s %s (%s)</td><td><a href="http://%s">%s</a></td></tr>' 
             % (h.date_creation.strftime('%H:%m:%S'), h.utilisateur.user.first_name, h.utilisateur.user.last_name, h.utilisateur.user.username, settings.DEFAULT_URL + h.url, h.url, ))
-        if date and date != current:
-            file.write('</tbody></table></body></html>')
         file.close()
         h.delete()
         date = current
@@ -2054,6 +2052,7 @@ def logs_archives(request):
     for f in os.listdir('.'):
         if f[-4:].lower() == 'html':
             files.append(f)
+    files.sort()
     
     return render_to_response('projects/logs_archives.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'files': files, },
