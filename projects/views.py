@@ -134,11 +134,9 @@ def write_logs():
     file = False
     date = datetime.date.today()
     actions = ['', 'Ajout', 'Modification', 'Suppression']
-    logs = LogEntry.objects.all().order_by('action_time')
+    logs = LogEntry.objects.filter(action_time__lt = datetime.date.today()).order_by('action_time')
     for l in logs:
         current = l.action_time.date()
-        if current == datetime.date.today():
-            continue
         path1 = root + 'logs' + os.sep + 'logs-' + l.action_time.strftime('%Y%m%d') + '.html'
         path2 = root + 'logs' + os.sep + 'logs-' + date.strftime('%Y%m%d') + '.html'
         if date != current and os.path.exists(path2):
