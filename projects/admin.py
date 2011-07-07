@@ -148,7 +148,7 @@ class TaskAdmin(admin.ModelAdmin):
             'classes': ('wide', ),
         }),
         ('Status', {
-            'fields': ('priorite', 'etat', ),
+            'fields': ('priorite', 'etat', 'effort', ),
             'classes': ('wide', ),
         }),
         ('Confiance', {

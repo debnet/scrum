@@ -2,6 +2,7 @@
 
 import os
 import time
+import codecs
 import datetime
 from xml.dom.minidom import parse
 
@@ -106,21 +107,55 @@ def add_history(user, url):
 
 # ------------------------------------------------
 def write_logs():
+    file = False
     date = datetime.date.today()
-    date -= datetime.timedelta(1)
-    history = History.objects.filter(date_creation__lt = datetime.date.today());
-    if history.count() > 0:
-        file = open(root + 'logs' + os.sep + 'log-' + date.strftime("%Y%m%d") + ".html", 'w')
-        file.write('<html><head><title>Historiques du %s</title></head><body><h1>Historiques du %s</h1><br />' 
-            % (date.strftime('%d/%m/%Y'), date.strftime('%d/%m/%Y'), ));
-        file.write('<table><thead><tr><th width="100">Heure</th><th width="200">Utilisateur</th><th>URL</th></tr></thead><tbody>')
-        history = history.order_by('date_creation')
-        for h in history:
-            file.write('<tr><td>%s</td><td>%s</td><td><a href="http://%s">%s</a></td></tr>' 
-                % (h.date_creation.strftime('%H:%m:%S'), h.utilisateur, settings.DEFAULT_URL + h.url, h.url, ))
-            h.delete()
-        file.write('</table></body></html>')
+    history = History.objects.filter(date_creation__lt = datetime.date.today()).order_by('date_creation');
+    for h in history:
+        current = h.date_creation.date()
+        path1 = root + 'logs' + os.sep + 'urls-' + current.strftime('%Y%m%d') + '.html'
+        path2 = root + 'logs' + os.sep + 'urls-' + date.strftime('%Y%m%d') + '.html'
+        if date != current and os.path.exists(path2):
+            file = codecs.open(path2, mode='a', encoding='utf-8')
+            file.write('</tbody></table></body></html>')
+            file.close()
+        if not os.path.exists(path1):
+            file = codecs.open(path1, mode='w', encoding='utf-8')
+            file.write('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de navigation (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de navigation (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ));
+            file.write('<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th>URL</th></tr></thead><tbody>')
+        else:
+            file = codecs.open(path1, mode='a', encoding='utf-8')
+        file.write('<tr><td>%s</td><td>%s %s (%s)</td><td><a href="http://%s">%s</a></td></tr>' 
+            % (h.date_creation.strftime('%H:%m:%S'), h.utilisateur.user.first_name, h.utilisateur.user.last_name, h.utilisateur.user.username, settings.DEFAULT_URL + h.url, h.url, ))
+        if date and date != current:
+            file.write('</tbody></table></body></html>')
         file.close()
+        h.delete()
+        date = current
+    file = False
+    date = datetime.date.today()
+    actions = ['', 'Ajout', 'Modification', 'Suppression']
+    logs = LogEntry.objects.all().order_by('action_time')
+    for l in logs:
+        current = l.action_time.date()
+        if current == datetime.date.today():
+            continue
+        path1 = root + 'logs' + os.sep + 'logs-' + l.action_time.strftime('%Y%m%d') + '.html'
+        path2 = root + 'logs' + os.sep + 'logs-' + date.strftime('%Y%m%d') + '.html'
+        if date != current and os.path.exists(path2):
+            file = codecs.open(path2, mode='a', encoding='utf-8')
+            file.write('</tbody></table></body></html>')
+            file.close()
+        if not os.path.exists(path1):
+            file = codecs.open(path1, mode='w', encoding='utf-8')
+            file.write('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de gestion (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de gestion (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ))
+            file.write('<table><thead><tr><th width="100">Heure</th><th width="300">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th></tr></thead><tbody>')
+        else :
+            file = codecs.open(path1, mode='a', encoding='utf-8')
+        file.write('<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
+                % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, l.object_repr, l.content_type, actions[l.action_flag], ))    
+        file.close()
+        l.delete()
+        date = current
 
 # ------------------------------------------------
 def list_users(membres):
@@ -1965,13 +2000,13 @@ def logs(request):
                 logs = logs.order_by('-action_time')
         if request.POST.__contains__('ldelete'):
             if request.POST['luser'] == '0':
-                for log in logs:
-                    log.delete()
+                for l in logs:
+                    l.delete()
                 messages.append('Logs supprimés avec succès !')
             else:
-                temp = LogEntry.objects.filter(user__id__exact = int(request.POST['luser']))
-                for log in temp:
-                    log.delete()
+                logs = LogEntry.objects.filter(user__id__exact = int(request.POST['luser']))
+                for l in logs:
+                    l.delete()
                 messages.append('Logs de "%s" supprimés avec succès !' % (UserProfile.objects.get(pk = int(request.POST['luser'])), ))
             logs = LogEntry.objects.all()
             logs = logs.order_by('-action_time')
@@ -1988,8 +2023,8 @@ def logs(request):
                     h.delete()
                 messages.append('Historiques supprimés avec succès !')
             else:
-                temp = History.objects.filter(utilisateur__id__exact = int(request.POST['huser']))
-                for h in temp:
+                history = History.objects.filter(utilisateur__id__exact = int(request.POST['huser']))
+                for h in history:
                     h.delete()
                 messages.append('Historiques de "%s" supprimés avec succès !' % (UserProfile.objects.get(pk = int(request.POST['huser'])), ))
             history = History.objects.all()

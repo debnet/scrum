@@ -67,9 +67,11 @@ class UserProfile(models.Model):
     
     def __unicode__(self):
         if self.user.first_name and self.user.last_name:
-            return '%s %s' % (self.user.first_name, self.user.last_name)
+            return '%s %s' % (unicode(self.user.first_name), unicode(self.user.last_name))
+        elif self.user.first_name:
+            return '%s' % (unicode(self.user.first_name))
         else:
-            return '%s' % (self.user.username)
+            return '%s' % (unicode(self.user.username))
     
     class Meta:
         #proxy = True

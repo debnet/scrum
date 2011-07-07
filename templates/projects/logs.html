@@ -31,21 +31,21 @@
 				<th>Type</th>
 				<th>Action</th>
 				<th>Utilisateur</th>
-				<th>Message</th>
+				<!-- <th>Message</th> -->
 				<th>Date</th>
 				<th>&nbsp;</th>
 			</thead>
 			<tbody>
-			{% for log in logs %}
+			{% for l in logs %}
 				<tr>
-					<td>{{ log.object_id }}</a></td>
-					<td>{{ log.object_repr }}</td>
-					<td>{{ log.content_type }}</td>
-					<td>{% ifequal log.action_flag 1 %}Ajout{% else %}{% ifequal log.action_flag 2 %}Modification{% else %}Suppression{% endifequal %}{% endifequal %}</td>
-					<td>{{ log.user }}</td>
-					<td>{{ log.change_message }}</td>
-					<td>{{ log.action_time|date:"l d F Y H:i:s" }}</td>
-					<td>[ <a href="{{ home }}admin/{{ log.content_type.app_label }}/{{ log.content_type.model }}/{{ log.object_id }}/">Modifier</a> ]</td>
+					<td>{{ l.object_id }}</a></td>
+					<td>{{ l.object_repr }}</td>
+					<td>{{ l.content_type }}</td>
+					<td>{% ifequal l.action_flag 1 %}Ajout{% else %}{% ifequal l.action_flag 2 %}Modification{% else %}Suppression{% endifequal %}{% endifequal %}</td>
+					<td>{{ l.user.first_name }} {{ l.user.last_name }} ({{ l.user.username }})</td>
+					<!-- <td>{{ l.change_message }}</td> -->
+					<td>{{ l.action_time|date:"l d F Y H:i:s" }}</td>
+					<td>[ <a href="{{ home }}admin/{{ l.content_type.app_label }}/{{ l.content_type.model }}/{{ l.object_id }}/">Modifier</a> ]</td>
 				</tr>
 			{% endfor %}
 			</tbody>
@@ -75,7 +75,7 @@
 			{% for h in history %}
 				<tr>
 					<td>{{ h.id }}</a></td>
-					<td>{{ h.utilisateur }}</td>
+					<td>{{ h.utilisateur.user.first_name }} {{ h.utilisateur.user.last_name }} ({{ h.utilisateur.user.username }})</td>
 					<td><a href="{{ h.url }}">{{ h.url }}</a></td>
 					<td>{{ h.date_creation|date:"l d F Y H:i:s" }}</td>
 					<td>[ <a href="{{ home }}admin/projects/history/{{ h.id }}/">Modifier</a> ]</td>
