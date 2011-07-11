@@ -104,7 +104,7 @@
 						<div class="element gauche">{{ sprint.date_debut|date:"d/m/Y" }}</div>
 						<div class="element droite">{{ sprint.date_fin|date:"d/m/Y" }}</div>
 						<div class="bloc description">{{ sprint.objectif }}</div>
-						<div class="element gauche">{{ sprint.temps_realise }} / {{ sprint.temps_estime }} ({{ sprint.notes }})</div>
+						<div class="element gauche">{{ sprint.temps_realise }} / {{ sprint.temps_estime }}<!-- ({{ sprint.notes }}) --></div>
 						<div class="element droite">
 							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" />
 							<img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" />

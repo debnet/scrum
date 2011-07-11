@@ -1491,9 +1491,9 @@ def burndown(request, project_id, sprint_id):
         nts = NoteTime.objects.filter(sprint__id__exact = sprint.id, jour__exact = day)
         tts = TaskTime.objects.filter(sprint__id__exact = sprint.id, jour__exact = day)
         for t in nts:
-            tmp -= t.temps + t.temps_fin
+            tmp -= (t.temps + t.temps_fin)
         for t in tts:
-            tmp -= t.temps + t.temps_fin
+            tmp -= (t.temps + t.temps_fin)
         if tmp < 0 and tmp < min:
             min = tmp
         data1.append(tmp)
