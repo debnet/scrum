@@ -241,3 +241,12 @@ div.config {
 	text-align: center; 
 	z-index: 10; 
 }
+
+div#content {
+	position: fixed;
+	top: 80px;
+	bottom: 35px;
+	left: 0px;
+	right: 0px;
+	overflow: auto;
+}

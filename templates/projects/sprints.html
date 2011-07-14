@@ -28,16 +28,19 @@
 			</tr>
 		</table>
 		<br />
-		<a href="?sort=-date_debut">Trier par date d&eacute;croissante</a> ( Exclure <a href="?todo&sort=-date_debut">&quot;termin&eacute;s&quot;</a> )
+		Tout afficher :&nbsp;
+		<a href="?sort=-date_debut">par date</a>
+		&nbsp;-&nbsp;Filtrer :&nbsp;
+		<a href="?todo&sort=-date_debut">&agrave; faire</a>
 		&nbsp;|&nbsp;
-		<a href="?sort=date_debut">Trier par date croissante</a> ( Exclure <a href="?todo&sort=date_debut">&quot;termin&eacute;s&quot;</a> )
+		<a href="?done&sort=-date_debut">termin&eacute;s</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in sprints %}
 			<tr>
 			{% for sprint in list %}
 				<td>
-					<div onclick="document.location='{{ sprint.id }}/'" class="note {{ sprint.urgence }} {{ sprint.etat }}">
+					<div id="{{ sprint.id }}" onclick="document.location='{{ sprint.id }}/'" class="note {{ sprint.urgence }} {{ sprint.etat }}">
 						<div class="bloc titre">{{ sprint.titre }}</div>
 						<div class="element gauche">{{ sprint.date_debut|date:"d/m/Y" }}</div>
 						<div class="element droite">{{ sprint.date_fin|date:"d/m/Y" }}</div>
@@ -51,7 +54,7 @@
 					</div>
 					{% if user.is_superuser %}
 					<div class="formulaire">
-						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+						<form enctype="multipart/form-data" action=".#{{ sprint.id }}" method="post" align="center">{% csrf_token %}
 							<label>Dates du sprint :</label><br />
 							<input name="date_debut" type="text" size="10" value="{{ sprint.date_debut|date:"Y-m-d" }}" />
 							<input name="date_fin" type="text" size="10" value="{{ sprint.date_fin|date:"Y-m-d" }}" />

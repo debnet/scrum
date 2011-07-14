@@ -25,16 +25,23 @@
 {% block content %}
 	<div id="content-main" align="center" >
 		<br />
-		<a href="?sort=etat">Trier par &eacute;tat</a> ( Exclure <a href="?todo&sort=etat&todo">&quot;termin&eacute;s&quot;</a> )
+		Tout afficher :&nbsp;
+		<a href="?sort=-priorite">par priorit&eacute;</a>
 		&nbsp;|&nbsp;
-		<a href="?sort=-priorite">Trier par priorit&eacute;</a> ( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> )
+		<a href="?sort=etat">par &eacute;tat</a>
+		&nbsp;-&nbsp;Filtrer :&nbsp;
+		<a href="?todo&sort=-priorite">&agrave; faire</a>
+		&nbsp;|&nbsp;
+		<a href="?work&sort=-priorite">en cours</a>
+		&nbsp;|&nbsp;
+		<a href="?done&sort=-priorite">termin&eacute;s</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in notes %}
 			<tr>
 			{% for note in list %}
 				<td>
-					<div onclick="document.location='{{ home }}admin/projects/note/{{ note.id }}/'" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
+					<div id="{{ note.id }}" onclick="document.location='{{ home }}admin/projects/note/{{ note.id }}/'" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
 						<div class="bloc titre">{{ note.titre }}</div>
 						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
 						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
@@ -48,7 +55,7 @@
 					</div>
 					{% if user.user.is_staff %}
 					<div class="formulaire">
-						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+						<form enctype="multipart/form-data" action=".#{{ note.id }}" method="post" align="center">{% csrf_token %}
 							<select name="etat" onchange="submit()">
 								<option value="0" {% ifequal note.etat '0' %}selected{% endifequal %}>&Agrave; faire</option>
 								<option value="1" {% ifequal note.etat '1' %}selected{% endifequal %}>En cours</option>

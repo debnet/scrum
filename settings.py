@@ -8,9 +8,9 @@ DEFAULT_URL = 'localhost:8000'
 
 # Django settings for scrum project.
 
-DEBUG = True
+DEBUG = False
 #TEMPLATE_DEBUG = DEBUG
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 ADMINS = (
     ('Marc DEBUREAUX', 'marc@debnet.fr'),
@@ -28,6 +28,17 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': 'localhost',
+        'PORT': '8889',
+        'NAME': 'scrum',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'OPTIONS': {
+            'init_command': 'SET storage_engine=INNODB',
+        },
+    },
+    'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': DEFAULT_DIR + 'database.db',
     }

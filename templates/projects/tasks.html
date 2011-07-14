@@ -35,16 +35,21 @@
 			</tr>
 		</table>
 		<br />
-		<a href="?sort=etat">Trier par &eacute;tat</a> ( Exclure <a href="?todo&sort=etat&todo">&quot;termin&eacute;s&quot;</a> )
+		Tout afficher :&nbsp;
+		<a href="?sort=-priorite">par priorit&eacute;</a>
+		&nbsp;-&nbsp;Filtrer :&nbsp;
+		<a href="?todo&sort=-priorite">&agrave; faire</a>
 		&nbsp;|&nbsp;
-		<a href="?sort=-priorite">Trier par priorit&eacute;</a> ( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> )
+		<a href="?work&sort=-priorite">en cours</a>
+		&nbsp;|&nbsp;
+		<a href="?done&sort=-priorite">termin&eacute;s</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in tasks %}
 			<tr>
 			{% for task in list %}
 				<td>
-					<div onclick="document.location='{{ home }}admin/projects/task/{{ task.id }}/'" class="note {{ task.priorite|var2css:"p" }} {{ task.etat|var2css:"e" }}{% if task.target %} cible{% endif %}">
+					<div id="{{ task.id }}" onclick="document.location='{{ home }}admin/projects/task/{{ task.id }}/'" class="note {{ task.priorite|var2css:"p" }} {{ task.etat|var2css:"e" }}{% if task.target %} cible{% endif %}">
 						<div class="bloc titre">{{ task.titre }}</div>
 						<div class="element gauche">{{ task.priorite|var2txt:"p" }}</div>
 						<div class="element droite">{{ task.etat|var2txt:"e" }}</div>
@@ -58,7 +63,7 @@
 					</div>
 					{% if user.user.is_staff %}
 					<div class="formulaire">
-						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+						<form enctype="multipart/form-data" action=".#{{ task.id }}" method="post" align="center">{% csrf_token %}
 							<select name="etat" onchange="submit()">
 								<option value="0" {% ifequal task.etat '0' %}selected{% endifequal %}>&Agrave; faire</option>
 								<option value="1" {% ifequal task.etat '1' %}selected{% endifequal %}>En cours</option>

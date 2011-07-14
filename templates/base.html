@@ -47,9 +47,7 @@
 
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
-    
-        <br /><br /><br /><br /><br /><br />  
-        
+        <br />
         {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
         <br />
         {% block pretitle %}{% endblock %}
@@ -62,8 +60,6 @@
         <br class="clear" />
     </div>
     <!-- END Content -->
-    
-    <br /><br /><br /><br />
     
     {% block legend %}{% endblock %}
     {% block config %}{% endblock %}

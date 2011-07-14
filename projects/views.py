@@ -22,6 +22,7 @@ from django.template import RequestContext
 
 from scrum import settings
 from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, Task, Problem, Release, Document, NoteTime, TaskTime, History
+from scrum.projects.models import ETATS, PRIORITES, STATUS
 from scrum.projects.forms import UserForm, ProjectForm, FeatureForm, NoteForm, SprintForm, TaskForm, ProblemForm, DocumentForm
 
 NOT_MEMBER_MSG = u"Accès refusé : l'utilisateur n'est pas membre du projet !"
@@ -79,9 +80,10 @@ def create_task_days(sprint, task):
         d += datetime.timedelta(1)
 
 # ------------------------------------------------
-def add_log(user, model_name, model, flag):
+def add_log(user, model_name, model, flag, message = None):
     l = LogEntry()
     l.user = user.user
+    l.change_message = message
     l.content_type = ContentType.objects.get(app_label = 'projects', model = model_name)
     l.object_id = model.id
     l.object_repr = unicode(model)
@@ -144,11 +146,11 @@ def write_logs():
         if not os.path.exists(path1):
             file = codecs.open(path1, mode='w', encoding='utf-8')
             file.write('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de gestion (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de gestion (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ))
-            file.write('<table><thead><tr><th width="100">Heure</th><th width="300">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th></tr></thead><tbody>')
+            file.write('<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th><th>Message</th></tr></thead><tbody>')
         else :
             file = codecs.open(path1, mode='a', encoding='utf-8')
-        file.write('<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
-                % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, l.object_repr, l.content_type, actions[l.action_flag], ))    
+        file.write('<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
+                % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, l.object_repr, l.content_type, actions[l.action_flag], l.change_message, ))    
         file.close()
         l.delete()
         date = current
@@ -182,13 +184,11 @@ def list_projects(nb_notes = NOTES_PAR_LIGNE):
     return projects
 
 # ------------------------------------------------
-def list_features(project_id, sort = '-priorite', todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_features(project_id, sort = '-priorite', all = False, todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Feature.objects.filter(projet__id__exact = project_id)
-    
-    if sort:
-        tmp = tmp.order_by(sort)
-    if todo:
-        tmp = tmp.exclude(termine__exact = 1)
+    tmp = tmp.order_by(sort) if sort else tmp
+    if not all:
+        tmp = tmp.exclude(termine__exact = 1) if todo else tmp.filter(termine__exact = 1)
     
     if not tab:
         if not max == 0:
@@ -229,15 +229,12 @@ def list_features(project_id, sort = '-priorite', todo = True, tab = True, max =
     return features
 
 # ------------------------------------------------
-def list_notes(feature_id, sort = '-priorite', todo = True, toset = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_notes(feature_id, sort = '-priorite', all = False, todo = True, toset = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Note.objects.filter(feature__id__exact = feature_id)
-    
-    if sort:
-        tmp = tmp.order_by(sort)
-    if todo:
-        tmp = tmp.exclude(etat__exact = 2)
-    if toset:
-        tmp = tmp.exclude(sprint__id__isnull = False)
+    tmp = tmp.order_by(sort) if sort else tmp
+    if not all:
+        tmp = tmp.exclude(etat__exact = 2) if todo else tmp.filter(etat__exact = 2)
+        tmp = tmp.exclude(sprint__id__isnull = False) if toset else tmp.filter(sprint__id__isnull = False)
     
     if not tab:
         if not max == 0:
@@ -269,13 +266,11 @@ def list_notes(feature_id, sort = '-priorite', todo = True, toset = False, tab =
     return notes
 
 # ------------------------------------------------
-def list_sprints(project_id, sort = '-date_debut', todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_sprints(project_id, sort = '-date_debut', all = False, todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Sprint.objects.filter(projet__id__exact = project_id)
-    
-    if sort:
-        tmp = tmp.order_by(sort)
-    if todo:
-        tmp = tmp.exclude(date_fin__lt = datetime.date.today())
+    tmp = tmp.order_by(sort) if sort else tmp
+    if not all:    
+        tmp = tmp.exclude(date_fin__lt = datetime.date.today()) if todo else tmp.filter(date_fin__lt = datetime.date.today())
     
     if not tab:
         if not max == 0:
@@ -394,13 +389,11 @@ def list_sprints(project_id, sort = '-date_debut', todo = True, tab = True, max 
     return sprints
 
 # ------------------------------------------------
-def list_snotes(sprint_id, sort = '-priorite', todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_snotes(sprint_id, sort = '-priorite', all = False, todo = True, work = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Note.objects.filter(sprint__id__exact = sprint_id)
-    
-    if sort:
-        tmp = tmp.order_by(sort)
-    if todo:
-        tmp = tmp.exclude(etat__exact = 2)
+    tmp = tmp.order_by(sort) if sort else tmp
+    if not all:
+        tmp = tmp.filter(etat__exact = 0) if todo else tmp.filter(etat__exact = 1) if work else tmp.filter(etat__exact = 2)
     
     if not tab:
         if not max == 0:
@@ -432,13 +425,11 @@ def list_snotes(sprint_id, sort = '-priorite', todo = True, tab = True, max = 0,
     return notes
 
 # ------------------------------------------------
-def list_tasks(sprint_id, sort = '-priorite', todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_tasks(sprint_id, sort = '-priorite', all = False, todo = True, work = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Task.objects.filter(sprint__id__exact = sprint_id)
-    
-    if sort:
-        tmp = tmp.order_by(sort)
-    if todo:
-        tmp = tmp.exclude(etat__exact = 2)
+    tmp = tmp.order_by(sort) if sort else tmp
+    if not all:
+        tmp = tmp.filter(etat__exact = 0) if todo else tmp.filter(etat__exact = 1) if work else tmp.filter(etat__exact = 2)
     
     if not tab:
         if not max == 0:
@@ -470,13 +461,11 @@ def list_tasks(sprint_id, sort = '-priorite', todo = True, tab = True, max = 0, 
     return tasks
 
 # ------------------------------------------------
-def list_problems(project_id, sort = '-priorite', todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_problems(project_id, sort = '-priorite', all = False, todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Problem.objects.filter(projet__id__exact = project_id)
-    
-    if sort:
-        tmp = tmp.order_by(sort)
-    if todo:
-        tmp = tmp.exclude(resolu__exact = 1)
+    tmp = tmp.order_by(sort) if sort else tmp
+    if not all:
+        tmp = tmp.exclude(resolu__exact = 1) if todo else tmp.filter(resolu__exact = 1)
     
     if not tab:
         if not max == 0:
@@ -508,9 +497,10 @@ def list_problems(project_id, sort = '-priorite', todo = True, tab = True, max =
     return problems
 
 # ------------------------------------------------
-def list_releases(sprint_id):
+def list_releases(sprint_id, status = None):
     notes = Note.objects.filter(sprint__id__exact = sprint_id).exclude(etat__exact = 2)
     notes = notes.order_by('-priorite')
+    
     for n in notes:
         release = Release.objects.filter(note__id__exact = n.id)
         if release.count() == 0:    
@@ -525,7 +515,11 @@ def list_releases(sprint_id):
     for n in notes:
         release = Release.objects.filter(note__id__exact = n.id)
         release = release.order_by('-date_creation')[0]
-        releases.append(release)
+        if status:
+            if release.status == status:
+                releases.append(release)
+        else:
+            releases.append(release)
     return releases
 
 # ------------------------------------------------
@@ -626,17 +620,21 @@ def features(request, project_id):
     nb_notes = get_nb_notes(request)
 
     if request.method == 'POST':
+        changes = list()
         if request.POST.__contains__('id'):
             feature = Feature.objects.get(pk = int(request.POST['id']))
             if request.POST.__contains__('priorite'):
                 feature.priorite = int(request.POST['priorite'])
+                changes.append(u'priorité = ' + PRIORITES[feature.priorite][1])
             if request.POST.__contains__('termine'):
                 feature.termine = True
+                changes.append(u'terminé = Oui')
             else:
                 feature.termine = False
+                changes.append(u'terminé = Non')
             feature.utilisateur = user
             feature.save()
-            add_log(user, 'feature', feature, 2)
+            add_log(user, 'feature', feature, 2, ', '.join(changes))
             messages.append(u'Fonctionnalité modifiée avec succès !')
     
     if request.method == 'GET':
@@ -660,6 +658,7 @@ def features(request, project_id):
             feature.save()
     
     sort = '-priorite'
+    all = True
     todo = False
     target = None
     if request.method == 'GET':
@@ -667,10 +666,14 @@ def features(request, project_id):
             sort = request.GET['sort']
         if request.GET.__contains__('todo'):
             todo = True
+            all = False
+        if request.GET.__contains__('done'):
+            todo = False
+            all = False
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
     
-    features = list_features(project_id, sort = sort, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    features = list_features(project_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
     
     return render_to_response('projects/features.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -728,16 +731,19 @@ def notes(request, project_id, feature_id):
     nb_notes = get_nb_notes(request)
 
     if request.method == 'POST':
+        changes = list()
         if request.POST.__contains__('id'):
             note = Note.objects.get(pk = int(request.POST['id']))
             if request.POST.__contains__('priorite'):
                 note.priorite = int(request.POST['priorite'])
+                changes.append(u'priorité = ' + PRIORITES[note.priorite][1])
             if request.POST.__contains__('sprint'):
                 if request.POST['sprint'] == '':
                     note.temps_realise = 0
                     note.sprint = None
                     times = NoteTime.objects.filter(note__id__exact = note.id)
                     times.delete()
+                    changes.append(u'sprint = ' + note.sprint.titre)
                 else:
                     sprint = Sprint.objects.get(pk = int(request.POST['sprint']))
                     if not note.sprint == sprint:
@@ -746,11 +752,13 @@ def notes(request, project_id, feature_id):
                         times.delete()
                         create_note_days(sprint, note)
                     note.sprint = sprint
+                    changes.append(u'sprint = ' + note.sprint.titre)
             if request.POST.__contains__('temps'):
                 note.temps_estime = int(request.POST['temps'])
+                changes.append(u'temps = ' + str(note.temps_estime))
             note.utilisateur = user
             note.save()
-            add_log(user, 'note', note, 2)
+            add_log(user, 'note', note, 2, ', '.join(changes))
             messages.append(u'Note de backlog modifiée avec succès !')
     if request.method == 'GET':
         if request.GET.__contains__('d'):
@@ -773,6 +781,7 @@ def notes(request, project_id, feature_id):
             note.save()
     
     sort = '-priorite'
+    all = True
     todo = False
     toset = False
     target = None
@@ -781,12 +790,20 @@ def notes(request, project_id, feature_id):
             sort = request.GET['sort']
         if request.GET.__contains__('todo'):
             todo = True
-        if request.GET.__contains__('toset'):
+            toset = False
+            all = False
+        elif request.GET.__contains__('done'):
+            todo = False
+            toset = False
+            all = False
+        elif request.GET.__contains__('toset'):
+            todo = True
             toset = True
+            all = False
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
     
-    notes = list_notes(feature_id, sort = sort, todo = todo, toset = toset, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    notes = list_notes(feature_id, sort = sort, all = all, todo = todo, toset = toset, tab = True, max = 0, target = target, nb_notes = nb_notes)
     sprints = Sprint.objects.filter(projet__id__exact = project_id)
     
     return render_to_response('projects/notes.html',
@@ -858,7 +875,6 @@ def sprints(request, project_id):
                 sprint.confiance_po = '0'
             sprint.save()
     if request.method == 'POST' and request.POST.__contains__('id'):
-        import time
         id = int(request.POST['id'])
         sprint = Sprint.objects.get(pk = id)
         tmp = time.strptime(request.POST['date_debut'], '%Y-%m-%d')
@@ -907,9 +923,10 @@ def sprints(request, project_id):
         sprint.date_fin = date_fin
         sprint.save()
         messages.append(u'Sprint modifié avec succès !')
-        add_log(user, 'sprint', sprint, 2)
+        add_log(user, 'sprint', sprint, 2, u'date début = %s, date fin = %s' % (date_debut, date_fin))
     
     sort = '-date_debut'
+    all = True
     todo = False
     target = None
     if request.method == 'GET':
@@ -917,10 +934,14 @@ def sprints(request, project_id):
             sort = request.GET['sort']
         if request.GET.__contains__('todo'):
             todo = True
+            all = False
+        elif request.GET.__contains__('done'):
+            todo = False
+            all = False
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
     
-    sprints = list_sprints(project_id, sort = sort, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    sprints = list_sprints(project_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
     
     return render_to_response('projects/sprints.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1001,10 +1022,12 @@ def snotes(request, project_id, sprint_id):
     nb_notes = get_nb_notes(request)
 
     if request.method == 'POST':
+        changes = list()
         if request.POST.__contains__('id'):
             note = Note.objects.get(pk = int(request.POST['id']))
             if request.POST.__contains__('priorite'):
                 note.priorite = int(request.POST['priorite'])
+                changes.append(u'priorité = ' + PRIORITES[note.priorite][1])
             if request.POST.__contains__('etat'):
                 note.etat = int(request.POST['etat'])
                 if note.etat != 2:
@@ -1012,23 +1035,36 @@ def snotes(request, project_id, sprint_id):
                     for nt in nts:
                         nt.temps_fin = 0
                         nt.save();
+                changes.append(u'état = ' + ETATS[note.etat][1])
             note.utilisateur = user
             note.save()
-            add_log(user, 'note', note, 2)
+            add_log(user, 'note', note, 2, ', '.join(changes))
             messages.append(u'Note de sprint modifiée avec succès !')
     
     sort = '-priorite'
+    all = True
     todo = False
+    work = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
             sort = request.GET['sort']
         if request.GET.__contains__('todo'):
             todo = True
+            work = False
+            all = False
+        elif request.GET.__contains__('work'):
+            todo = False
+            work = True
+            all = False
+        elif request.GET.__contains__('done'):
+            todo = False
+            work = False
+            all = False
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
     
-    notes = list_snotes(sprint_id, sort = sort, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    notes = list_snotes(sprint_id, sort = sort, all = all, todo = todo, work = work, tab = True, max = 0, target = target, nb_notes = nb_notes)
     
     return render_to_response('projects/snotes.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
@@ -1116,21 +1152,33 @@ def tasks(request, project_id, sprint_id):
                 task.temps_estime = int(request.POST['temps'])
             task.utilisateur = user
             task.save()
-            add_log(user, 'task', task, 2)
+            add_log(user, 'task', task, 2, ', '.join(changes))
             messages.append(u'Tâche modifiée avec succès !')
     
     sort = '-priorite'
+    all = True
     todo = False
+    work = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
             sort = request.GET['sort']
         if request.GET.__contains__('todo'):
             todo = True
+            work = False
+            all = False
+        elif request.GET.__contains__('work'):
+            todo = False
+            work = True
+            all = False
+        elif request.GET.__contains__('done'):
+            todo = False
+            work = False
+            all = False
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
     
-    tasks = list_tasks(sprint_id, sort = sort, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    tasks = list_tasks(sprint_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
     
     return render_to_response('projects/tasks.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1177,6 +1225,7 @@ def releases(request, project_id, sprint_id):
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
     
     if request.method == 'POST':
+        changes = list()
         if request.POST.__contains__('id'):
             id = request.POST['id']
             note = Note.objects.get(pk = id)
@@ -1186,15 +1235,25 @@ def releases(request, project_id, sprint_id):
             if request.POST.__contains__('livrer'):
                 release.status = 1
                 release.save()
+                changes.append(u'status = ' + STATUS[release.status][1])
+                add_log(user, 'release', release, 2, ', '.join(changes))
             elif request.POST.__contains__('refuser'):
                 release.status = 2
                 release.save()
+                changes.append(u'status = ' + STATUS[release.status][1])
+                add_log(user, 'release', release, 2, ', '.join(changes))
             elif request.POST.__contains__('valider'):
                 release.status = 3
                 release.save()
+                changes.append(u'status = ' + STATUS[release.status][1])
+                add_log(user, 'release', release, 2, ', '.join(changes))
             elif request.POST.__contains__('terminer'):
                 note.etat = 2
                 note.save()
+                changes.append(u'etat = ' + ETAT[note.etat][1])
+                add_log(user, 'note', note, 2, ', '.join(changes))
+    
+    status = None
     note = None
     details = list()
     if request.method == 'GET':
@@ -1202,12 +1261,13 @@ def releases(request, project_id, sprint_id):
             note = int(request.GET['id'])
             details = Release.objects.filter(note__id__exact = note)
             details = details.order_by('date_creation')
-    
+        if request.GET.__contains__('status'):
+            status = request.GET['status']
     
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
     
-    releases = list_releases(sprint_id)
+    releases = list_releases(sprint_id, status)
     
     return render_to_response('projects/releases.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1279,20 +1339,25 @@ def problems(request, project_id):
     nb_notes = get_nb_notes(request)
 
     if request.method == 'POST':
+        changes = list()
         if request.POST.__contains__('id'):
             problem = Problem.objects.get(pk = int(request.POST['id']))
             if request.POST.__contains__('priorite'):
                 problem.priorite = int(request.POST['priorite'])
+                changes.append(u'priorité = ' + PRIORITES[problem.priorite][1])
             if request.POST.__contains__('resolu'):
                 problem.resolu = True
+                changes.append(u'résolu = Oui')
             else:
                 problem.resolu = False
+                changes.append(u'résolu = Non')
             problem.utilisateur = user
             problem.save()
-            add_log(user, 'problem', problem, 2)
+            add_log(user, 'problem', problem, 2, ', '.join(changes))
             messages.append(u'Problème modifié avec succès !')
     
     sort = '-priorite'
+    all = True
     todo = False
     target = None
     if request.method == 'GET':
@@ -1300,10 +1365,14 @@ def problems(request, project_id):
             sort = request.GET['sort']
         if request.GET.__contains__('todo'):
             todo = True
+            all = False
+        elif request.GET.__contains__('done'):
+            todo = False
+            all = False
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
     
-    problems = list_problems(project_id, sort = sort, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    problems = list_problems(project_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
     
     return render_to_response('projects/problems.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1354,29 +1423,38 @@ def burndown(request, project_id, sprint_id):
     nb_notes = get_nb_notes(request)
 
     if request.method == 'POST':
+        changes = list()
         if request.POST['lock'] == lock:
             for id in request.POST:
                 if id[0:4] == 'Note':
                     time = NoteTime.objects.get(pk = int(id[4:]))
                     note = time.note
-                    if (time.temps != int(request.POST[id])):
+                    temps = int(request.POST[id])
+                    if (temps == 0):
+                        time.date_modification = None
+                        time.utilisateur = None
+                    elif (time.temps != temps):
                         note.etat = 1
                         time.date_modification = datetime.datetime.now()
                         time.utilisateur = user
                     note.temps_realise = note.temps_realise - time.temps
-                    time.temps = int(request.POST[id])
+                    time.temps = temps
                     note.temps_realise = note.temps_realise + time.temps
                     note.save()
                     time.save()
                 elif id[0:5] == 'Tache':
                     time = TaskTime.objects.get(pk = int(id[5:]))
                     task = time.task
-                    if (time.temps != int(request.POST[id])):
+                    temps = int(request.POST[id])
+                    if (temps == 0):
+                        time.date_modification = None
+                        time.utilisateur = None
+                    elif (time.temps != temps):
                         task.etat = 1
                         time.date_modification = datetime.datetime.now()
                         time.utilisateur = user
                     task.temps_realise = task.temps_realise - time.temps
-                    time.temps = int(request.POST[id])
+                    time.temps = temps
                     task.temps_realise = task.temps_realise + time.temps
                     task.save()
                     time.save()
@@ -1391,9 +1469,10 @@ def burndown(request, project_id, sprint_id):
                                 nt.temps_fin = fin
                                 nt.save()
                             break
-                    note.etat = 2
+                    note.etat = 2 if request.POST[id] == 'oui' else 1
                     note.save()
-                    add_log(user, 'note', note, 2)
+                    changes.append(u'état = ' + ETATS[note.etat][1])
+                    add_log(user, 'note', note, 2, ', '.join(changes))
                 elif id[0:6] == '_Tache':
                     task = Task.objects.get(pk = int(id[6:]))
                     tts = TaskTime.objects.filter(task__in = (task, ))
@@ -1405,24 +1484,27 @@ def burndown(request, project_id, sprint_id):
                                 tt.temps_fin = fin
                                 tt.save()
                             break
-                    task.etat = 2
+                    task.etat = 2 if request.POST[id] == 'oui' else 1
                     task.save()
-                    add_log(user, 'task', task, 2)
+                    changes.append(u'état = ' + ETATS[task.etat][1])
+                    add_log(user, 'task', task, 2, ', '.join(changes))
                 sprint.date_modification = datetime.datetime.now()
                 sprint.save()
+            messages.append(u'Saisie de temps enregistrée avec succès !')
         else:
-            erreur = u'Les informations ont été modifiées pendant votre saisie !'
+            erreur = u'Les données ont été modifiées avant l\'enregistrement, votre saisie a été annulée !'
     
     lock = sprint.date_modification.isoformat(' ')
     holidays = get_holidays(datetime.date.today().year)
+    
+    released = request.GET.__contains__('released')
+    done = request.GET.__contains__('done')    
     
     times = list()
     
     notes = Note.objects.filter(sprint__id__exact = sprint_id)
     notes = notes.order_by('-priorite')
-    
-    if not request.method == 'GET' or not request.GET.__contains__('done'):
-        notes = notes.exclude(etat__exact = 2)
+    notes = notes.filter(etat__exact = 2) if done else notes.exclude(etat__exact = 2)
     
     for n in notes:
         d = dict()
@@ -1439,14 +1521,26 @@ def burndown(request, project_id, sprint_id):
         d['done'] = n.temps_realise
         d['todo'] = n.temps_estime
         d['test'] = (n.etat == '2')
+        d['line'] = str(n.feature.id) + '_' + str(n.id)
+        d['etat'] = '?done' if done else '?released' if released else '.'
         d['url'] = 'notes'
-        times.append(d)
+        releases = Release.objects.filter(note__id__exact = n.id).order_by('-date_creation')
+        if releases.count() > 0:
+            release = releases[0]
+            if released:
+                if release.status in ('1', '3'):
+                    times.append(d)
+            elif done:
+                times.append(d)
+            else:
+                if release.status in ('0', '2'):
+                    times.append(d)
+        else:
+            times.append(d)
     
     tasks = Task.objects.filter(sprint__id__exact = sprint_id)
     tasks = tasks.order_by('-priorite')
-    
-    if not request.method == 'GET' or not request.GET.__contains__('done'):
-        tasks = tasks.exclude(etat__exact = 2)
+    tasks = tasks.filter(etat__exact = 2) if done else tasks.exclude(etat__exact = 2)   
     
     for t in tasks:
         d = dict()
@@ -1463,6 +1557,8 @@ def burndown(request, project_id, sprint_id):
         d['done'] = t.temps_realise
         d['todo'] = t.temps_estime
         d['test'] = (t.etat == '2')
+        d['line'] = str(n.id)
+        d['etat'] = '?done' if done else '.'
         d['url'] = 'tasks'
         times.append(d)
     

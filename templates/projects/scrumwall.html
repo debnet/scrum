@@ -31,7 +31,7 @@
 					<td style="width:25%;">
 						<table class="table" width="100%">
 							<tr>
-								<td class="cellule {{ s|var2css:"p" }}" onclick="document.location='../features/?target={{ s|dict:"id" }}'">
+								<td class="cellule {{ s|var2css:"p" }}" onclick="document.location='../features/?target={{ s|dict:"id" }}#{{ s|dict:"id" }}'">
 									{{ s|dict:"name" }}
 								</td>
 							</tr>
@@ -41,7 +41,7 @@
 						<table class="table" width="100%">
 							{% for t in s|dict:"todo" %}
 							<tr>
-								<td class="cellule {{ t.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}'">
+								<td class="cellule {{ t.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
 									{{ t.titre }}
 								</td>
 							</tr>
@@ -52,7 +52,7 @@
 						<table class="table" width="100%">
 							{% for r in s|dict:"run" %}
 							<tr>
-								<td class="cellule {{ r.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ r.id }}'">
+								<td class="cellule {{ r.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ r.id }}#{{ r.id }}'">
 									{{ r.titre }}
 								</td>
 							</tr>
@@ -63,7 +63,7 @@
 						<table class="table" width="100%">
 							{% for d in s|dict:"done" %}
 							<tr>
-								<td class="cellule {{ d.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ d.id }}'">
+								<td class="cellule {{ d.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ d.id }}#{{ d.id }}'">
 									{{ d.titre }}
 								</td>
 							</tr>

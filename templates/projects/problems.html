@@ -28,14 +28,19 @@
 			</tr>
 		</table>
 		<br />
-		<a href="?sort=-priorite">Trier par priorit&eacute;</a> ( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> )
+		Tout afficher :&nbsp;
+		<a href="?sort=-priorite">par priorit&eacute;</a>
+		&nbsp;-&nbsp;Filtrer :&nbsp;
+		<a href="?todo&sort=-priorite">&agrave; faire</a>
+		&nbsp;|&nbsp;
+		<a href="?done&sort=-priorite">termin&eacute;s</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in problems %}
 			<tr>
 			{% for probleme in list %}
 				<td>
-					<div onclick="document.location='{{ home }}admin/projects/problem/{{ probleme.id }}/'" class="note {{ probleme.priorite|var2css:"p" }}{% if probleme.resolu %} done{% endif %}">
+					<div id="{{ probleme.id }}" onclick="document.location='{{ home }}admin/projects/problem/{{ probleme.id }}/'" class="note {{ probleme.priorite|var2css:"p" }}{% if probleme.resolu %} done{% endif %}">
 						<div class="bloc titre">{{ probleme.titre }}</div>
 						<div class="element gauche">{{ probleme.priorite|var2txt:"p" }}</div>
 						<div class="element droite">{% if probleme.termine %}R&eacute;solu{% else %}&Agrave; r&eacute;soudre{% endif %}</div>
@@ -49,7 +54,7 @@
 					</div>
 					{% if user.user.is_staff %}
 					<div class="formulaire">
-						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+						<form enctype="multipart/form-data" action=".#{{ probleme.id }}" method="post" align="center">{% csrf_token %}
 							<select name="priorite" onchange="submit()">
 								<option value="0" {% ifequal probleme.priorite '0' %}selected{% endifequal %}>Aucune</option>
 								<option value="1" {% ifequal probleme.priorite '1' %}selected{% endifequal %}>&Eacute;limin&eacute;(e)</option>

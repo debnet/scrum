@@ -31,7 +31,7 @@
 				<th>Type</th>
 				<th>Action</th>
 				<th>Utilisateur</th>
-				<!-- <th>Message</th> -->
+				<th>Message</th>
 				<th>Date</th>
 				<th>&nbsp;</th>
 			</thead>
@@ -43,7 +43,7 @@
 					<td>{{ l.content_type }}</td>
 					<td>{% ifequal l.action_flag 1 %}Ajout{% else %}{% ifequal l.action_flag 2 %}Modification{% else %}Suppression{% endifequal %}{% endifequal %}</td>
 					<td>{{ l.user.first_name }} {{ l.user.last_name }} ({{ l.user.username }})</td>
-					<!-- <td>{{ l.change_message }}</td> -->
+					<td>{{ l.change_message }}</td>
 					<td>{{ l.action_time|date:"l d F Y H:i:s" }}</td>
 					<td>[ <a href="{{ home }}admin/{{ l.content_type.app_label }}/{{ l.content_type.model }}/{{ l.object_id }}/">Modifier</a> ]</td>
 				</tr>

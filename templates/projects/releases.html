@@ -24,6 +24,18 @@
 
 {% block content %}
 	<div id="content-main" align="center">
+		<br />
+		Afficher :&nbsp;
+		<a href=".">tous</a>
+		&nbsp;|&nbsp;
+		<a href="?status=0">&agrave; livrer</a>
+		&nbsp;|&nbsp;
+		<a href="?status=1">livr&eacute;s</a>
+		&nbsp;|&nbsp;
+		<a href="?status=2">refus&eacute;s</a>
+		&nbsp;|&nbsp;
+		<a href="?status=3">valid&eacute;s</a>
+		<br /><br /><br />
 		<table class="releases table">
 			<thead>
 				<tr>
@@ -37,18 +49,20 @@
 			</thead>
 			<tbody>
 			{% for r in releases %}
-				<tr class="{{ r.note.priorite|var2css:"p" }}">
+				<tr id="{{ r.note.id }}" class="{{ r.note.priorite|var2css:"p" }}">
 					<td>{{ r.note.type|var2txt:"t" }}</td>
-					<td><a href="../../../features/?target={{ r.note.feature.id }}">{{ r.note.feature.titre }}</a></td>
-					<td><a href="../../../features/{{ r.note.feature.id }}/notes?target={{ r.note.id }}">{{ r.note.titre }}</a></td>
+					<td><a href="../../../features/?target={{ r.note.feature.id }}#{{ r.note.feature.id }}">{{ r.note.feature.titre }}</a></td>
+					<td><a href="../../../features/{{ r.note.feature.id }}/notes?target={{ r.note.id }}#{{ r.note.id }}">{{ r.note.titre }}</a></td>
 					<td>
-						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+					{% if user.user.is_staff %}
+						<form enctype="multipart/form-data" action=".#{{ r.note.id }}" method="post" align="center">{% csrf_token %}
 							<input name="id" type="hidden" value="{{ r.note.id }}" />
 							<input name="livrer" type="submit" value="Livrer" style="width: 60px;" {% ifequal r.status "1" %}disabled{% else %}{% ifequal r.status "3" %}disabled{% endifequal %}{% endifequal %} />
 							<input name="refuser" type="submit" value="Refuser" style="width: 60px;" {% ifequal r.status "1" %}{% else %}disabled{% endifequal %} />
 							<input name="valider" type="submit" value="Valider" style="width: 60px;" {% ifequal r.status "1" %}{% else %}disabled{% endifequal %} />
 							<input name="terminer" type="submit" value="Terminer" style="width: 60px;" {% ifequal r.status "3" %}{% else %}disabled{% endifequal %} />
 						</form>
+					{% endif %}
 					</td>
 					<td>[&nbsp;<a href="?id={{ r.note.id }}">Historique</a>&nbsp;]</td>
 					<td style="background-color:#eee; font-weight:bold"><img src="{{ home }}media/img/status/i{{ r.status }}.png" />&nbsp;{{ r.status|var2txt:"s" }}</td>

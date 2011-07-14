@@ -24,7 +24,7 @@
 			<tr>
 			{% for projet in list %}
 				<td>
-					<div class="note none" onclick="document.location='{{ projet.id }}'">
+					<div id="{{ projet.id }}" class="note none" onclick="document.location='{{ projet.id }}'">
 						<div class="bloc titre">{{ projet.titre }}</div>
 						<div class="bloc projet">{{ projet.description }}</div>
 						<div class="bloc membres">{{ membres|dict:projet.id|join:" &nbsp; " }}</div>

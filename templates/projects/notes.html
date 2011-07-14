@@ -32,18 +32,23 @@
 			</tr>
 		</table>
 		<br />
-		<a href="?sort=etat">Trier par &eacute;tat</a> 
-		( Exclure <a href="?todo&sort=etat">&quot;termin&eacute;s&quot;</a> ou <a href="?toset&sort=etat">notes de sprint</a> )
+		Tout afficher :&nbsp;
+		<a href="?sort=-priorite">par priorit&eacute;</a>
 		&nbsp;|&nbsp;
-		<a href="?sort=-priorite">Trier par priorit&eacute;</a> 
-		( Exclure <a href="?todo&sort=-priorite">&quot;termin&eacute;s&quot;</a> ou <a href="?toset&sort=-priorite">notes de sprint</a> )
+		<a href="?sort=etat">par &eacute;tat</a>
+		&nbsp;-&nbsp;Filtrer :&nbsp;
+		<a href="?todo&sort=-priorite">&agrave; faire</a>
+		&nbsp;|&nbsp;
+		<a href="?toset&sort=-priorite">&agrave; d&eacute;finir</a>
+		&nbsp;|&nbsp;
+		<a href="?done&sort=-priorite">termin&eacute;s</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in notes %}
 			<tr>
 			{% for note in list %}
 				<td>
-					<div onclick="document.location='{{ home }}admin/projects/note/{{ note.id }}/'" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
+					<div id="{{ note.id }}" onclick="document.location='{{ home }}admin/projects/note/{{ note.id }}/'" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
 						<div class="bloc titre">{{ note.titre }}</div>
 						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
 						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
@@ -57,7 +62,7 @@
 					</div>
 					{% if user.user.is_staff %}
 					<div class="formulaire">
-						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+						<form enctype="multipart/form-data" action=".#{{ note.id }}" method="post" align="center">{% csrf_token %}
 							<select name="sprint" onchange="submit()">
 								<option value="">{% if note.sprint.id %}( Dissocier du sprint ){% else %}( Associer &agrave; un sprint ){% endif %}</option>
 							{% for s in sprints %}

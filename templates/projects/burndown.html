@@ -25,14 +25,18 @@
 {% block content %}
 	<div id="content-main" align="center">
 		<br />
-		<a href="?done">Afficher les &eacute;l&eacute;ments termin&eacute;s</a>
+		<img style="width: 800px; height: 350px;" src="{{ url }}" />
+		<br /><br /><br />
+		Afficher :&nbsp;
+		<a href=".">en cours</a>
 		&nbsp;|&nbsp;
-		<a href=".">Exclure les &eacute;l&eacute;ments termin&eacute;s</a>
-		<br /><br />
+		<a href="?done">termin&eacute;s</a>
+		&nbsp;|&nbsp;
+		<a href="?released">livr&eacute;s</a>
+		<br /><br /><br />
 		{% if erreur %}
-		<span class="erreur">{{ erreur }}</span><br />
+		<span class="erreur">{{ erreur }}</span><br /><br /><br />
 		{% endif %}
-		<br />
 		<table class="burndown table">
 				<thead>
 					<tr>
@@ -48,14 +52,14 @@
 				</thead>
 				<tbody>
 				{% for item in times %}
-					<tr class="{{ item|var2css:"p" }}">
-						<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+					<tr id="{{ item|dict:"line" }}" class="{{ item|var2css:"p" }}">
+						<form enctype="multipart/form-data" action="{{ item|dict:"etat" }}#{{ item|dict:"line" }}" method="post" align="center">{% csrf_token %}
 							<td>{{ item|dict:"type" }}</td>
 							<td>
-								<a href="../../../features/?target={{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
+								<a href="../../../features/?target={{ item|dict:"bid" }}#{{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
 							</td>
 							<td>
-								<a href="../{{ item|dict:"url" }}/?target={{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+								<a href="../{{ item|dict:"url" }}/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
 							</td>
 							{% for time in item|dict:"time" %}
 							<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 150)">
@@ -66,7 +70,8 @@
 								{{ item|dict:"done" }} / {{ item|dict:"todo" }}
 							</td>
 							<td>
-								<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="checkbox" {% if item|dict:"test" %}checked disabled{% endif %} />
+								<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="non" {% if not item|dict:"test" %}checked{% endif %} /> Non&nbsp;
+								<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="oui" {% if item|dict:"test" %}checked{% endif %} /> Oui&nbsp;
 								&nbsp;
 								<input type="hidden" name="lock" value="{{ lock }}" />
 								<input type="submit" value="OK" {% if not user.user.is_staff %}disabled{% endif %}/>
@@ -81,9 +86,7 @@
 				</tr>
 				-->
 				</tbody>
-			
 		</table>
 		<br /><br />
-		<img style="width: 800px; height: 350px;" src="{{ url }}" />
 	</div>
 {% endblock %}
