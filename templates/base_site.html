@@ -7,19 +7,7 @@
 <h1 id="site-name">Outil Scrum</h1>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
-
 {% block extrastyle %}<link rel="stylesheet" type="text/css" href="{{ theme }}css/perso.css" />{% endblock %}
-
-{% block extrahead %}
-<![if !IE 6]>
-<link rel="stylesheet" type="text/css" href="{{ theme }}css/not-iewin.css" />
-<![endif]>
-
-<!--[if IE 6]>
-<link rel="stylesheet" type="text/css" href="{{ theme }}css/with-iewin.css" />
-<![endif]-->
-{% endblock %}
 
 {% block legend %}
 <br /><br />
@@ -52,3 +40,5 @@
     </form>
 </div>
 {% endblock %}
+
+{% block nav-global %}{% endblock %}
