@@ -86,7 +86,7 @@ def add_log(user, model_name, model, flag, message = None):
     l.change_message = message
     l.content_type = ContentType.objects.get(app_label = 'projects', model = model_name)
     l.object_id = model.id
-    l.object_repr = unicode(model)
+    l.object_repr = model.__unicode__()
     l.action_flag = flag
     l.save()
   
