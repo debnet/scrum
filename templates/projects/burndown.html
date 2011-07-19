@@ -34,9 +34,6 @@
 		&nbsp;|&nbsp;
 		<a href="?released">livr&eacute;s</a>
 		<br /><br /><br />
-		{% if erreur %}
-		<span class="erreur">{{ erreur }}</span><br /><br /><br />
-		{% endif %}
 		<table class="burndown table">
 				<thead>
 					<tr>
@@ -62,7 +59,7 @@
 								<a href="../{{ item|dict:"url" }}/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
 							</td>
 							{% for time in item|dict:"time" %}
-							<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 150)">
+							<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
 								<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
 							</td>
 							{% endfor %}

@@ -8,9 +8,9 @@ DEFAULT_URL = 'localhost:8000'
 
 # Django settings for scrum project.
 
-DEBUG = False
+DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 
 ADMINS = (
     ('Marc DEBUREAUX', 'marc@debnet.fr'),

@@ -14,6 +14,7 @@ body {
 	height: 40px; 
 	z-index: 5; 
 }
+
 #header.login { 
 	position: absolute; 
 }
@@ -34,12 +35,15 @@ body {
 	text-align: left; 
 	padding-left: 20px; 
 }
+
 #footer.login { 
 	position: absolute; 
 }
+
 #footer a:link, #footer a:visited { 
 	color: white; 
 }
+
 #footer a:hover { 
 	text-decoration: underline; 
 }
@@ -60,6 +64,16 @@ div.breadcrumbs {
 }
 
 ul.messagelist { 
+	position: fixed; 
+	top: 63px; 
+	width: 0px; 
+	width: 100%; 
+	padding: 0 0 5px 0; 
+	margin: 0; 
+	z-index: 5; 
+}
+
+ul.errorlist { 
 	position: fixed; 
 	top: 63px; 
 	width: 0px; 

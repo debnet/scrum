@@ -61,6 +61,9 @@
             {% if messages %}
             <ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
             {% endif %}
+            {% if erreurs %}
+            <ul class="errorlist">{% for erreur in erreurs %}<li>{{ erreur }}</li>{% endfor %}</ul>
+            {% endif %}
         
             <!-- Content -->
             <div id="content" class="{% block coltype %}colM{% endblock %}">
