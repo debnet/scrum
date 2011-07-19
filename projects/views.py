@@ -118,15 +118,15 @@ def write_logs():
         path2 = root + 'logs' + os.sep + 'urls-' + date.strftime('%Y%m%d') + '.html'
         if date != current and os.path.exists(path2):
             file = codecs.open(path2, mode='a', encoding='utf-8')
-            file.write('</tbody></table></body></html>')
+            file.write(u'</tbody></table></body></html>')
             file.close()
         if not os.path.exists(path1):
             file = codecs.open(path1, mode='w', encoding='utf-8')
-            file.write('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de navigation (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de navigation (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ));
-            file.write('<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th>URL</th></tr></thead><tbody>')
+            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de navigation (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de navigation (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ));
+            file.write(u'<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th>URL</th></tr></thead><tbody>')
         else:
             file = codecs.open(path1, mode='a', encoding='utf-8')
-        file.write('<tr><td>%s</td><td>%s %s (%s)</td><td><a href="http://%s">%s</a></td></tr>' 
+        file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td><a href="http://%s">%s</a></td></tr>' 
                    % (h.date_creation.strftime('%H:%m:%S'), h.utilisateur.user.first_name, h.utilisateur.user.last_name, h.utilisateur.user.username, settings.DEFAULT_URL + h.url, h.url, ))
         file.close()
         h.delete()
@@ -141,16 +141,16 @@ def write_logs():
         path2 = root + 'logs' + os.sep + 'logs-' + date.strftime('%Y%m%d') + '.html'
         if date != current and os.path.exists(path2):
             file = codecs.open(path2, mode='a', encoding='utf-8')
-            file.write('</tbody></table></body></html>')
+            file.write(u'</tbody></table></body></html>')
             file.close()
         if not os.path.exists(path1):
             file = codecs.open(path1, mode='w', encoding='utf-8')
-            file.write('<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de gestion (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de gestion (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ))
-            file.write('<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th><th width="500">Message</th></tr></thead><tbody>')
+            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de gestion (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de gestion (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ))
+            file.write(u'<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th><th width="500">Message</th></tr></thead><tbody>')
         else :
             file = codecs.open(path1, mode='a', encoding='utf-8')
-        file.write('<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
-            % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, l.object_repr, l.content_type, actions[l.action_flag], unicode(l.change_message, 'utf8'), ))    
+        file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
+            % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, unicode(l.object_repr, 'utf8'), l.content_type, actions[l.action_flag], unicode(l.change_message, 'utf8'), ))    
         file.close()
         l.delete()
         date = current
