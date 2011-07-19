@@ -25,7 +25,7 @@ from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, T
 from scrum.projects.models import ETATS, PRIORITES, STATUS
 from scrum.projects.forms import UserForm, ProjectForm, FeatureForm, NoteForm, SprintForm, TaskForm, ProblemForm, DocumentForm
 
-NOT_MEMBER_MSG = u"Accès refusé : l'utilisateur n'est pas membre du projet !"
+NOT_MEMBER_MSG = u'Accès refusé : l\'utilisateur n\'est pas membre du projet !'
 NOTES_PAR_LIGNE = 5
 
 root = settings.DEFAULT_DIR
@@ -86,7 +86,7 @@ def add_log(user, model_name, model, flag, message = None):
     l.change_message = message
     l.content_type = ContentType.objects.get(app_label = 'projects', model = model_name)
     l.object_id = model.id
-    l.object_repr = model.__unicode__()
+    l.object_repr = model.titre
     l.action_flag = flag
     l.save()
 
@@ -169,8 +169,7 @@ def list_projects(nb_notes = NOTES_PAR_LIGNE):
     j = 0
     for t in tmp:
         t.running = False
-        sprint = Sprint.objects.filter(projet__id__exact = t.id, 
-                                       date_debut__lte = datetime.date.today(), date_fin__gte = datetime.date.today())
+        sprint = Sprint.objects.filter(projet__id__exact = t.id, date_debut__lte = datetime.date.today(), date_fin__gte = datetime.date.today())
         if sprint:
             t.running = True
             t.sprint = sprint[0].id

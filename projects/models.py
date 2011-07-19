@@ -67,11 +67,11 @@ class UserProfile(models.Model):
     
     def __unicode__(self):
         if self.user.first_name and self.user.last_name:
-            return u'%s %s' % (unicode(self.user.first_name, 'utf8'), unicode(self.user.last_name, 'utf8'), )
+            return u'%s %s' % (self.user.first_name, self.user.last_name, )
         elif self.user.first_name:
-            return u'%s' % (unicode(self.user.first_name, 'utf8'), )
+            return u'%s' % (self.user.first_name, )
         else:
-            return u'%s' % (unicode(self.user.username, 'utf8'), )
+            return u'%s' % (self.user.username, )
     
     class Meta:
         #proxy = True
@@ -86,7 +86,7 @@ class Project(models.Model):
     date_creation = models.DateTimeField('Date de création', default=datetime.datetime.now)
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.titre, 'utf8'), )    
+        return u'%s' % (self.titre, )    
     
     class Meta:
         verbose_name = u'Projet'
@@ -108,7 +108,7 @@ class Feature(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.titre, 'utf8'), )
+        return u'%s' % (self.titre, )
     
     class Meta:
         verbose_name = u'Feature'
@@ -133,7 +133,7 @@ class Sprint(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.titre, 'utf8'), )    
+        return u'%s' % (self.titre, )    
     
     class Meta:
         verbose_name = u'Sprint'
@@ -161,7 +161,7 @@ class Note(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return '%s' % (unicode(self.titre, 'utf8'), )
+        return u'%s' % (self.titre, )
     
     class Meta:
         verbose_name = u'Note'
@@ -187,7 +187,7 @@ class Task(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s' % (unicode(self.titre, 'utf8'), )
+        return u'%s' % (self.titre, )
     
     class Meta:
         verbose_name = u'Tâche'
@@ -211,7 +211,7 @@ class Problem(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.titre, 'utf8'), )
+        return u'%s' % (self.titre, )
     
     class Meta:
         verbose_name = u'Problème'
@@ -227,7 +227,7 @@ class Release(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.note.titre, 'utf8'), )    
+        return u'%s' % (self.note.titre, )    
     
     class Meta:
         verbose_name = u'Livraison'
@@ -245,7 +245,7 @@ class NoteTime(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.note.titre, 'utf8'), )
+        return u'%s' % (self.note.titre, )
     
     class Meta:
         verbose_name = u'Temps de note'
@@ -264,7 +264,7 @@ class TaskTime(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.task.titre, 'utf8'), )
+        return u'%s' % (self.task.titre, )
     
     class Meta:
         verbose_name = u'Temps de tâche'
@@ -281,7 +281,7 @@ class Document(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)    
     
     def __unicode__(self):
-        return u'%s' % (unicode(self.titre, 'utf8'), )
+        return u'%s' % (self.titre, )
     
     class Meta:
         verbose_name = u'Document'
