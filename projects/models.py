@@ -31,14 +31,14 @@ TYPES = (
 )
 
 CONFIANCE = (
-    ('0', u'Non définie'),
+    ('0', u'Aucune'),
     ('1', u'Basse'),
     ('2', u'Moyenne'),
     ('3', u'Haute'),
 )
 
 STATUS = (
-    ('0', u'Non défini'),
+    ('0', u'À livrer'),
     ('1', u'Livré'),
     ('2', u'Refusé'),
     ('3', u'Validé'),

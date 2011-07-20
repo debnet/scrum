@@ -9,7 +9,6 @@ DEFAULT_URL = 'localhost:8000'
 # Django settings for scrum project.
 
 DEBUG = True
-#TEMPLATE_DEBUG = DEBUG
 TEMPLATE_DEBUG = True
 
 ADMINS = (
@@ -18,6 +17,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# Beware of default collation in tables : must be utf8_general_ci and not utf8_bin !
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',

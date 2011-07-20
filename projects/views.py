@@ -86,7 +86,7 @@ def add_log(user, model_name, model, flag, message = None):
     l.change_message = message
     l.content_type = ContentType.objects.get(app_label = 'projects', model = model_name)
     l.object_id = model.id
-    l.object_repr = model.titre
+    l.object_repr = model
     l.action_flag = flag
     l.save()
 
@@ -150,7 +150,7 @@ def write_logs():
         else :
             file = codecs.open(path1, mode='a', encoding='utf-8')
         file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
-            % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, unicode(l.object_repr, 'utf8'), l.content_type, actions[l.action_flag], unicode(l.change_message, 'utf8'), ))    
+            % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, l.object_repr, l.content_type, actions[l.action_flag], l.change_message, ))    
         file.close()
         l.delete()
         date = current
@@ -548,8 +548,8 @@ def projects(request):
                 membres[p.id].append(m.user.username)
 
     return render_to_response('projects/projects.html',
-                              {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
-                               'projects': projects, 'membres': membres, 'nb_notes': nb_notes, })
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+         'projects': projects, 'membres': membres, 'nb_notes': nb_notes, })
 
 # ------------------------------------------------
 @login_required
@@ -675,9 +675,9 @@ def features(request, project_id):
     features = list_features(project_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/features.html',
-                              {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-                               'features': features, 'nb_notes': nb_notes, },
-                              context_instance = RequestContext(request))
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+         'features': features, 'nb_notes': nb_notes, },
+        context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
@@ -742,7 +742,7 @@ def notes(request, project_id, feature_id):
                     note.sprint = None
                     times = NoteTime.objects.filter(note__id__exact = note.id)
                     times.delete()
-                    changes.append(u'sprint = ' + note.sprint.titre)
+                    changes.append(u'sprint = <Aucun>')
                 else:
                     sprint = Sprint.objects.get(pk = int(request.POST['sprint']))
                     if not note.sprint == sprint:
@@ -1247,12 +1247,20 @@ def releases(request, project_id, sprint_id):
                 changes.append(u'status = ' + STATUS[release.status][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
             elif request.POST.__contains__('terminer'):
+                nts = NoteTime.objects.filter(note__in = (note, ))
+                nts = nts.order_by('-jour')
+                for nt in nts:
+                    if nt.temps > 0:
+                        fin = nt.note.temps_estime - nt.note.temps_realise
+                        nt.temps_fin = fin
+                        nt.save()
+                        break
                 note.etat = 2
                 note.save()
                 changes.append(u'etat = ' + ETAT[note.etat][1])
                 add_log(user, 'note', note, 2, ', '.join(changes))
-
-    status = None
+    
+    status = '0'
     note = None
     details = list()
     if request.method == 'GET':
@@ -1270,7 +1278,7 @@ def releases(request, project_id, sprint_id):
 
     return render_to_response('projects/releases.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'sprint': sprint, 'releases': releases, 'note': note, 'details': details, 'nb_notes': nb_notes, },
+         'sprint': sprint, 'releases': releases, 'note': note, 'details': details, 'nb_notes': nb_notes, 'status': status, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -1466,10 +1474,8 @@ def burndown(request, project_id, sprint_id):
                         for nt in nts:
                             if nt.temps > 0:
                                 fin = nt.note.temps_estime - nt.note.temps_realise
-                                if fin >= 0:
-                                    nt.temps_fin = fin
-                                    nt.save()
-                                break
+                                nt.temps_fin = fin
+                                nt.save()
                     elif note.etat == '2' and etat == '1':
                         nts = NoteTime.objects.filter(note__in = (note, ))
                         etat = '0'
@@ -1491,9 +1497,8 @@ def burndown(request, project_id, sprint_id):
                         for tt in tts:
                             if tt.temps > 0:
                                 fin = tt.task.temps_estime - tt.task.temps_realise
-                                if fin >= 0:
-                                    tt.temps_fin = fin
-                                    tt.save()
+                                tt.temps_fin = fin
+                                tt.save()
                                 break
                     elif task.etat == '2' and etat == '1':
                         tts = TaskTime.objects.filter(task__in = (task, ))

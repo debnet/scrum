@@ -232,7 +232,7 @@ class ReleaseAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return Release.objects.all()
         p = Project.objects.filter(membres__in = (request.user, ))
-        return Release.objects.filter(note__projet__in = p)
+        return Release.objects.filter(note__feature__projet__in = p)
     
     #def save_model(self, request, obj, form, change):
         #if not change:
