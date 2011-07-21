@@ -80,7 +80,7 @@ def create_task_days(sprint, task):
         d += datetime.timedelta(1)
 
 # ------------------------------------------------
-def add_log(user, model_name, model, flag, message = None):
+def add_log(user, model_name, model, flag, message = u''):
     l = LogEntry()
     l.user = user.user
     l.change_message = message
@@ -1741,6 +1741,31 @@ def velocity(request, project_id):
     return render_to_response('projects/velocity.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'url1': url1, 'url2': url2, 'nb_notes': nb_notes, },
+        context_instance = RequestContext(request))
+
+# ------------------------------------------------
+@login_required
+@csrf_protect
+def summary(request, project_id):
+    project = get_object_or_404(Project, pk = project_id)
+
+    if request.user.get_profile() not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+
+    user = request.user.get_profile()
+    title = u'Synthèse - Projet "' + unicode(project.titre) + '"'
+    messages = list()
+    request.session['url'] = home + 'projects/' + project_id + '/summary'
+
+    add_history(user, request.session['url'])
+    nb_notes = get_nb_notes(request)
+    
+    holidays = get_holidays(datetime.date.today().year)
+    
+    sprints = Sprint.objects.filter(projet__id__exact = project.id).order_by('date_debut')
+    
+    return render_to_response('projects/summary.html',
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 #-------------------------------------------------
