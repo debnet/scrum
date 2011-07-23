@@ -1,12 +1,13 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <strong>Synth&egrave;se</strong>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
@@ -17,7 +18,69 @@
 
 {% block content %}
 	<div id="content-main" align="center">
-		
+		{% for item in items %}
+		<hr /><br />
+		<h1 id="{{ item|dict:"id" }}">{{ item|dict:"sprint" }}</h1>
+		<h4>Progression g&eacute;n&eacute;rale : {{ item|dict:"total_done" }} / {{ item|dict:"total_todo" }}</h4>
+		<br />
+		<table>
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					{% for t in item|dict:"times" %}
+					<th>{{ t|dict:"day" }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th>Temps r&eacute;alis&eacute;</th>
+					{% for t in item|dict:"times" %}
+					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"done" }}</td>
+					{% endfor %}
+				</tr><tr>
+					<th>Temps restant</th>
+					{% for t in item|dict:"times" %}
+					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"todo" }}</td>
+					{% endfor %}
+				</tr><tr>
+					<th>Tendance</th>
+					{% for t in item|dict:"times" %}
+					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|dict:"trend1" }}.png" alt="{{ t|dict:"trend1" }}" /></td>
+					{% endfor %}
+				</tr><tr>
+					<th>Progression</th>
+					{% for t in item|dict:"times" %}
+					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"rate1" }} %</td>
+					{% endfor %}
+				</tr><tr>
+					<th>Total</th>
+					{% for t in item|dict:"times" %}
+					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"rate2" }} %</td>
+					{% endfor %}
+				</tr><tr>
+					<th>Moyenne</th>
+					{% for t in item|dict:"times" %}
+					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"avg" }}</td>
+					{% endfor %}
+				</tr><tr>
+					<th>Tendance</th>
+					{% for t in item|dict:"times" %}
+					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|dict:"trend2" }}.png" alt="{{ t|dict:"trend2" }}" /></td>
+					{% endfor %}
+				</tr>
+			</tbody>
+		</table>
+		<br /><br />
+		{% ifequal item|dict:"id" id %}
+		<img style="width: 800px; height: 350px;" src="{{ item|dict:"url1" }}" />
+		<br /><br />
+		<img style="width: 800px; height: 350px;" src="{{ item|dict:"url2" }}" />
+		{% else %}
+		<a href="?id={{ item|dict:"id" }}#{{ item|dict:"id" }}">Afficher les graphiques</a>
+		{% endifequal %}
+		<br /><br />
+		{% endfor %}
 	</div>
 {% endblock %}
 

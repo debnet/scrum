@@ -7,6 +7,7 @@
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
@@ -42,7 +43,7 @@
 			{% for note in list %}
 				<td>
 					<div id="{{ note.id }}" onclick="document.location='{{ home }}admin/projects/note/{{ note.id }}/'" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
-						<div class="bloc titre">{{ note.titre }}</div>
+						<div class="bloc titre">{{ note.feature.titre }}<br />{{ note.titre }}</div>
 						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
 						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
 						<div class="bloc description">{{ note.description }}</div>

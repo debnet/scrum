@@ -25,6 +25,9 @@
 .done {
 	background-color: #fff; 
 }
+.hl {
+	background-color: #ffc;
+}
 
 table tr td {
 	vertical-align: middle;

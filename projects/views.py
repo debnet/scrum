@@ -12,6 +12,7 @@ logging.basicConfig (
     format = '%(asctime)s %(levelname)s %(message)s', 
 )
 
+from django.db.models import Count, Sum, Avg
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.shortcuts import render_to_response, get_object_or_404
@@ -111,7 +112,7 @@ def add_history(user, url):
 def write_logs():
     file = False
     date = datetime.date.today()
-    history = History.objects.filter(date_creation__lt = datetime.date.today()).order_by('date_creation');
+    history = History.objects.filter(date_creation__lt = datetime.date.today() - datetime.timedelta(7)).order_by('date_creation');
     for h in history:
         current = h.date_creation.date()
         path1 = root + 'logs' + os.sep + 'urls-' + current.strftime('%Y%m%d') + '.html'
@@ -134,7 +135,7 @@ def write_logs():
     file = False
     date = datetime.date.today()
     actions = ['', 'Ajout', 'Modification', 'Suppression']
-    logs = LogEntry.objects.filter(action_time__lt = datetime.date.today()).order_by('action_time')
+    logs = LogEntry.objects.filter(action_time__lt = datetime.date.today() - datetime.timedelta(7)).order_by('action_time')
     for l in logs:
         current = l.action_time.date()
         path1 = root + 'logs' + os.sep + 'logs-' + l.action_time.strftime('%Y%m%d') + '.html'
@@ -1525,11 +1526,13 @@ def burndown(request, project_id, sprint_id):
     released = request.GET.__contains__('released')
     done = request.GET.__contains__('done')    
 
+    days = list()
     times = list()
+    total = 0
 
     notes = Note.objects.filter(sprint__id__exact = sprint_id)
     notes = notes.order_by('-priorite')
-    notes = notes.filter(etat__exact = 2) if done else notes.exclude(etat__exact = 2)
+    #notes = notes.filter(etat__exact = 2) if done else notes.exclude(etat__exact = 2)
 
     for n in notes:
         d = dict()
@@ -1553,19 +1556,24 @@ def burndown(request, project_id, sprint_id):
         if releases.count() > 0:
             release = releases[0]
             if released:
-                if release.status in ('1', '3'):
+                if release.status in ('1', '3') and n.etat != '2':
                     times.append(d)
-            elif done:
+            elif done and n.etat == '2':
                 times.append(d)
-            else:
-                if release.status in ('0', '2'):
-                    times.append(d)
+            elif not done and release.status in ('0', '2'):
+                times.append(d)
         else:
-            times.append(d)
+            if done and n.etat == '2':
+                times.append(d)
+            elif not done:
+                times.append(d)
+        for d in nt:
+            days.append(d.jour)
+        total += n.temps_estime
 
     tasks = Task.objects.filter(sprint__id__exact = sprint_id)
     tasks = tasks.order_by('-priorite')
-    tasks = tasks.filter(etat__exact = 2) if done else tasks.exclude(etat__exact = 2)   
+    #tasks = tasks.filter(etat__exact = 2) if done else tasks.exclude(etat__exact = 2)   
 
     for t in tasks:
         d = dict()
@@ -1585,24 +1593,16 @@ def burndown(request, project_id, sprint_id):
         d['line'] = str(n.id)
         d['etat'] = '?done' if done else '.'
         d['url'] = 'tasks'
-        times.append(d)
-
-    notes = Note.objects.filter(sprint__id__exact = sprint_id)
-    tasks = Task.objects.filter(sprint__id__exact = sprint_id)
-
-    total = 0
-    for n in notes:
-        total += n.temps_estime
-    for t in tasks:
+        if done and t.etat == '2':
+            times.append(d)
+        elif not done:
+            times.append(d)
+        for d in tt:
+            days.append(d.jour)
         total += t.temps_estime
 
-    days = NoteTime.objects.filter(sprint__id__exact = sprint_id).values_list('jour', flat=True).distinct()
-    days = days.exclude(jour__in = holidays)
-    days = days.order_by('jour')
-    if (days.count() == 0):
-        days = TaskTime.objects.filter(sprint__id__exact = sprint_id).values_list('jour', flat=True).distinct()
-        days = days.exclude(jour__in = holidays)
-        days = days.order_by('jour')
+    days = list(set(days))
+    days.sort()
 
     min = 0
     data1 = list()
@@ -1631,6 +1631,7 @@ def burndown(request, project_id, sprint_id):
     url  = 'http://chart.apis.google.com/chart'
     url += '?chs=800x350'
     url += '&cht=lxy'
+    url += '&chg=' + str(100.0 / len(days)) + ',0'
     url += '&chdl=Temps restant|Temps estimé'
     url += '&chdlp=b'
     url += '&chxt=x,y'
@@ -1725,6 +1726,7 @@ def velocity(request, project_id):
     url2  = 'http://chart.apis.google.com/chart'
     url2 += '?chs=800x350'
     url2 += '&cht=lxy'
+    url2 += '&chg=' + str(100.0 / len(charge1)) + ',0'
     url2 += '&chdl=Charge terminée|Charge totale'
     url2 += '&chdlp=t'
     url2 += '&chxt=x,y'
@@ -1760,12 +1762,113 @@ def summary(request, project_id):
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
     
-    holidays = get_holidays(datetime.date.today().year)
+    id = request.GET['id'] if request.GET.__contains__('id') else 0
+    sprints = Sprint.objects.filter(projet__id__exact = project.id).order_by('-date_debut')
     
-    sprints = Sprint.objects.filter(projet__id__exact = project.id).order_by('date_debut')
+    items = list()
+    for sprint in sprints:
+        item = dict()
+        item['id'] = str(sprint.id)
+        item['sprint'] = sprint
+        done = NoteTime.objects.filter(note__sprint__id__exact = sprint.id).values('jour').annotate(done = Sum('temps'), more = Sum('temps_fin')).order_by('jour')
+        todo = Note.objects.filter(sprint__id__exact = sprint.id).values('sprint').annotate(todo = Sum('temps_estime'))
+        item['total_todo'] = todo[0]['todo'] if todo.count() > 0 else 0
+        item['total_done'] = 0
+        last = 0
+        avg = list()
+        rates = list()
+        times_todo = list()
+        times_done = list()
+        for time in done:
+            time['day'] = time['jour'].strftime('%d/%m')
+            item['total_done'] += time['done']
+            time['todo'] = times_todo[-1] - time['done'] if len(times_todo) > 0 else item['total_todo'] if item['total_todo'] > 0 else 0
+            times_todo.append(time['todo'])
+            rate1 = int(round(100.0 * (time['done'] - time['more']) / item['total_todo'])) if item['total_todo'] > 0 else 0
+            time['rate1'] = rate1
+            rate2 = rate1 + sum(rates)
+            time['rate2'] = rate2
+            if time['done'] > 0:
+                times_done.append(time['done'])
+                time['avg'] = int(round(1.0 * sum(times_done) / len(times_done)))
+                last = time['avg']
+            else:
+                time['avg'] = last
+            time['trend1'] = u'=' if len(rates) < 1 else u'+' if rates[-1] < rate1 else u'-' if rates[-1] > rate1 else u'='
+            time['trend2'] = u'=' if len(avg) < 1 else u'+' if avg[-1] < time['avg'] else u'-' if avg[-1] > time['avg'] else u'='
+            avg.append(time['avg'])
+            rates.append(rate1)
+        item['times'] = done
+        
+        days = list()
+        chart1 = list()
+        chart2 = list()
+        for time in done:
+            days.append(time['day'])
+            chart1.append(time['done'])
+            chart2.append(time['avg'])
+        l = [max(chart1), max(chart2)]
+        max1 = max(l)
+        
+        url1  = 'http://chart.apis.google.com/chart'
+        url1 += '?chs=800x350'
+        url1 += '&cht=lxy'
+        url1 += '&chg=' + str(100.0 / len(days)) + ',0'
+        url1 += '&chdl=Temps réalisé|Temps moyen estimé'
+        url1 += '&chdlp=t'
+        url1 += '&chxt=x,y'
+        url1 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
+        url1 += '&chxr=1,0,' + str(max1)
+        url1 += '&chds=0,0,0,' + str(max1)
+        url1 += '&chco=0000ff,ff0000,00aaaa'
+        url1 += '&chls=2,4,1'
+        url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,000000,1,-1,11|s,00aa00,2,-1,5'
+        url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+        url1 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
+        url1 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
+        item['url1'] = url1
+        
+        days = list()
+        chart1 = list()
+        chart2 = list()
+        chart3 = list()
+        chart3.append(item['total_todo'])
+        for time in done:
+            days.append(time['day'])
+            d1 = time['done']
+            d1 += chart1[-1] if len(chart1) > 0 else 0
+            chart1.append(d1)
+            d2 = time['done'] if time['done'] > 0 else time['avg']
+            d2 += chart2[-1] if len(chart2) > 0 else 0
+            chart2.append(d2)
+            chart3.append(item['total_todo'])
+        l = [max(chart1), max(chart2), item['total_todo']]
+        max2 = max(l)
+        
+        url2  = 'http://chart.apis.google.com/chart'
+        url2 += '?chs=800x350'
+        url2 += '&cht=lxy'
+        url2 += '&chg=' + str(100.0 / len(days)) + ',0'
+        url2 += '&chdl=Progression réelle|Progression estimée'
+        url2 += '&chdlp=t'
+        url2 += '&chxt=x,y'
+        url2 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
+        url2 += '&chxr=1,0,' + str(max2)
+        url2 += '&chds=0,0,0,' + str(max2)
+        url2 += '&chco=0000ff,ff0000,000000'
+        url2 += '&chls=2,4,1'
+        url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,000000,1,-1,11'
+        url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+        url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
+        url2 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
+        url2 += '|-1|' + ','.join('%s' % (z) for z in chart3)
+        item['url2'] = url2
+        
+        items.append(item)
     
     return render_to_response('projects/summary.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 'nb_notes': nb_notes, },
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+         'items': items, 'date': datetime.datetime.today().strftime('%d/%m'), 'id': id, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 #-------------------------------------------------

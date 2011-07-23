@@ -7,6 +7,7 @@
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
@@ -56,14 +57,14 @@
 								<a href="../../../features/?target={{ item|dict:"bid" }}#{{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
 							</td>
 							<td>
-								<a href="../{{ item|dict:"url" }}/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+								<a href="../../../features/{{ item|dict:"bid" }}/notes/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
 							</td>
 							{% for time in item|dict:"time" %}
 							<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
 								<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
 							</td>
 							{% endfor %}
-							<td {% ifequal item|dict:"done" item|dict:"todo" %}style="color:red; font-weight:bold"{% endifequal %}>
+							<td {% if item|dict:"done" > item|dict:"todo" %}style="color:red; font-weight:bold"{% endif %}>
 								{{ item|dict:"done" }} / {{ item|dict:"todo" }}
 							</td>
 							<td>
@@ -76,12 +77,6 @@
 						</form>	
 					</tr>
 				{% endfor %}
-				<!--
-				<tr>
-					<td colspan="{{ days.count }}">&nbsp;</td>
-					<td colspan="5" style="color:red">{{ erreur }}</td>
-				</tr>
-				-->
 				</tbody>
 		</table>
 		<br /><br />
