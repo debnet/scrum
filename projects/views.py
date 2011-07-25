@@ -500,23 +500,13 @@ def list_problems(project_id, sort = '-priorite', all = False, todo = True, tab 
 def list_releases(sprint_id, status = None):
     notes = Note.objects.filter(sprint__id__exact = sprint_id).exclude(etat__exact = 2)
     notes = notes.order_by('-priorite')
-
-    for n in notes:
-        release = Release.objects.filter(note__id__exact = n.id)
-        if release.count() == 0:    
-            release = Release()
-            release.note = n
-            release.status = 0
-            release.date_creation = n.date_creation
-            release.utilisateur = n.utilisateur
-            release.save()
+    
     releases = list()
-
     for n in notes:
         release = Release.objects.filter(note__id__exact = n.id)
         release = release.order_by('-date_creation')[0]
         if status:
-            if release.status == status:
+            if release.status == str(status):
                 releases.append(release)
         else:
             releases.append(release)
@@ -1137,6 +1127,7 @@ def tasks(request, project_id, sprint_id):
     nb_notes = get_nb_notes(request)
 
     if request.method == 'POST':
+        changes = list()
         if request.POST.__contains__('id'):
             task = Task.objects.get(pk = int(request.POST['id']))
             if request.POST.__contains__('priorite'):
@@ -1224,6 +1215,17 @@ def releases(request, project_id, sprint_id):
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
 
+    status = '0'
+    note = None
+    details = list()
+    if request.method == 'GET':
+        if request.GET.__contains__('id'):
+            note = int(request.GET['id'])
+            details = Release.objects.filter(note__id__exact = note)
+            details = details.order_by('date_creation')
+        if request.GET.__contains__('status'):
+            status = request.GET['status']    
+    
     if request.method == 'POST':
         changes = list()
         if request.POST.__contains__('id'):
@@ -1234,19 +1236,25 @@ def releases(request, project_id, sprint_id):
             release.utilisateur = user
             if request.POST.__contains__('livrer'):
                 release.status = 1
+                status = release.status
                 release.save()
                 changes.append(u'status = ' + STATUS[release.status][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
+                messages.append(u'Livraison effectuée avec succès !')
             elif request.POST.__contains__('refuser'):
                 release.status = 2
+                status = release.status
                 release.save()
                 changes.append(u'status = ' + STATUS[release.status][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
+                messages.append(u'Livraison refusée avec succès !')
             elif request.POST.__contains__('valider'):
                 release.status = 3
+                status = release.status
                 release.save()
                 changes.append(u'status = ' + STATUS[release.status][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
+                messages.append(u'Livraison validée avec succès !')
             elif request.POST.__contains__('terminer'):
                 nts = NoteTime.objects.filter(note__in = (note, ))
                 nts = nts.order_by('-jour')
@@ -1260,17 +1268,7 @@ def releases(request, project_id, sprint_id):
                 note.save()
                 changes.append(u'etat = ' + ETAT[note.etat][1])
                 add_log(user, 'note', note, 2, ', '.join(changes))
-    
-    status = '0'
-    note = None
-    details = list()
-    if request.method == 'GET':
-        if request.GET.__contains__('id'):
-            note = int(request.GET['id'])
-            details = Release.objects.filter(note__id__exact = note)
-            details = details.order_by('date_creation')
-        if request.GET.__contains__('status'):
-            status = request.GET['status']
+                messages.append(u'Note de backlog terminée avec succès !')
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1532,7 +1530,6 @@ def burndown(request, project_id, sprint_id):
 
     notes = Note.objects.filter(sprint__id__exact = sprint_id)
     notes = notes.order_by('-priorite')
-    #notes = notes.filter(etat__exact = 2) if done else notes.exclude(etat__exact = 2)
 
     for n in notes:
         d = dict()
@@ -1573,7 +1570,6 @@ def burndown(request, project_id, sprint_id):
 
     tasks = Task.objects.filter(sprint__id__exact = sprint_id)
     tasks = tasks.order_by('-priorite')
-    #tasks = tasks.filter(etat__exact = 2) if done else tasks.exclude(etat__exact = 2)   
 
     for t in tasks:
         d = dict()
@@ -2035,6 +2031,14 @@ def new_note(request, project_id, feature_id):
         form = NoteForm(request.POST)
         if form.is_valid():
             n = form.save()
+            release = Release.objects.filter(note__id__exact = n.id)
+            if release.count() == 0:    
+                release = Release()
+                release.note = n
+                release.status = 0
+                release.date_creation = n.date_creation
+                release.utilisateur = n.utilisateur
+                release.save()
             add_log(user, 'note', n, 1)
             messages.append(u'Note de backlog ajoutée avec succès !')
             request.session['messages'] = messages

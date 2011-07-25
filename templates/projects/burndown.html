@@ -57,7 +57,11 @@
 								<a href="../../../features/?target={{ item|dict:"bid" }}#{{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
 							</td>
 							<td>
+								{% ifequal item|dict:"bid" 0 %}
+								<a href="../tasks/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+								{% else %}
 								<a href="../../../features/{{ item|dict:"bid" }}/notes/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+								{% endifequal %}
 							</td>
 							{% for time in item|dict:"time" %}
 							<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
