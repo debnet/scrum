@@ -56,6 +56,7 @@ def get_holidays(year):
 def create_note_days(sprint, note):
     holidays = get_holidays(sprint.date_debut.year)
     d = sprint.date_debut
+    first = True
     while d <= sprint.date_fin:
         if d.strftime('%w') not in ('0', '6', ) and d not in holidays:
             time = NoteTime()
@@ -63,6 +64,9 @@ def create_note_days(sprint, note):
             time.note = note
             time.jour = d
             time.temps = 0
+            if first:
+                time.temps_fin = note.temps_realise
+                first = False
             time.save()
         d += datetime.timedelta(1)
 
@@ -729,7 +733,7 @@ def notes(request, project_id, feature_id):
                 changes.append(u'priorité = ' + PRIORITES[note.priorite][1])
             if request.POST.__contains__('sprint'):
                 if request.POST['sprint'] == '':
-                    note.temps_realise = 0
+                    #note.temps_realise = 0
                     note.sprint = None
                     times = NoteTime.objects.filter(note__id__exact = note.id)
                     times.delete()
@@ -737,7 +741,7 @@ def notes(request, project_id, feature_id):
                 else:
                     sprint = Sprint.objects.get(pk = int(request.POST['sprint']))
                     if not note.sprint == sprint:
-                        note.temps_realise = 0
+                        #note.temps_realise = 0
                         times = NoteTime.objects.filter(note__id__exact = note.id)
                         times.delete()
                         create_note_days(sprint, note)
