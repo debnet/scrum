@@ -1595,7 +1595,7 @@ def burndown(request, project_id, sprint_id):
         d['url'] = 'tasks'
         if done and t.etat == '2':
             times.append(d)
-        elif not done:
+        elif not done and not released and n.etat != '2':
             times.append(d)
         for d in tt:
             days.append(d.jour)
