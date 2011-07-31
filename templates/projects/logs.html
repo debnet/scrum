@@ -12,12 +12,12 @@
 
 {% block content %}
 	<div id="content-main" align="center">
-		<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+		<form id="logs" enctype="multipart/form-data" action=".#logs" method="post" align="center">{% csrf_token %}
 			<label>Logs de :</label>
 			<select name="luser">
 				<option value="0">( Tous )</option>
 			{% for user in users %}
-				<option value="{{ user.id }}">{{ user }}</option>
+				<option value="{{ user.id }}" {% ifequal luser user.id %}selected{% endifequal %}>{{ user }} ({{ user.lcount }})</option>
 			{% endfor %}
 			</select>
 			<input name="lselect" type="submit" value="Afficher" />
@@ -51,12 +51,12 @@
 			</tbody>
 		</table>
 		<br /><br /><br />
-		<form enctype="multipart/form-data" action="." method="post" align="center">{% csrf_token %}
+		<form id="history" enctype="multipart/form-data" action=".#history" method="post" align="center">{% csrf_token %}
 			<label>Historiques de :</label>
 			<select name="huser">
 				<option value="0">( Tous )</option>
 			{% for user in users %}
-				<option value="{{ user.id }}">{{ user }}</option>
+				<option value="{{ user.id }}" {% ifequal huser user.id %}selected{% endifequal %}>{{ user }} ({{ user.hcount }})</option>
 			{% endfor %}
 			</select>
 			<input name="hselect" type="submit" value="Afficher" />

@@ -1024,11 +1024,20 @@ def snotes(request, project_id, sprint_id):
                 changes.append(u'priorité = ' + PRIORITES[note.priorite][1])
             if request.POST.__contains__('etat'):
                 note.etat = int(request.POST['etat'])
-                if note.etat != 2:
+                if note.etat == 2:
+                    nts = NoteTime.objects.filter(note__in = (note, ))
+                    nts = nts.order_by('-jour')
+                    for nt in nts:
+                        if nt.temps > 0:
+                            fin = nt.note.temps_estime - nt.note.temps_realise
+                            nt.temps_fin = fin
+                            nt.save()
+                            break
+                else:
                     nts = NoteTime.objects.filter(note__in = (note, ))
                     for nt in nts:
                         nt.temps_fin = 0
-                        nt.save();
+                        nt.save()
                 changes.append(u'état = ' + ETATS[note.etat][1])
             note.utilisateur = user
             note.save()
@@ -1138,11 +1147,20 @@ def tasks(request, project_id, sprint_id):
                 task.priorite = int(request.POST['priorite'])
             if request.POST.__contains__('etat'):
                 task.etat = int(request.POST['etat'])
-                if task.etat != 2:
+                if task.etat == 2:
+                    tts = TaskTime.objects.filter(task__in = (task, ))
+                    tts = tts.order_by('-jour')
+                    for tt in tts:
+                        if tt.temps > 0:
+                            fin = tt.task.temps_estime - tt.task.temps_realise
+                            tt.temps_fin = fin
+                            tt.save()
+                            break
+                else:
                     tts = TaskTime.objects.filter(task__in = (task, ))
                     for tt in tts:
                         tt.temps_fin = 0
-                        tt.save();
+                        tt.save()
             if request.POST.__contains__('temps'):
                 task.temps_estime = int(request.POST['temps'])
             task.utilisateur = user
@@ -1270,7 +1288,7 @@ def releases(request, project_id, sprint_id):
                         break
                 note.etat = 2
                 note.save()
-                changes.append(u'etat = ' + ETAT[note.etat][1])
+                changes.append(u'etat = ' + ETATS[note.etat][1])
                 add_log(user, 'note', note, 2, ', '.join(changes))
                 messages.append(u'Note de backlog terminée avec succès !')
 
@@ -1479,6 +1497,7 @@ def burndown(request, project_id, sprint_id):
                                 fin = nt.note.temps_estime - nt.note.temps_realise
                                 nt.temps_fin = fin
                                 nt.save()
+                                break
                     elif note.etat == '2' and etat == '1':
                         nts = NoteTime.objects.filter(note__in = (note, ))
                         etat = '0'
@@ -1561,12 +1580,12 @@ def burndown(request, project_id, sprint_id):
                     times.append(d)
             elif done and n.etat == '2':
                 times.append(d)
-            elif not done and release.status in ('0', '2'):
+            elif not done and release.status in ('0', '2') and n.etat != '2':
                 times.append(d)
         else:
             if done and n.etat == '2':
                 times.append(d)
-            elif not done:
+            elif not done and n.etat != '2':
                 times.append(d)
         for d in nt:
             days.append(d.jour)
@@ -1781,10 +1800,10 @@ def summary(request, project_id):
         times_done = list()
         for time in done:
             time['day'] = time['jour'].strftime('%d/%m')
-            item['total_done'] += time['done']
+            item['total_done'] += time['done'] + time['more']
             time['todo'] = times_todo[-1] - time['done'] if len(times_todo) > 0 else item['total_todo'] if item['total_todo'] > 0 else 0
             times_todo.append(time['todo'])
-            rate1 = int(round(100.0 * (time['done'] - time['more']) / item['total_todo'])) if item['total_todo'] > 0 else 0
+            rate1 = int(round(100.0 * (time['done'] + time['more']) / item['total_todo'])) if item['total_todo'] > 0 else 0
             time['rate1'] = rate1
             rate2 = rate1 + sum(rates)
             time['rate2'] = rate2
@@ -2235,7 +2254,19 @@ def logs(request):
 
     add_history(user, request.session['url'])
 
+    lcount = LogEntry.objects.values('user').annotate(count = Count('id'))
+    hcount = History.objects.values('utilisateur').annotate(count = Count('id'))
+    
     users = UserProfile.objects.all()
+    for u in users:
+        setattr(u, 'lcount', 0)
+        for l in lcount:
+            if l['user'] == u.user.id:
+                setattr(u, 'lcount', l['count'])
+        setattr(u, 'hcount', 0)
+        for h in hcount:
+            if h['utilisateur'] == u.user.id:
+                setattr(u, 'hcount', h['count'])
 
     logs = LogEntry.objects.all()
     logs = logs.order_by('-action_time')
@@ -2243,10 +2274,13 @@ def logs(request):
     history = History.objects.all()
     history = history.order_by('-date_creation')
 
+    luser = 0
+    huser = 0   
     if request.method == 'POST':
         if request.POST.__contains__('lselect'):
             if request.POST['luser'] != '0':
-                logs = logs.filter(user__id__exact = int(request.POST['luser']))
+                luser = int(request.POST['luser'])
+                logs = logs.filter(user__id__exact = luser)
                 logs = logs.order_by('-action_time')
             else:
                 logs = LogEntry.objects.all()
@@ -2257,7 +2291,8 @@ def logs(request):
                     l.delete()
                 messages.append('Logs supprimés avec succès !')
             else:
-                logs = LogEntry.objects.filter(user__id__exact = int(request.POST['luser']))
+                luser = int(request.POST['luser'])
+                logs = LogEntry.objects.filter(user__id__exact = luser)
                 for l in logs:
                     l.delete()
                 messages.append('Logs de "%s" supprimés avec succès !' % (UserProfile.objects.get(pk = int(request.POST['luser'])), ))
@@ -2265,7 +2300,8 @@ def logs(request):
             logs = logs.order_by('-action_time')
         if request.POST.__contains__('hselect'):
             if request.POST['huser'] != '0':
-                history = History.objects.filter(utilisateur__id__exact = int(request.POST['huser']))
+                huser = int(request.POST['huser'])
+                history = History.objects.filter(utilisateur__id__exact = huser)
                 history = history.order_by('-date_creation')
             else:
                 history = History.objects.all()
@@ -2276,7 +2312,8 @@ def logs(request):
                     h.delete()
                 messages.append('Historiques supprimés avec succès !')
             else:
-                history = History.objects.filter(utilisateur__id__exact = int(request.POST['huser']))
+                huser = int(request.POST['huser'])
+                history = History.objects.filter(utilisateur__id__exact = huser)
                 for h in history:
                     h.delete()
                 messages.append('Historiques de "%s" supprimés avec succès !' % (UserProfile.objects.get(pk = int(request.POST['huser'])), ))
@@ -2284,7 +2321,8 @@ def logs(request):
             history = history.order_by('-date_creation')
 
     return render_to_response('projects/logs.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'logs': logs, 'history': history, 'users': users, },
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+         'logs': logs, 'history': history, 'users': users, 'luser': luser, 'huser': huser, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------

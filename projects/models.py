@@ -239,7 +239,7 @@ class NoteTime(models.Model):
     note = models.ForeignKey(Note, help_text='Requis. Un temps de réalisation doit appartenir à une note de sprint.')
     jour = fields.CustomDateField('Date', help_text='La date à laquelle laquelle correspond la réalisation.')
     temps = models.PositiveIntegerField('Temps réalisé', default = 0, help_text='Quantité de temps exécuté sur la réalisation.')
-    temps_fin = models.PositiveIntegerField('Temps en excès', default = 0, help_text='Quantité de temps en excès sur la réalisation.')
+    temps_fin = models.IntegerField('Temps en excès', default = 0, help_text='Quantité de temps en excès sur la réalisation.')
 
     date_modification = models.DateTimeField('Date de modification', blank=True, null=True)
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
@@ -258,7 +258,7 @@ class TaskTime(models.Model):
     task = models.ForeignKey(Task, help_text='Requis. Un temps de réalisation doit appartenir à une tâche de sprint.')
     jour = fields.CustomDateField('Date', help_text='La date à laquelle laquelle correspond la réalisation.')
     temps = models.PositiveIntegerField('Temps réalisé', default = 0, help_text='Quantité de temps exécuté sur la réalisation.')
-    temps_fin = models.PositiveIntegerField('Temps en excès', default = 0, help_text='Quantité de temps en excès sur la réalisation.')
+    temps_fin = models.IntegerField('Temps en excès', default = 0, help_text='Quantité de temps en excès sur la réalisation.')
     
     date_modification = models.DateTimeField('Date de modification', blank=True, null=True)
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
