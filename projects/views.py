@@ -508,7 +508,15 @@ def list_releases(sprint_id, status = None):
     releases = list()
     for n in notes:
         release = Release.objects.filter(note__id__exact = n.id)
-        release = release.order_by('-date_creation')[0]
+        if release.count() == 0:    
+            release = Release()
+            release.note = n
+            release.status = 0
+            release.date_creation = n.date_creation
+            release.utilisateur = n.utilisateur
+            release.save()
+        else:
+            release = release.order_by('-date_creation')[0]
         if status:
             if release.status == str(status):
                 releases.append(release)
