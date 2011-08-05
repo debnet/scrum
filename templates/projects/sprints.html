@@ -48,9 +48,9 @@
 						<div class="bloc description">{{ sprint.objectif }}</div>
 						<div class="element gauche">{{ sprint.temps_realise }} / {{ sprint.temps_estime }}<!-- ({{ sprint.notes }}) --></div>
 						<div class="element droite">
-							<a href="?d={{ sprint.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" /></a>
-							<a href="?s={{ sprint.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" /></a>
-							<a href="?p={{ sprint.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" /></a>
+							<a class="image" href="?d={{ sprint.id }}#{{ sprint.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ sprint.id }}#{{ sprint.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ sprint.id }}#{{ sprint.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" /></a>
 						</div>
 					</div>
 					{% if user.is_superuser %}

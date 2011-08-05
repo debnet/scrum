@@ -56,9 +56,9 @@
 						<div class="bloc description">{{ note.description }}</div>
 						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }} ({{ note.effort }})</div>
 						<div class="element droite">
-							<a class="image" href="?d={{ note.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" /></a>
-							<a class="image" href="?s={{ note.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ note.confiance_sm }}.png" /></a>
-							<a class="image" href="?p={{ note.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" /></a>
+							<a class="image" href="?d={{ note.id }}#{{ note.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ note.id }}#{{ note.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ note.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ note.id }}#{{ note.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" /></a>
 						</div>
 					</div>
 					{% if user.user.is_staff %}

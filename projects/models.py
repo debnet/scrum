@@ -97,7 +97,7 @@ class Feature(models.Model):
     projet = models.ForeignKey(Project, help_text='Requis. La fonctionnalité doit appartenir à un projet.')
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier la fonctionnalité.')
     description = models.TextField('Description', blank=True, null=True)
-    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Priorité de développement de la fonctionnalité.')
+    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Priorité de développement de la fonctionnalité.', db_index=True)
     termine = models.BooleanField('Terminé ?', help_text='Précise si la fonctionnalité a été complétement terminée')
     
     confiance_dev = models.CharField('Confiance Développeurs', max_length=1, choices=CONFIANCE, default='0', help_text='Indique le niveau de confiance de la réalisabilité de la fonctionnalité par l\'équipe de développeurs.')
@@ -120,8 +120,8 @@ class Sprint(models.Model):
     projet = models.ForeignKey(Project, help_text='Requis. Le sprint doit appartenir à un projet.')
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier le sprint.')
     objectif = models.TextField('Objectif', blank=True, null=True)
-    date_debut = fields.CustomDateField('Date début', default=datetime.date.today, help_text='Date à laquelle le sprint commence(ra).')
-    date_fin = fields.CustomDateField('Date fin', help_text='Date à laquelle le sprint finira. Normalement fixe une fois pour toute.')
+    date_debut = fields.CustomDateField('Date début', default=datetime.date.today, help_text='Date à laquelle le sprint commence(ra).', db_index=True)
+    date_fin = fields.CustomDateField('Date fin', help_text='Date à laquelle le sprint finira. Normalement fixe une fois pour toute.', db_index=True)
     effort = models.PositiveIntegerField('Effort estimé', default=0, help_text='Effort estimé de l\'ensemble des notes du backlog à la création du sprint.')
     
     confiance_dev = models.CharField('Confiance Développeurs', max_length=1, choices=CONFIANCE, default='0', help_text='Indique le niveau de confiance de la réalisabilité de la fonctionnalité par l\'équipe de développeurs.')
@@ -147,8 +147,8 @@ class Note(models.Model):
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier la note.')
     description = models.TextField('Description', default='En tant que...\nje peux...\nafin de...', blank=True, null=True, help_text='Une description de la réalisation, par défaut une user-story.')
     type = models.CharField('Type', max_length=1, choices=TYPES, default='0', help_text='User-story : description du point de vue utilisateur.<br />Spike : Analyse sur une future réalisation dont le coût et l\'évaluation sont/seront traités pendant le sprint.<br />Feature : une fonctionnalité décrite côté fonctionnel.')
-    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la note.')
-    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le status d\'exécution de la note.')
+    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la note.', db_index=True)
+    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le status d\'exécution de la note.', db_index=True)
     effort = models.PositiveIntegerField('Effort', choices=EFFORTS, default='0', help_text='Valeur de l\'effort à déployer pour réaliser la tâche.')
     temps_realise = models.IntegerField('Temps réalisé', default=0, help_text='Quantité de temps déjà exécuté sur la réalisation. Evolutive avec le temps.')
     temps_estime = models.IntegerField('Temps estimé', default=0, help_text='Quantité de temps allouée à la réalisation. Normalement non modifiable.')
@@ -173,8 +173,8 @@ class Task(models.Model):
     sprint = models.ForeignKey(Sprint, help_text='Requis. Une tâche doit appartenir à un sprint.')
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier la tâche.')
     description = models.TextField('Description', blank=True, null=True)
-    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la tâche.')
-    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le status d\'exécution de la note.')
+    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la tâche.', db_index=True)
+    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le status d\'exécution de la note.', db_index=True)
     effort = models.PositiveIntegerField('Effort', choices=EFFORTS, default='0', help_text='Valeur de l\'effort à déployer pour réaliser la tâche.')
     temps_realise = models.PositiveIntegerField('Temps réalisé', default=0, help_text='Quantité de temps déjà exécuté sur la réalisation. Evolutive avec le temps.')
     temps_estime = models.PositiveIntegerField('Temps estimé', default=0, blank=True, null=True, help_text='Quantité de temps allouée à la tâche. Normalement non modifiable.')
@@ -199,7 +199,7 @@ class Problem(models.Model):
     projet = models.ForeignKey(Project, help_text='Requis. Un problème doit appartenir à un projet.')
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier le problème.')
     description = models.TextField('Description', blank=True, null=True)
-    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution du problème.')
+    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution du problème.', db_index=True)
     effort = models.PositiveIntegerField('Effort', choices=EFFORTS, default='0', help_text='Valeur de l\'effort à déployer pour réaliser la tâche.')
     resolu = models.BooleanField('Résolu ?', help_text='Définit si le problème a été résolu ou non.')
     
@@ -221,7 +221,7 @@ class Problem(models.Model):
 
 class Release(models.Model):
     note = models.ForeignKey(Note, help_text='Requis. Une livraison doit être lié à une note de backlog.')
-    status = models.CharField('Status', max_length=1, choices=STATUS, default='0', help_text='Définit le status de livraison de la fonctionnalité.')
+    status = models.CharField('Status', max_length=1, choices=STATUS, default='0', help_text='Définit le status de livraison de la fonctionnalité.', db_index=True)
     
     date_creation = models.DateTimeField('Date de création', default=datetime.datetime.now)
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
@@ -237,7 +237,7 @@ class Release(models.Model):
 class NoteTime(models.Model):
     sprint = models.ForeignKey(Sprint, help_text='Requis. Un temps de réalisation est lié à un sprint.')
     note = models.ForeignKey(Note, help_text='Requis. Un temps de réalisation doit appartenir à une note de sprint.')
-    jour = fields.CustomDateField('Date', help_text='La date à laquelle laquelle correspond la réalisation.')
+    jour = fields.CustomDateField('Date', help_text='La date à laquelle laquelle correspond la réalisation.', db_index=True)
     temps = models.PositiveIntegerField('Temps réalisé', default = 0, help_text='Quantité de temps exécuté sur la réalisation.')
     temps_fin = models.IntegerField('Temps en excès', default = 0, help_text='Quantité de temps en excès sur la réalisation.')
 
@@ -256,7 +256,7 @@ class NoteTime(models.Model):
 class TaskTime(models.Model):
     sprint = models.ForeignKey(Sprint, help_text='Requis. Un temps de réalisation est lié à un sprint.')
     task = models.ForeignKey(Task, help_text='Requis. Un temps de réalisation doit appartenir à une tâche de sprint.')
-    jour = fields.CustomDateField('Date', help_text='La date à laquelle laquelle correspond la réalisation.')
+    jour = fields.CustomDateField('Date', help_text='La date à laquelle laquelle correspond la réalisation.', db_index=True)
     temps = models.PositiveIntegerField('Temps réalisé', default = 0, help_text='Quantité de temps exécuté sur la réalisation.')
     temps_fin = models.IntegerField('Temps en excès', default = 0, help_text='Quantité de temps en excès sur la réalisation.')
     
@@ -290,7 +290,7 @@ class Document(models.Model):
 
 class History(models.Model):
     url = models.CharField('URL', max_length=256)
-    date_creation = models.DateTimeField('Date de création', default=datetime.datetime.now)
+    date_creation = models.DateTimeField('Date de création', default=datetime.datetime.now, db_index=True)
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     class Meta:

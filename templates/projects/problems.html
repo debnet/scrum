@@ -48,9 +48,9 @@
 						<div class="bloc description">{{ probleme.description }}</div>
 						<div class="element gauche">{{ probleme.effort }}</div>
 						<div class="element droite">
-							<a class="image" href="?d={{ probleme.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ probleme.confiance_dev }}.png" /></a>
-							<a class="image" href="?s={{ probleme.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ probleme.confiance_sm }}.png" /></a>
-							<a class="image" href="?p={{ probleme.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ probleme.confiance_po }}.png" /></a>
+							<a class="image" href="?d={{ probleme.id }}#{{ probleme.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ probleme.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ probleme.id }}#{{ probleme.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ probleme.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ probleme.id }}#{{ probleme.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ probleme.confiance_po }}.png" /></a>
 						</div>
 					</div>
 					{% if user.user.is_staff %}

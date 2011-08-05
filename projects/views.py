@@ -167,7 +167,6 @@ def list_users(membres):
 # ------------------------------------------------
 def list_projects(nb_notes = NOTES_PAR_LIGNE):
     tmp = Project.objects.all()
-
     projects = list()
     projects.append(list())
     i = 1
@@ -394,7 +393,7 @@ def list_sprints(project_id, sort = '-date_debut', all = False, todo = True, tab
 
 # ------------------------------------------------
 def list_snotes(sprint_id, sort = '-priorite', all = False, todo = True, work = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
-    tmp = Note.objects.filter(sprint__id__exact = sprint_id)
+    tmp = Note.objects.select_related().filter(sprint__id__exact = sprint_id)
     tmp = tmp.order_by(sort) if sort else tmp
     if not all:
         tmp = tmp.filter(etat__exact = 0) if todo else tmp.filter(etat__exact = 1) if work else tmp.filter(etat__exact = 2)
@@ -502,12 +501,12 @@ def list_problems(project_id, sort = '-priorite', all = False, todo = True, tab 
 
 # ------------------------------------------------
 def list_releases(sprint_id, status = None):
-    notes = Note.objects.filter(sprint__id__exact = sprint_id).exclude(etat__exact = 2)
+    notes = Note.objects.select_related().filter(sprint__id__exact = sprint_id).exclude(etat__exact = 2)
     notes = notes.order_by('-priorite')
     
     releases = list()
     for n in notes:
-        release = Release.objects.filter(note__id__exact = n.id)
+        release = Release.objects.select_related().filter(note__id__exact = n.id)
         if release.count() == 0:    
             release = Release()
             release.note = n
@@ -1559,7 +1558,7 @@ def burndown(request, project_id, sprint_id):
     times = list()
     total = 0
 
-    notes = Note.objects.filter(sprint__id__exact = sprint_id)
+    notes = Note.objects.select_related().filter(sprint__id__exact = sprint_id)
     notes = notes.order_by('-priorite')
 
     for n in notes:
@@ -1959,6 +1958,11 @@ def scrumwall(request, project_id):
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
+    
+    sprint = 0
+    if request.method == 'GET':
+        if request.GET.__contains__('sprint'):
+            sprint = int(request.GET['sprint'])
 
     scrumwall = list()
     features = Feature.objects.filter(projet__id__exact = project_id)
@@ -1969,19 +1973,28 @@ def scrumwall(request, project_id):
         items['name'] = f.titre
         items['item'] = f
         todo = Note.objects.filter(feature__id__exact = f.id, etat__exact = 0)
+        if sprint != 0:
+            todo = todo.filter(sprint__id__exact = sprint)
         todo = todo.order_by('-priorite')
         items['todo'] = todo
         run  = Note.objects.filter(feature__id__exact = f.id, etat__exact = 1)
+        if sprint != 0:
+            run = run.filter(sprint__id__exact = sprint)
         run  = run.order_by('-priorite')
         items['run'] = run
         done = Note.objects.filter(feature__id__exact = f.id, etat__exact = 2)
+        if sprint != 0:
+            done = done.filter(sprint__id__exact = sprint)
         done = done.order_by('-priorite')
         items['done'] = done
-        scrumwall.append(items)
+        if todo.count() + run.count() + done.count() > 0:
+            scrumwall.append(items)
+    
+    sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
 
     return render_to_response('projects/scrumwall.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'scrumwall': scrumwall, 
-         'project': project, 'nb_notes': nb_notes, 'taille': nb_notes * 230, },
+         'project': project, 'sprints': sprints, 'nb_notes': nb_notes, 'taille': nb_notes * 230, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------

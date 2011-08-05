@@ -19,6 +19,13 @@
 {% block content %}
 	<div id="content-main" align="center">
 		<br />
+		Afficher :&nbsp;
+		<a href=".">Tout</a>
+		{% for sprint in sprints %}
+		&nbsp;|&nbsp;
+		<a href="?sprint={{ sprint.id }}">{{ sprint.titre }}</a>
+		{% endfor %}
+		<br /><br /><br />
 		<table class="scrumwall" width="{{ taille }}px">
 			<thead>
 				<th style="width:25%;">Fonctionnalit&eacute;</th>
