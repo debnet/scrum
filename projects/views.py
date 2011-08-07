@@ -1247,13 +1247,12 @@ def releases(request, project_id, sprint_id):
     status = '0'
     note = None
     details = list()
-    if request.method == 'GET':
-        if request.GET.__contains__('id'):
-            note = int(request.GET['id'])
-            details = Release.objects.filter(note__id__exact = note)
-            details = details.order_by('date_creation')
-        if request.GET.__contains__('status'):
-            status = request.GET['status']    
+    if request.GET.__contains__('id'):
+        note = int(request.GET['id'])
+        details = Release.objects.filter(note__id__exact = note)
+        details = details.order_by('date_creation')
+    if request.GET.__contains__('status'):
+        status = request.GET['status']    
     
     if request.method == 'POST':
         changes = list()
@@ -1265,25 +1264,28 @@ def releases(request, project_id, sprint_id):
             release.utilisateur = user
             if request.POST.__contains__('livrer'):
                 release.status = 1
-                status = release.status
+                #status = release.status
                 release.save()
                 changes.append(u'status = ' + STATUS[release.status][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison effectuée avec succès !')
+                messages.append(u'Livraison effectuée avec succès ! ( <a href=".?status=%d#%d">voir l\'élément</a> )' 
+                    % (release.status, release.id))
             elif request.POST.__contains__('refuser'):
                 release.status = 2
-                status = release.status
+                #status = release.status
                 release.save()
                 changes.append(u'status = ' + STATUS[release.status][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison refusée avec succès !')
+                messages.append(u'Livraison refusée avec succès ! ( <a href=".?status=%d#%d">voir l\'élément</a> )' 
+                    % (release.status, release.id))
             elif request.POST.__contains__('valider'):
                 release.status = 3
-                status = release.status
+                #status = release.status
                 release.save()
                 changes.append(u'status = ' + STATUS[release.status][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison validée avec succès !')
+                messages.append(u'Livraison validée avec succès ! ( <a href=".?status=%d#%d">voir l\'élément</a> )'
+                    % (release.status, release.id))
             elif request.POST.__contains__('terminer'):
                 nts = NoteTime.objects.filter(note__in = (note, ))
                 nts = nts.order_by('-jour')
@@ -1788,7 +1790,7 @@ def summary(request, project_id):
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
     
-    id = request.GET['id'] if request.GET.__contains__('id') else 0
+    id = request.GET['sprint'] if request.GET.__contains__('sprint') else 0
     sprints = Sprint.objects.filter(projet__id__exact = project.id).order_by('-date_debut')
     
     items = list()
@@ -1894,7 +1896,7 @@ def summary(request, project_id):
     
     return render_to_response('projects/summary.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'items': items, 'date': datetime.datetime.today().strftime('%d/%m'), 'id': id, 'nb_notes': nb_notes, },
+         'items': items, 'date': datetime.datetime.today().strftime('%d/%m'), 'sprint': id, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 #-------------------------------------------------

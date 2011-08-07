@@ -72,12 +72,12 @@
 			</tbody>
 		</table>
 		<br /><br />
-		{% ifequal item|dict:"id" id %}
+		{% ifequal item|dict:"id" sprint %}
 		<img style="width: 800px; height: 350px;" src="{{ item|dict:"url1" }}" />
 		<br /><br />
 		<img style="width: 800px; height: 350px;" src="{{ item|dict:"url2" }}" />
 		{% else %}
-		<a href="?id={{ item|dict:"id" }}#{{ item|dict:"id" }}">Afficher les graphiques</a>
+		<a href="?sprint={{ item|dict:"id" }}#{{ item|dict:"id" }}">Afficher les graphiques</a>
 		{% endifequal %}
 		<br /><br />
 		{% endfor %}
