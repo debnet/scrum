@@ -1809,10 +1809,11 @@ def summary(request, project_id):
         times_done = list()
         for time in done:
             time['day'] = time['jour'].strftime('%d/%m')
-            item['total_done'] += time['done'] + time['more']
-            time['todo'] = times_todo[-1] - time['done'] if len(times_todo) > 0 else item['total_todo'] if item['total_todo'] > 0 else 0
+            time_done = time['done'] + time['more']
+            item['total_done'] += time_done
+            time['todo'] = times_todo[-1] - time_done if len(times_todo) > 0 else item['total_todo'] - time_done if item['total_todo'] > 0 else 0
             times_todo.append(time['todo'])
-            rate1 = int(round(100.0 * (time['done'] + time['more']) / item['total_todo'])) if item['total_todo'] > 0 else 0
+            rate1 = int(round(100.0 * time_done / item['total_todo'])) if item['total_todo'] > 0 else 0
             time['rate1'] = rate1
             rate2 = rate1 + sum(rates)
             time['rate2'] = rate2
