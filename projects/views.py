@@ -116,7 +116,7 @@ def add_history(user, url):
 def write_logs():
     file = False
     date = datetime.date.today()
-    history = History.objects.filter(date_creation__lt = datetime.date.today() - datetime.timedelta(7)).order_by('date_creation');
+    history = History.objects.filter(date_creation__lt = datetime.date.today() - datetime.timedelta(settings.ARCHIVE_DAYS)).order_by('date_creation');
     for h in history:
         current = h.date_creation.date()
         path1 = root + 'logs' + os.sep + 'urls-' + current.strftime('%Y%m%d') + '.html'
@@ -1623,7 +1623,7 @@ def burndown(request, project_id, sprint_id):
         d['url'] = 'tasks'
         if done and t.etat == '2':
             times.append(d)
-        elif not done and not released and n.etat != '2':
+        elif not done and t.etat != '2':
             times.append(d)
         for d in tt:
             days.append(d.jour)

@@ -125,3 +125,6 @@ LOGOUT_URL = DEFAULT_HOME + 'accounts/logout/'
 
 # Custom User model for authentification
 AUTH_PROFILE_MODULE = 'projects.UserProfile'
+
+# Number of days before archiving logs and history
+ARCHIVE_DAYS = 5
