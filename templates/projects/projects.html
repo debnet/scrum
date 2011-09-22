@@ -29,9 +29,14 @@
 						<div class="bloc projet">{{ projet.description }}</div>
 						<div class="bloc membres">{{ membres|dict:projet.id|join:" &nbsp; " }}</div>
 					</div>
-					<div onclick="document.location='{{ projet.id }}/scrumwall/'" class="sousmenu minor">Scrum Wall</div>
+					<div onclick="document.location='{{ projet.id }}/scrumwall/'" class="sousmenu blocking">Scrum Wall</div>
+					<div onclick="document.location='{{ projet.id }}/velocity/'" class="sousmenu minor">Velocit&eacute; &amp; Progression</div>
 					<div onclick="document.location='{{ projet.id }}/summary/{% if projet.running %}?sprint={{ projet.sprint }}{% endif %}'" class="sousmenu major">Synth&egrave;se</div>
-					{% if projet.running %}<div onclick="document.location='{{ projet.id }}/sprints/{{ projet.sprint }}'" class="sousmenu critical">Sprint en cours</div>{% endif %}
+					{% if projet.running %}
+					<div onclick="document.location='{{ projet.id }}/sprints/{{ projet.sprint }}'" class="sousmenu critical">Sprint en cours</div>
+					{% else %}
+					<div class="sousmenu none">Aucun sprint en cours</div>
+					{% endif %}
 				</td>
 			{% endfor %}
 			</tr>

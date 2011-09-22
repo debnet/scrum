@@ -15,7 +15,7 @@ logging.basicConfig (
 from django.db.models import Count, Sum, Avg
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, Http404
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.models import LogEntry, ContentType
 from django.contrib.auth.models import User
@@ -187,17 +187,11 @@ def list_projects(nb_notes = NOTES_PAR_LIGNE):
     return projects
 
 # ------------------------------------------------
-def list_features(project_id, sort = '-priorite', all = False, todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_features(project_id, sort = ['-priorite'], all = False, todo = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Feature.objects.filter(projet__id__exact = project_id)
-    tmp = tmp.order_by(sort) if sort else tmp
+    tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
         tmp = tmp.exclude(termine__exact = 1) if todo else tmp.filter(termine__exact = 1)
-
-    if not tab:
-        if not max == 0:
-            return tmp[:max]
-        else:
-            return tmp
 
     features = list()
     features.append(list())
@@ -232,18 +226,12 @@ def list_features(project_id, sort = '-priorite', all = False, todo = True, tab 
     return features
 
 # ------------------------------------------------
-def list_notes(feature_id, sort = '-priorite', all = False, todo = True, toset = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_notes(feature_id, sort = ['-priorite'], all = False, todo = True, toset = False, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Note.objects.filter(feature__id__exact = feature_id)
-    tmp = tmp.order_by(sort) if sort else tmp
+    tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
         tmp = tmp.exclude(etat__exact = 2) if todo else tmp.filter(etat__exact = 2)
         tmp = tmp.exclude(sprint__id__isnull = False) if toset else tmp.filter(sprint__id__isnull = False)
-
-    if not tab:
-        if not max == 0:
-            return tmp[:max]
-        else:
-            return tmp
 
     notes = list()
     notes.append(list())
@@ -269,17 +257,11 @@ def list_notes(feature_id, sort = '-priorite', all = False, todo = True, toset =
     return notes
 
 # ------------------------------------------------
-def list_sprints(project_id, sort = '-date_debut', all = False, todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Sprint.objects.filter(projet__id__exact = project_id)
-    tmp = tmp.order_by(sort) if sort else tmp
+    tmp = tmp.order_by(*sort) if sort else tmp
     if not all:    
         tmp = tmp.exclude(date_fin__lt = datetime.date.today()) if todo else tmp.filter(date_fin__lt = datetime.date.today())
-
-    if not tab:
-        if not max == 0:
-            return tmp[:max]
-        else:
-            return tmp
 
     sprints = list()
     sprints.append(list())
@@ -392,17 +374,11 @@ def list_sprints(project_id, sort = '-date_debut', all = False, todo = True, tab
     return sprints
 
 # ------------------------------------------------
-def list_snotes(sprint_id, sort = '-priorite', all = False, todo = True, work = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_snotes(sprint_id, sort = ['-priorite'], all = False, todo = True, work = False, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Note.objects.select_related().filter(sprint__id__exact = sprint_id)
-    tmp = tmp.order_by(sort) if sort else tmp
+    tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
         tmp = tmp.filter(etat__exact = 0) if todo else tmp.filter(etat__exact = 1) if work else tmp.filter(etat__exact = 2)
-
-    if not tab:
-        if not max == 0:
-            return tmp[:max]
-        else:
-            return tmp
 
     notes = list()
     notes.append(list())
@@ -428,17 +404,11 @@ def list_snotes(sprint_id, sort = '-priorite', all = False, todo = True, work = 
     return notes
 
 # ------------------------------------------------
-def list_tasks(sprint_id, sort = '-priorite', all = False, todo = True, work = False, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_tasks(sprint_id, sort = ['-priorite'], all = False, todo = True, work = False, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Task.objects.filter(sprint__id__exact = sprint_id)
-    tmp = tmp.order_by(sort) if sort else tmp
+    tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
         tmp = tmp.filter(etat__exact = 0) if todo else tmp.filter(etat__exact = 1) if work else tmp.filter(etat__exact = 2)
-
-    if not tab:
-        if not max == 0:
-            return tmp[:max]
-        else:
-            return tmp
 
     tasks = list()
     tasks.append(list())
@@ -464,17 +434,11 @@ def list_tasks(sprint_id, sort = '-priorite', all = False, todo = True, work = F
     return tasks
 
 # ------------------------------------------------
-def list_problems(project_id, sort = '-priorite', all = False, todo = True, tab = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
+def list_problems(project_id, sort = ['-priorite'], all = False, todo = True, max = 0, target = None, nb_notes = NOTES_PAR_LIGNE):
     tmp = Problem.objects.filter(projet__id__exact = project_id)
-    tmp = tmp.order_by(sort) if sort else tmp
+    tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
         tmp = tmp.exclude(resolu__exact = 1) if todo else tmp.filter(resolu__exact = 1)
-
-    if not tab:
-        if not max == 0:
-            return tmp[:max]
-        else:
-            return tmp
 
     problems = list()
     problems.append(list())
@@ -589,9 +553,9 @@ def project(request, project_id):
     for n in n_done:
         nd += n.effort
 
-    features = list_features(project_id, tab = True, max = nb_notes, nb_notes = nb_notes)
-    sprints = list_sprints(project_id, tab = True, max = nb_notes, nb_notes = nb_notes)
-    problems = list_problems(project_id, tab = True, max = nb_notes, nb_notes = nb_notes)
+    features = list_features(project_id, max = nb_notes, nb_notes = nb_notes)
+    sprints = list_sprints(project_id, max = nb_notes, nb_notes = nb_notes)
+    problems = list_problems(project_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/project.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -617,9 +581,35 @@ def features(request, project_id):
         del request.session['messages']
     request.session['url'] = home + 'projects/' + project_id + '/features'
 
+    if request.method == 'GET':
+        confiance = False
+        if request.GET.__contains__('d'):
+            feature = Feature.objects.get(pk = int(request.GET['d']))
+            feature.confiance_dev = int(feature.confiance_dev) +1
+            if int(feature.confiance_dev) > 3:
+                feature.confiance_dev = '0'
+            feature.save()
+            confiance = True
+        elif request.GET.__contains__('s'):
+            feature = Feature.objects.get(pk = int(request.GET['s']))
+            feature.confiance_sm = int(feature.confiance_sm) +1
+            if int(feature.confiance_sm) > 3:
+                feature.confiance_sm = '0'
+            feature.save()
+            confiance = True
+        elif request.GET.__contains__('p'):
+            feature = Feature.objects.get(pk = int(request.GET['p']))
+            feature.confiance_po = int(feature.confiance_po) +1
+            if int(feature.confiance_po) > 3:
+                feature.confiance_po = '0'
+            feature.save()
+            confiance = True
+        if confiance:
+            return redirect('%s/#%d' % (request.session['url'], feature.id))    
+    
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
-
+    
     if request.method == 'POST':
         changes = list()
         if request.POST.__contains__('id'):
@@ -638,33 +628,13 @@ def features(request, project_id):
             add_log(user, 'feature', feature, 2, ', '.join(changes))
             messages.append(u'Fonctionnalité modifiée avec succès !')
 
-    if request.method == 'GET':
-        if request.GET.__contains__('d'):
-            feature = Feature.objects.get(pk = int(request.GET['d']))
-            feature.confiance_dev = int(feature.confiance_dev) +1
-            if int(feature.confiance_dev) > 3:
-                feature.confiance_dev = '0'
-            feature.save()
-        if request.GET.__contains__('s'):
-            feature = Feature.objects.get(pk = int(request.GET['s']))
-            feature.confiance_sm = int(feature.confiance_sm) +1
-            if int(feature.confiance_sm) > 3:
-                feature.confiance_sm = '0'
-            feature.save()
-        if request.GET.__contains__('p'):
-            feature = Feature.objects.get(pk = int(request.GET['p']))
-            feature.confiance_po = int(feature.confiance_po) +1
-            if int(feature.confiance_po) > 3:
-                feature.confiance_po = '0'
-            feature.save()
-
-    sort = '-priorite'
+    sort = ['-priorite', 'termine']
     all = True
     todo = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
-            sort = request.GET['sort']
+            sort = request.GET['sort'].split(',')
         if request.GET.__contains__('todo'):
             todo = True
             all = False
@@ -674,7 +644,7 @@ def features(request, project_id):
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
 
-    features = list_features(project_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    features = list_features(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/features.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -702,7 +672,7 @@ def feature(request, project_id, feature_id):
     n_all = Note.objects.filter(feature__id__exact = feature_id)
     n_done = n_all.filter(etat__exact = 2)
 
-    notes = list_notes(feature_id, tab = True, max = nb_notes, nb_notes = nb_notes)
+    notes = list_notes(feature_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/feature.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
@@ -728,9 +698,35 @@ def notes(request, project_id, feature_id):
         del request.session['messages']
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes'    
 
+    if request.method == 'GET':
+        confiance = False
+        if request.GET.__contains__('d'):
+            note = Note.objects.get(pk = int(request.GET['d']))
+            note.confiance_dev = int(note.confiance_dev) +1
+            if int(note.confiance_dev) > 3:
+                note.confiance_dev = '0'
+            note.save()
+            confiance = True
+        elif request.GET.__contains__('s'):
+            note = Note.objects.get(pk = int(request.GET['s']))
+            note.confiance_sm = int(note.confiance_sm) +1
+            if int(note.confiance_sm) > 3:
+                note.confiance_sm = '0'
+            note.save()
+            confiance = True
+        elif request.GET.__contains__('p'):
+            note = Note.objects.get(pk = int(request.GET['p']))
+            note.confiance_po = int(note.confiance_po) +1
+            if int(note.confiance_po) > 3:
+                note.confiance_po = '0'
+            note.save()
+            confiance = True
+        if confiance:
+            return redirect('%s/#%d' % (request.session['url'], note.id))
+    
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
-
+    
     if request.method == 'POST':
         changes = list()
         if request.POST.__contains__('id'):
@@ -761,34 +757,15 @@ def notes(request, project_id, feature_id):
             note.save()
             add_log(user, 'note', note, 2, ', '.join(changes))
             messages.append(u'Note de backlog modifiée avec succès !')
-    if request.method == 'GET':
-        if request.GET.__contains__('d'):
-            note = Note.objects.get(pk = int(request.GET['d']))
-            note.confiance_dev = int(note.confiance_dev) +1
-            if int(note.confiance_dev) > 3:
-                note.confiance_dev = '0'
-            note.save()
-        if request.GET.__contains__('s'):
-            note = Note.objects.get(pk = int(request.GET['s']))
-            note.confiance_sm = int(note.confiance_sm) +1
-            if int(note.confiance_sm) > 3:
-                note.confiance_sm = '0'
-            note.save()
-        if request.GET.__contains__('p'):
-            note = Note.objects.get(pk = int(request.GET['p']))
-            note.confiance_po = int(note.confiance_po) +1
-            if int(note.confiance_po) > 3:
-                note.confiance_po = '0'
-            note.save()
 
-    sort = '-priorite'
+    sort = ['-priorite', 'etat']
     all = True
     todo = False
     toset = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
-            sort = request.GET['sort']
+            sort = request.GET['sort'].split(',')
         if request.GET.__contains__('todo'):
             todo = True
             toset = False
@@ -804,7 +781,7 @@ def notes(request, project_id, feature_id):
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
 
-    notes = list_notes(feature_id, sort = sort, all = all, todo = todo, toset = toset, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    notes = list_notes(feature_id, sort = sort, all = all, todo = todo, toset = toset, max = 0, target = target, nb_notes = nb_notes)
     sprints = Sprint.objects.filter(projet__id__exact = project_id)
 
     return render_to_response('projects/notes.html',
@@ -853,28 +830,35 @@ def sprints(request, project_id):
         del request.session['messages']
     request.session['url'] = home + 'projects/' + project_id + '/sprints'  
 
-    add_history(user, request.session['url'])
-    nb_notes = get_nb_notes(request)
-
     if request.method == 'GET':
+        confiance = False
         if request.GET.__contains__('d'):
             sprint = Sprint.objects.get(pk = int(request.GET['d']))
             sprint.confiance_dev = int(sprint.confiance_dev) +1
             if int(sprint.confiance_dev) > 3:
                 sprint.confiance_dev = '0'
             sprint.save()
-        if request.GET.__contains__('s'):
+            confiance = True
+        elif request.GET.__contains__('s'):
             sprint = Sprint.objects.get(pk = int(request.GET['s']))
             sprint.confiance_sm = int(sprint.confiance_sm) +1
             if int(sprint.confiance_sm) > 3:
                 sprint.confiance_sm = '0'
             sprint.save()
-        if request.GET.__contains__('p'):
+            confiance = True
+        elif request.GET.__contains__('p'):
             sprint = Sprint.objects.get(pk = int(request.GET['p']))
             sprint.confiance_po = int(sprint.confiance_po) +1
             if int(sprint.confiance_po) > 3:
                 sprint.confiance_po = '0'
             sprint.save()
+            confiance = True
+        if confiance:
+            return redirect('%s/#%d' % (request.session['url'], sprint.id))    
+    
+    add_history(user, request.session['url'])
+    nb_notes = get_nb_notes(request)
+    
     if request.method == 'POST' and request.POST.__contains__('id'):
         id = int(request.POST['id'])
         sprint = Sprint.objects.get(pk = id)
@@ -926,13 +910,13 @@ def sprints(request, project_id):
         messages.append(u'Sprint modifié avec succès !')
         add_log(user, 'sprint', sprint, 2, u'date début = %s, date fin = %s' % (date_debut, date_fin))
 
-    sort = '-date_debut'
+    sort = ['-date_debut']
     all = True
     todo = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
-            sort = request.GET['sort']
+            sort = request.GET['sort'].split(',')
         if request.GET.__contains__('todo'):
             todo = True
             all = False
@@ -942,7 +926,7 @@ def sprints(request, project_id):
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
 
-    sprints = list_sprints(project_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    sprints = list_sprints(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/sprints.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -972,8 +956,8 @@ def sprint(request, project_id, sprint_id):
     n_done = n_all.filter(etat__exact = 2)
     t_done = t_all.filter(etat__exact = 2)
 
-    notes = list_snotes(sprint_id, tab = True, max = nb_notes, nb_notes = nb_notes)
-    tasks = list_tasks(sprint_id, tab = True, max = nb_notes, nb_notes = nb_notes)
+    notes = list_snotes(sprint_id, max = nb_notes, nb_notes = nb_notes)
+    tasks = list_tasks(sprint_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/sprint.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1000,24 +984,30 @@ def snotes(request, project_id, sprint_id):
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes'
 
     if request.method == 'GET':
+        confiance = False
         if request.GET.__contains__('d'):
             note = Note.objects.get(pk = int(request.GET['d']))
             note.confiance_dev = int(note.confiance_dev) +1
             if int(note.confiance_dev) > 3:
                 note.confiance_dev = '0'
             note.save()
-        if request.GET.__contains__('s'):
+            confiance = True
+        elif request.GET.__contains__('s'):
             note = Note.objects.get(pk = int(request.GET['s']))
             note.confiance_sm = int(note.confiance_sm) +1
             if int(note.confiance_sm) > 3:
                 note.confiance_sm = '0'
             note.save()
-        if request.GET.__contains__('p'):
+            confiance = True
+        elif request.GET.__contains__('p'):
             note = Note.objects.get(pk = int(request.GET['p']))
             note.confiance_po = int(note.confiance_po) +1
             if int(note.confiance_po) > 3:
                 note.confiance_po = '0'
-            note.save()   
+            note.save()  
+            confiance = True
+        if confiance:
+            return redirect('%s/#%d' % (request.session['url'], note.id))
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1051,14 +1041,14 @@ def snotes(request, project_id, sprint_id):
             add_log(user, 'note', note, 2, ', '.join(changes))
             messages.append(u'Note de sprint modifiée avec succès !')
 
-    sort = '-priorite'
+    sort = ['-priorite', 'etat']
     all = True
     todo = False
     work = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
-            sort = request.GET['sort']
+            sort = request.GET['sort'].split(',')
         if request.GET.__contains__('todo'):
             todo = True
             work = False
@@ -1074,7 +1064,7 @@ def snotes(request, project_id, sprint_id):
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
 
-    notes = list_snotes(sprint_id, sort = sort, all = all, todo = todo, work = work, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    notes = list_snotes(sprint_id, sort = sort, all = all, todo = todo, work = work, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/snotes.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
@@ -1124,24 +1114,30 @@ def tasks(request, project_id, sprint_id):
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks' 
 
     if request.method == 'GET':
+        confiance = False
         if request.GET.__contains__('d'):
             task = Task.objects.get(pk = int(request.GET['d']))
             task.confiance_dev = int(task.confiance_dev) +1
             if int(task.confiance_dev) > 3:
                 task.confiance_dev = '0'
             task.save()
-        if request.GET.__contains__('s'):
+            confiance = True
+        elif request.GET.__contains__('s'):
             task = Task.objects.get(pk = int(request.GET['s']))
             task.confiance_sm = int(task.confiance_sm) +1
             if int(task.confiance_sm) > 3:
                 task.confiance_sm = '0'
             task.save()
-        if request.GET.__contains__('p'):
+            confiance = True
+        elif request.GET.__contains__('p'):
             task = Task.objects.get(pk = int(request.GET['p']))
             task.confiance_po = int(task.confiance_po) +1
             if int(task.confiance_po) > 3:
                 task.confiance_po = '0'
             task.save() 
+            confiance = True
+        if confiance:
+            return redirect('%s/#%d' % (request.session['url'], task.id))
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1175,14 +1171,14 @@ def tasks(request, project_id, sprint_id):
             add_log(user, 'task', task, 2, ', '.join(changes))
             messages.append(u'Tâche modifiée avec succès !')
 
-    sort = '-priorite'
+    sort = ['-priorite', 'etat']
     all = True
     todo = False
     work = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
-            sort = request.GET['sort']
+            sort = request.GET['sort'].split(',')
         if request.GET.__contains__('todo'):
             todo = True
             work = False
@@ -1198,7 +1194,7 @@ def tasks(request, project_id, sprint_id):
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
 
-    tasks = list_tasks(sprint_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    tasks = list_tasks(sprint_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/tasks.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1353,24 +1349,30 @@ def problems(request, project_id):
     request.session['url'] = home + 'projects/' + project_id + '/problems'
 
     if request.method == 'GET':
+        confiance = False
         if request.GET.__contains__('d'):
             problem = Problem.objects.get(pk = int(request.GET['d']))
             problem.confiance_dev = int(problem.confiance_dev) +1
             if int(problem.confiance_dev) > 3:
                 problem.confiance_dev = '0'
             problem.save()
-        if request.GET.__contains__('s'):
+            confiance = True
+        elif request.GET.__contains__('s'):
             problem = Problem.objects.get(pk = int(request.GET['s']))
             problem.confiance_sm = int(problem.confiance_sm) +1
             if int(problem.confiance_sm) > 3:
                 problem.confiance_sm = '0'
             problem.save()
-        if request.GET.__contains__('p'):
+            confiance = True
+        elif request.GET.__contains__('p'):
             problem = Problem.objects.get(pk = int(request.GET['p']))
             problem.confiance_po = int(problem.confiance_po) +1
             if int(problem.confiance_po) > 3:
                 problem.confiance_po = '0'
-            problem.save()    
+            problem.save() 
+            confiance = True
+        if confiance:
+            return redirect('%s/#%d' % (request.session['url'], problem.id))
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1393,13 +1395,13 @@ def problems(request, project_id):
             add_log(user, 'problem', problem, 2, ', '.join(changes))
             messages.append(u'Problème modifié avec succès !')
 
-    sort = '-priorite'
+    sort = ['-priorite', 'resolu']
     all = True
     todo = False
     target = None
     if request.method == 'GET':
         if request.GET.__contains__('sort'):
-            sort = request.GET['sort']
+            sort = request.GET['sort'].split(',')
         if request.GET.__contains__('todo'):
             todo = True
             all = False
@@ -1409,7 +1411,7 @@ def problems(request, project_id):
         if request.GET.__contains__('target'):
             target = int(request.GET['target'])
 
-    problems = list_problems(project_id, sort = sort, all = all, todo = todo, tab = True, max = 0, target = target, nb_notes = nb_notes)
+    problems = list_problems(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/problems.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1667,7 +1669,7 @@ def burndown(request, project_id, sprint_id):
     url += '&chxr=1,' + str(min) + ',' + str(total)
     url += '&chds=0,0,' + str(min) + ',' + str(total)
     url += '&chco=0000ff,ff0000,00aaaa'
-    url += '&chls=2,4,1'
+    url += '&chls=2,4,2|2,0,0|2,0,0'
     url += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|s,00aa00,2,-1,5'
     url += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
     url += '&chd=t:-1|' + ','.join('%s' % (x) for x in data1)
@@ -1697,6 +1699,12 @@ def velocity(request, project_id):
     nb_notes = get_nb_notes(request)
 
     sprints = Sprint.objects.filter(projet__id__exact = project.id).order_by('date_debut')
+    
+    i = 0
+    labels = list()
+    for sprint in sprints:
+        i += 1
+        labels.append("Sprint %d" % (i))
 
     data = [list(), list(), list(), list()]
     for i in range(4):
@@ -1709,13 +1717,13 @@ def velocity(request, project_id):
             data[i].insert(s, n)
             s += 1
 
-    max = 0
+    max1 = 0
     for i in range(sprints.count()):
         n = 0
         for j in range(4):
             n += data[j][i]
-        if n > max:
-            max = n
+        if n > max1:
+            max1 = n
 
     url1  = 'http://chart.apis.google.com/chart'
     url1 += '?chs=800x350'
@@ -1724,20 +1732,24 @@ def velocity(request, project_id):
     url1 += '&chdl=User-story|Feature|Bug|Spike'
     url1 += '&chdlp=t'
     url1 += '&chxt=x,y'
-    url1 += '&chxl=0:|' + '|'.join('%s' % (str(s.titre)) for s in sprints)
-    url1 += '&chxr=1,0,' + str(max)
-    url1 += '&chds=0,' + str(max)
+    url1 += '&chxl=0:|' + '|'.join(labels)
+    url1 += '&chxr=1,0,' + str(max1)
+    url1 += '&chds=0,' + str(max1)
     url1 += '&chco=ccffcc,ffffcc,ffcc99,cecaff'
     url1 += '&chm=N,ff0000,-1,,12,,e::11|N,000000,0,,11,,c|N,000000,1,,11,,c|N,000000,2,,10,,c|N,000000,3,,11,,c'
     url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
     url1 += '&chd=t:' + '|'.join('%s' % (','.join('%s' % (v) for v in values)) for values in data)
 
+    i = 0
     first = True
     cumul = 0
-    max = 0
+    max2 = 0
     charge1 = list()
     charge2 = list()
+    labels = list()
     for sprint in sprints:
+        i += 1
+        labels.append("Sprint %d" % (i))
         notes = Note.objects.filter(sprint__id__exact = sprint.id, etat__exact = 2)
         n = 0
         for note in notes:
@@ -1748,25 +1760,37 @@ def velocity(request, project_id):
             charge2.append(sprint.effort)
             first = False
         charge2.append(sprint.effort)
-        if sprint.effort > max:
-            max = sprint.effort
+        if sprint.effort > max2:
+            max2 = sprint.effort
+    avg = cumul / sprints.count()
+    avgs = charge1[:]
+    tmp = cumul
+    while tmp < max2:
+        tmp += avg
+        avgs.append(tmp)
+        labels.append("Sprint %d" % (len(labels) + 1))
+        charge1.append(cumul)
+        charge2.append(sprint.effort)
+    l = [max(charge1), max(charge2), max(avgs)]
+    max2 = max(l)
 
     url2  = 'http://chart.apis.google.com/chart'
     url2 += '?chs=800x350'
     url2 += '&cht=lxy'
     url2 += '&chg=' + str(100.0 / len(charge1)) + ',0'
-    url2 += '&chdl=Charge terminée|Charge totale'
+    url2 += '&chdl=Charge réalisée|Charge totale|Charge estimée'
     url2 += '&chdlp=t'
     url2 += '&chxt=x,y'
-    url2 += '&chxl=0:||' + '|'.join('%s' % (str(s.titre)) for s in sprints)
-    url2 += '&chxr=1,0,' + str(max)
-    url2 += '&chds=0,0,0,' + str(max)
-    url2 += '&chco=0000ff,ff0000,00aaaa'
-    url2 += '&chls=2,4,1'
-    url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,000000,1,-1,11|s,00aa00,2,-1,5'
+    url2 += '&chxl=0:||' + '|'.join(labels)
+    url2 += '&chxr=1,0,' + str(max2)
+    url2 += '&chds=0,0,0,' + str(max2)
+    url2 += '&chco=00aa00,ff0000,0000ff'
+    url2 += '&chls=2,4,2|2,0,0|2,4,2'
+    url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11|s,ff0000,2,-1,5|N*f0*,000000,2,-1,11'
     url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
     url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in charge1)
     url2 += '|-1|' + ','.join('%s' % (y) for y in charge2)
+    url2 += '|-1|0,' + ','.join('%s' % (z) for z in avgs)
 
     return render_to_response('projects/velocity.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1850,8 +1874,8 @@ def summary(request, project_id):
         url1 += '&chxr=1,0,' + str(max1)
         url1 += '&chds=0,0,0,' + str(max1)
         url1 += '&chco=0000ff,ff0000,00aaaa'
-        url1 += '&chls=2,4,1'
-        url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,000000,1,-1,11|s,00aa00,2,-1,5'
+        url1 += '&chls=2,4,2|2,0,0|2,0,0'
+        url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11|s,00aa00,2,-1,5'
         url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
         url1 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
         url1 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
@@ -1885,8 +1909,8 @@ def summary(request, project_id):
         url2 += '&chxr=1,0,' + str(max2)
         url2 += '&chds=0,0,0,' + str(max2)
         url2 += '&chco=0000ff,ff0000,000000'
-        url2 += '&chls=2,4,1'
-        url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,000000,1,-1,11'
+        url2 += '&chls=2,4,2|2,0,0|2,0,0'
+        url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
         url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
         url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
         url2 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
