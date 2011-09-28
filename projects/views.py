@@ -1762,16 +1762,21 @@ def velocity(request, project_id):
         charge2.append(sprint.effort)
         if sprint.effort > max2:
             max2 = sprint.effort
-    avg = cumul / sprints.count()
-    avgs = charge1[:]
-    tmp = cumul
-    while tmp < max2:
-        tmp += avg
-        avgs.append(tmp)
-        labels.append("Sprint %d" % (len(labels) + 1))
-        charge1.append(cumul)
-        charge2.append(sprint.effort)
-    l = [max(charge1), max(charge2), max(avgs)]
+    
+    avgs = list()
+    if sprints.count() > 0:
+        avg = cumul / sprints.count()
+        avgs = charge1[:]
+        tmp = cumul
+        while tmp < max2:
+            tmp += avg
+            avgs.append(tmp)
+            labels.append("Sprint %d" % (len(labels) + 1))
+            charge1.append(cumul)
+            charge2.append(sprint.effort)
+            l = [max(charge1), max(charge2), max(avgs)]
+    else:
+        l = [max(charge1), max(charge2)]
     max2 = max(l)
 
     url2  = 'http://chart.apis.google.com/chart'
@@ -1790,7 +1795,8 @@ def velocity(request, project_id):
     url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
     url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in charge1)
     url2 += '|-1|' + ','.join('%s' % (y) for y in charge2)
-    url2 += '|-1|0,' + ','.join('%s' % (z) for z in avgs)
+    if len(avgs) > 0:
+        url2 += '|-1|0,' + ','.join('%s' % (z) for z in avgs)
 
     return render_to_response('projects/velocity.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -2092,7 +2098,7 @@ def new_note(request, project_id, feature_id):
         raise Exception, NOT_MEMBER_MSG    
 
     user = request.user.get_profile()
-    title = u'Nouvelle note de backlog'
+    title = u'Nouvelle note de backlog - "' + unicode(feature.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/new'   
 
@@ -2150,7 +2156,9 @@ def new_sprint(request, project_id):
         effort = 0
         for note in notes:
             effort += note.effort
-        form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort })
+        sprints = Sprint.objects.filter(projet__id__exact = project.id)
+        titre = "Sprint %d" % (sprints.count() + 1)
+        form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
@@ -2285,7 +2293,9 @@ def add_sprint(request, project_id, feature_id, note_id):
         effort = 0
         for note in notes:
             effort += note.effort
-        form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, })
+        sprints = Sprint.objects.filter(projet__id__exact = project.id)
+        titre = "Sprint %d" % (sprints.count() + 1)
+        form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
