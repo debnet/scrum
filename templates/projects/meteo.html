@@ -1,0 +1,118 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt dict %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+			&nbsp;(&nbsp;
+				<!--
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
+				&nbsp;-&nbsp; 
+				-->
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
+				&nbsp;-&nbsp; M&eacute;t&eacute;o
+			&nbsp;)
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<br />
+		<img style="width: 800px; height: 350px;" src="{{ url }}" />
+		<br /><br /><br />
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Utilisateur</th>
+					<th>Projet</th>
+					<th>&Eacute;quipe</th>
+					<th>Avance.</th>
+					<th>Commentaire</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for jour in jours %}
+					{% if jour|dict:"perso" %}
+						{% for perso in jour|dict:"perso" %}
+						<tr id="{{ perso.id }}" class="row{{ jour|dict:"row" }}" >
+							<td rowspan="{{ jour|dict:"nb" }}"><strong>{{ jour|dict:"date" }}</strong></td>
+							<td>{{ perso.utilisateur }}</td>
+							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_projet }}.png" /></td>
+							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_equipe }}.png" /></td>
+							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_avance }}.png" /></td>
+							<td>{{ perso.commentaire }}</td>
+						</tr>
+						{% endfor %}
+					{% else %}
+						<tr class="row{{ jour|dict:"row" }}">
+							<form enctype="multipart/form-data" action="." method="post">{% csrf_token %}
+								<td rowspan="{{ jour|dict:"nb" }}"><strong>{{ jour|dict:"date" }}</strong></td>
+								<td>{{ user }}</td>
+								<td>
+									<select name="meteo_projet" class="image" onchange="change(this)">
+									{% for m in meteo %}
+										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
+									{% endfor %}
+									</select>
+								</td>
+								<td>
+									<select name="meteo_equipe" class="image" onchange="change(this)">
+									{% for m in meteo %}
+										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
+									{% endfor %}
+									</select>
+								</td>
+								<td>
+									<select name="meteo_avance" class="image" onchange="change(this)">
+									{% for m in meteo %}
+										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
+									{% endfor %}
+									</select>
+								</td>
+								<td>
+									<input type="text" name="commentaire" size="30" />
+									<input type="hidden" name="date" value="{{ jour|dict:"date" }}" />
+									<input type="submit" value="Ok" />
+								</td>
+							</form>
+						</tr>
+					{% endif %}
+					{% for autre in jour|dict:"autre" %}
+						<tr id="{{ autre.id }}" class="row{{ jour|dict:"row" }}">
+							<td>{{ autre.utilisateur }}</td>
+							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_projet }}.png" /></td>
+							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_equipe }}.png" /></td>
+							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_avance }}.png" /></td>
+							<td>{{ autre.commentaire }}</td>
+						</tr>
+					{% endfor %}
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<script language="javascript">
+		function change(element) {
+			element.style.background = "url('{{ home }}media/img/meteo/m" + (element.selectedIndex + 1) + ".png') no-repeat";
+		}
+		var select = document.getElementById("content-main").getElementsByTagName("select");
+		for (var i = 0; i < select.length; i++) {
+			change(select[i]);
+		}
+	</script>
+{% endblock %}
+
+{% block legend %}{% endblock %}

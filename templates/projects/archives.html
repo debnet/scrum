@@ -5,7 +5,8 @@
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/logs/"><strong>Historiques</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/history/"><strong>Historiques</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/logs/"><strong>Logs</strong></a>
 		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
 	</div>
 {% endblock %}
@@ -24,7 +25,7 @@
 				{% for f in files %}
 					<tr>
 						<td><input type="checkbox" name="files" value="{{ f }}" /></td>
-						<td><a href="/logs/{{ f }}">{{ f }}</a></td>
+						<td><a href="{{ home }}archives/{{ f }}">{{ f }}</a></td>
 					</tr>
 				{% endfor %}
 				</tbody>
@@ -36,8 +37,7 @@
 			</table>
 		</form>
 	</div>
-
-	<script type="text/javascript">
+	<script language="javascript">
 		function toggle(checkbox) {
 			var inputs = document.getElementsByTagName('input');
 			for (var i = 0; i < inputs.length; i++) {

@@ -22,8 +22,8 @@ from django.contrib.auth.models import User
 from django.template import RequestContext
 
 from scrum import settings
-from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, Task, Problem, Release, Document, NoteTime, TaskTime, History
-from scrum.projects.models import ETATS, PRIORITES, STATUS
+from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, Task, Problem, Release, Meteo, Poker, Document, NoteTime, TaskTime, History
+from scrum.projects.models import ETATS, PRIORITES, STATUS, EFFORTS, CONFIANCE, METEO
 from scrum.projects.forms import UserForm, ProjectForm, FeatureForm, NoteForm, SprintForm, TaskForm, ProblemForm, DocumentForm
 
 NOT_MEMBER_MSG = u'Accès refusé : l\'utilisateur n\'est pas membre du projet !'
@@ -32,6 +32,18 @@ NOTES_PAR_LIGNE = 5
 root = settings.DEFAULT_DIR
 home = settings.DEFAULT_HOME
 theme = settings.MEDIA_URL
+
+# ------------------------------------------------
+def recalc_effort(project):
+    notes = Note.objects.filter(feature__projet__id__exact = project.id, priorite__in = ('0', '2', '3', '4', '5'))
+    effort = 0
+    for note in notes:
+        effort += note.effort
+    sprint = Sprint.objects.select_related().filter(projet__id__exact = project.id).order_by('-date_debut')[0]
+    if sprint.date_fin > datetime.date.today():
+        sprint.effort = effort
+        sprint.save()
+    return effort
 
 # ------------------------------------------------
 def get_nb_notes(request):
@@ -43,18 +55,24 @@ def get_nb_notes(request):
         return NOTES_PAR_LIGNE
 
 # ------------------------------------------------
-def get_holidays(year):
+def get_holidays(year1, year2 = None):
     holidays = list()
-    if (os.path.exists(root + str(year) + '.xml')):
-        dom = parse(root + str(year) + '.xml')
+    if (os.path.exists(root + str(year1) + '.xml')):
+        dom = parse(root + str(year1) + '.xml')
         for node in dom.getElementsByTagName('day'):
             day = time.strptime(node.firstChild.nodeValue, "%Y-%m-%d")
             holidays.append(datetime.date(day[0], day[1], day[2]))
+    if year2 != None and year1 != year2:
+        if (os.path.exists(root + str(year2) + '.xml')):
+            dom = parse(root + str(year2) + '.xml')
+            for node in dom.getElementsByTagName('day'):
+                day = time.strptime(node.firstChild.nodeValue, "%Y-%m-%d")
+                holidays.append(datetime.date(day[0], day[1], day[2]))
     return holidays
 
 # ------------------------------------------------
 def create_note_days(sprint, note):
-    holidays = get_holidays(sprint.date_debut.year)
+    holidays = get_holidays(sprint.date_debut.year, sprint.date_fin.year)
     d = sprint.date_debut
     first = True
     while d <= sprint.date_fin:
@@ -72,7 +90,7 @@ def create_note_days(sprint, note):
 
 # ------------------------------------------------
 def create_task_days(sprint, task):
-    holidays = get_holidays(sprint.date_debut.year)
+    holidays = get_holidays(sprint.date_debut.year, sprint.date_fin.year)
     d = sprint.date_debut
     while d <= sprint.date_fin:
         if d.strftime('%w') not in ('0', '6', ) and d not in holidays:
@@ -321,7 +339,7 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
             else:
                 value1 = '0'
 
-        holidays = get_holidays(t.date_debut.year)
+        holidays = get_holidays(t.date_debut.year, t.date_fin.year)
 
         nbd1 = 0
         d = t.date_debut
@@ -523,10 +541,10 @@ def projects(request):
 def project(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Projet - "' + unicode(project.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id
@@ -570,10 +588,10 @@ def project(request, project_id):
 def features(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Fonctionnalités - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
@@ -658,10 +676,10 @@ def feature(request, project_id, feature_id):
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Fonctionnalité - "' + unicode(feature.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id
@@ -687,10 +705,10 @@ def notes(request, project_id, feature_id):
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Notes de backlog - Fonctionnalité "' + unicode(feature.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
@@ -755,6 +773,7 @@ def notes(request, project_id, feature_id):
                 changes.append(u'temps = ' + str(note.temps_estime))
             note.utilisateur = user
             note.save()
+            recalc_effort(project)
             add_log(user, 'note', note, 2, ', '.join(changes))
             messages.append(u'Note de backlog modifiée avec succès !')
 
@@ -797,10 +816,10 @@ def note(request, project_id, feature_id, note_id):
     feature = get_object_or_404(Feature, pk = feature_id)
     note = get_object_or_404(Note, pk = note_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Note de backlog - "' + unicode(note.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id
@@ -819,10 +838,10 @@ def note(request, project_id, feature_id, note_id):
 def sprints(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Sprints - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
@@ -867,7 +886,7 @@ def sprints(request, project_id):
         tmp = time.strptime(request.POST['date_fin'], '%Y-%m-%d')
         date_fin = datetime.date(tmp[0], tmp[1], tmp[2])
         # ------------------------------------------------------------
-        holidays = get_holidays(date_debut.year)
+        holidays = get_holidays(date_debut.year, date_fin.year)
         d = date_debut
         while d <= date_fin:
             if d.strftime('%w') not in ('0', '6', ) and d not in holidays:
@@ -940,10 +959,10 @@ def sprint(request, project_id, sprint_id):
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Sprint - "' + unicode(sprint.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id
@@ -972,10 +991,10 @@ def snotes(request, project_id, sprint_id):
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Notes de sprint - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
@@ -1038,6 +1057,7 @@ def snotes(request, project_id, sprint_id):
                 changes.append(u'état = ' + ETATS[note.etat][1])
             note.utilisateur = user
             note.save()
+            recalc_effort(project)
             add_log(user, 'note', note, 2, ', '.join(changes))
             messages.append(u'Note de sprint modifiée avec succès !')
 
@@ -1079,10 +1099,10 @@ def snote(request, project_id, sprint_id, note_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)
     note = get_object_or_404(Note, pk = note_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Note de sprint - "' + unicode(note.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes/' + note_id
@@ -1102,10 +1122,10 @@ def tasks(request, project_id, sprint_id):
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)    
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Tâches - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
@@ -1209,10 +1229,10 @@ def task(request, project_id, sprint_id, task_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)
     task = get_object_or_404(Task, pk = task_id)    
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Tâche - Sprint "' + unicode(task.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/' + task_id
@@ -1232,10 +1252,10 @@ def releases(request, project_id, sprint_id):
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)   
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Livraisons - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
@@ -1315,10 +1335,10 @@ def release(request, project_id, sprint_id, release_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id) 
     release = get_object_or_404(Release, pk = release_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Livraison - "' + unicode(release.note.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases/' + release_id
@@ -1337,10 +1357,10 @@ def release(request, project_id, sprint_id, release_id):
 def problems(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Problèmes - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
@@ -1425,10 +1445,10 @@ def problem(request, project_id, problem_id):
     project = get_object_or_404(Project, pk = project_id)
     problem = get_object_or_404(Problem, pk = problem_id)    
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Problème - "' + unicode(problem.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/problems/' + problem_id
@@ -1449,10 +1469,10 @@ def burndown(request, project_id, sprint_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)
     lock = sprint.date_modification.strftime('%d/%m/%Y %H:%M:%S')
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Burndown Chart - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     erreurs = list()
@@ -1553,7 +1573,7 @@ def burndown(request, project_id, sprint_id):
         else:
             erreurs.append(u'Saisie annulée : les données ont été modifiées avant l\'enregistrement !')
     
-    holidays = get_holidays(datetime.date.today().year)
+    holidays = get_holidays(datetime.date.today().year, datetime.date.today().year + 1)
 
     released = request.GET.__contains__('released')
     done = request.GET.__contains__('done')    
@@ -1687,10 +1707,10 @@ def burndown(request, project_id, sprint_id):
 def velocity(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Velocité - Projet "' + unicode(project.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/velocity'
@@ -1809,10 +1829,10 @@ def velocity(request, project_id):
 def summary(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Synthèse - Projet "' + unicode(project.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/summary'
@@ -1879,9 +1899,9 @@ def summary(request, project_id):
         url1 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
         url1 += '&chxr=1,0,' + str(max1)
         url1 += '&chds=0,0,0,' + str(max1)
-        url1 += '&chco=0000ff,ff0000,00aaaa'
+        url1 += '&chco=0000ff,ff0000'
         url1 += '&chls=2,4,2|2,0,0|2,0,0'
-        url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11|s,00aa00,2,-1,5'
+        url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
         url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
         url1 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
         url1 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
@@ -1933,13 +1953,117 @@ def summary(request, project_id):
 #-------------------------------------------------
 @login_required
 @csrf_protect
+def meteo(request, project_id, sprint_id):
+    project = get_object_or_404(Project, pk = project_id)
+    sprint = get_object_or_404(Sprint, pk = sprint_id)
+
+    user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
+    title = u'Météo - Sprint "' + unicode(sprint.titre) + '"'
+    messages = list()
+    erreurs = list()
+    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/meteo'
+
+    add_history(user, request.session['url'])
+    nb_notes = get_nb_notes(request)
+    
+    if request.method == 'POST':
+        meteo = Meteo()
+        date = request.POST['date'].split('/')
+        meteo.jour = datetime.date(int(date[2]), int(date[1]), int(date[0]))
+        meteo.sprint = sprint
+        meteo.utilisateur = user
+        test = Meteo.objects.filter(sprint__id__exact = sprint.id, jour__exact = meteo.jour, utilisateur__id__exact = user.user.id)
+        if not test:
+            meteo.meteo_projet = request.POST['meteo_projet']
+            meteo.meteo_equipe = request.POST['meteo_equipe']
+            meteo.meteo_avance = request.POST['meteo_avance']
+            meteo.commentaire = request.POST['commentaire']
+            meteo.save()
+            add_log(user, 'meteo', meteo, 1)
+            messages.append(u'Météorologie enregistrée avec succès pour la journée du %s !' % (request.POST['date']))
+        else:
+            erreurs.append(u'Vous avez déjà enregistré une météorologie pour la journée du %s !' % (request.POST['date']))
+    
+    labels = list()
+    data = [list(), list(), list()]
+    
+    row = 1
+    jours = list()
+    holidays = get_holidays(sprint.date_debut.year, sprint.date_fin.year)
+    d = sprint.date_fin if sprint.date_fin < datetime.date.today() else datetime.date.today
+    while d >= sprint.date_debut:
+        if d.strftime('%w') not in ('0', '6', ) and d not in holidays:
+            jour = dict()
+            meteo = Meteo.objects.select_related().filter(sprint__id__exact = sprint_id, jour__exact = d).order_by("utilisateur")
+            perso = meteo.filter(utilisateur__id__exact = user.user.id)
+            autre = meteo.exclude(utilisateur__id__exact = user.user.id)
+            row = (row + 1) % 2
+            jour['row'] = row + 1
+            jour['date'] = d.strftime('%d/%m/%Y')
+            jour['perso'] = perso
+            jour['autre'] = autre
+            jour['meteo'] = meteo
+            jour['nb'] = meteo.count() if meteo.count() > 0 else 1
+            jours.append(jour)
+            labels.append(d.strftime('%d/%m'))
+            mp = 0
+            me = 0
+            ma = 0
+            for m in meteo:
+                mp += int(m.meteo_projet)
+                me += int(m.meteo_equipe)
+                ma += int(m.meteo_avance)
+            data[0].append(mp)
+            data[1].append(me)
+            data[2].append(ma)
+        d -= datetime.timedelta(1)
+    
+    labels.reverse()
+    for i in range(len(data)):
+        data[i].reverse()    
+    
+    maxi = 0
+    tmp = 0
+    for i in range(len(labels)):
+        for j in range(len(data)):
+            tmp += data[j][i]
+        if tmp > maxi:
+            maxi = tmp
+        tmp = 0
+    
+    url  = 'http://chart.apis.google.com/chart'
+    url += '?chs=800x350'
+    url += '&cht=bvs'
+    url += '&chbh=a'
+    url += '&chdl=Projet|Equipe|Avancement'
+    url += '&chdlp=t'
+    url += '&chxt=x,y'
+    url += '&chxl=0:|' + '|'.join(labels)
+    url += '&chxr=1,0,' + str(maxi)
+    url += '&chds=0,' + str(maxi)
+    url += '&chco=ccffcc,ffffcc,ffcc99'
+    url += '&chm=N,000000,0,,11,,c|N,000000,1,,11,,c|N,000000,2,,10,,c'
+    url += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url += '&chd=t:' + '|'.join('%s' % (','.join('%s' % (v) for v in values)) for values in data)
+    
+    return render_to_response('projects/meteo.html',
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,  
+         'project': project, 'sprint': sprint, 'jours': jours, 'meteo': METEO, 'url': url, 'nb_notes': nb_notes, },
+        context_instance = RequestContext(request))
+
+#-------------------------------------------------
+@login_required
+@csrf_protect
 def documents(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Documents'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/documents'
@@ -1981,10 +2105,10 @@ def documents(request, project_id):
 def scrumwall(request, project_id):
     project = get_object_or_404(Project, pk = project_id)    
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Scrum Wall - Projet "' + unicode(project.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/scrumwall'
@@ -2033,6 +2157,103 @@ def scrumwall(request, project_id):
 # ------------------------------------------------
 @login_required
 @csrf_protect
+def poker(request, project_id):
+    project = get_object_or_404(Project, pk = project_id)    
+
+    user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
+    title = u'Planning Poker - Projet "' + unicode(project.titre) + '"'
+    messages = list()
+    request.session['url'] = home + 'projects/' + project_id + '/poker'
+
+    add_history(user, request.session['url'])
+    nb_notes = get_nb_notes(request)
+    
+    if request.method == 'POST':
+        if request.POST.__contains__('effort'):
+            effort = int(request.POST['effort'])
+            note = Note.objects.get(pk = int(request.POST['id']))
+            test = Poker.objects.filter(note__id__exact = note.id, utilisateur__id__exact = user.user.id)
+            if not test:
+                poker = Poker()
+                poker.note = note
+                poker.effort = effort
+                poker.utilisateur = user
+                poker.save()
+                #add_log(user, 'poker', poker, 1)
+            else:
+                test = test[0]
+                test.effort = effort
+                test.save()
+                #add_log(user, 'poker', test, 2, u'effort = %d' % (effort, ))
+            messages.append(u'Estimation d\'effort sauvegardée avec succès !')
+        elif request.POST.__contains__('avg'):
+            note = Note.objects.get(pk = int(request.POST['id']))
+            avg = int(request.POST['avg'])
+            note.effort = avg
+            note.save()
+            poker = Poker.objects.filter(note__id__exact = note.id)
+            poker.delete()
+            recalc_effort(project)
+            add_log(user, 'note', note, 2, u'effort = %d' % (avg, ))
+            messages.append(u'Nouvelle valeur de l\'effort sauvegardée avec succès !')
+
+    sprint = 0
+    opt = None
+    if request.GET.__contains__('sprint'):
+        sprint = int(request.GET['sprint'])
+    if request.GET.__contains__('opt'):
+        opt = request.GET['opt']
+    
+    row = 1
+    liste = list()
+    features = Feature.objects.filter(projet__id__exact = project_id).order_by('titre')
+    for f in features:
+        notes = Note.objects.filter(feature__id__exact = f.id).order_by('titre')
+        if sprint != 0:
+            notes = notes.filter(sprint__id__exact = sprint)
+        for n in notes:
+            data = dict()
+            row = (row + 1) % 2
+            data['row'] = row + 1
+            poker = Poker.objects.filter(note__id__exact = n.id).order_by('utilisateur')
+            perso = poker.filter(utilisateur__id__exact = user.user.id)
+            data['f'] = f.titre
+            data['fid'] = f.id
+            data['n'] = n.titre
+            data['nid'] = n.id
+            data['effort'] = n.effort
+            data['perso'] = perso[0].effort if perso else 0
+            data['poker'] = poker
+            data['nb'] = poker.count()
+            avg = 0
+            if poker.count() > 0:
+                for p in poker:
+                    avg += p.effort
+                avg = avg * 1.0 / poker.count()
+                old = -1
+                for e in EFFORTS:
+                    if e[0] > avg:
+                        avg = e[0] if (avg - old) > (e[0] - avg) else old
+                        break
+                    old = e[0]
+            data['avg'] = avg
+            if opt == None or (opt == 'todo' and n.effort == 0) or (opt == 'done' and avg != 0 and n.effort != avg):
+                liste.append(data)
+            
+    
+    sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
+    
+    return render_to_response('projects/poker.html',
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+         'sprints': sprints, 'sprint': sprint, 'opt': opt, 'liste': liste, 'efforts': EFFORTS, 'nb_notes': nb_notes, },
+        context_instance = RequestContext(request))
+
+# ------------------------------------------------
+@login_required
+@csrf_protect
 def new_project(request):
     user = request.user.get_profile()
     title = u'Nouveau projet'
@@ -2062,10 +2283,10 @@ def new_project(request):
 def new_feature(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Nouvelle fonctionnalité'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/new'
@@ -2094,10 +2315,10 @@ def new_note(request, project_id, feature_id):
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)     
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG    
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Nouvelle note de backlog - "' + unicode(feature.titre) + '"'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/new'   
@@ -2119,6 +2340,7 @@ def new_note(request, project_id, feature_id):
             add_log(user, 'note', n, 1)
             messages.append(u'Note de backlog ajoutée avec succès !')
             request.session['messages'] = messages
+            recalc_effort(project)
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
         form = NoteForm(initial={'utilisateur': user.id, 'projet': project.id, 'feature': feature.id, })
@@ -2133,10 +2355,10 @@ def new_note(request, project_id, feature_id):
 def new_sprint(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Nouveau sprint'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/new'
@@ -2171,10 +2393,10 @@ def new_task(request, project_id, sprint_id):
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Nouvelle tâche'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/new'
@@ -2203,10 +2425,10 @@ def new_task(request, project_id, sprint_id):
 def new_problem(request, project_id):
     project = get_object_or_404(Project, pk = project_id)    
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Nouveau problème'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/problems/new'   
@@ -2263,10 +2485,10 @@ def add_sprint(request, project_id, feature_id, note_id):
     feature = get_object_or_404(Feature, pk = feature_id)
     note = get_object_or_404(Note, pk = note_id)
 
-    if request.user.get_profile() not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
-
     user = request.user.get_profile()
+    if user not in project.membres.all():
+        raise Exception, NOT_MEMBER_MSG
+    
     title = u'Nouveau sprint'
     messages = list()
     request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id + '/sprint'
@@ -2306,14 +2528,13 @@ def add_sprint(request, project_id, feature_id, note_id):
 @csrf_protect
 def logs(request):
     user = request.user.get_profile()
-    title = u'Historiques'
+    title = u'Logs'
     messages = list()
     request.session['url'] = home + 'projects/logs'
 
     add_history(user, request.session['url'])
 
     lcount = LogEntry.objects.values('user').annotate(count = Count('id'))
-    hcount = History.objects.values('utilisateur').annotate(count = Count('id'))
     
     users = UserProfile.objects.all()
     for u in users:
@@ -2321,16 +2542,9 @@ def logs(request):
         for l in lcount:
             if l['user'] == u.user.id:
                 setattr(u, 'lcount', l['count'])
-        setattr(u, 'hcount', 0)
-        for h in hcount:
-            if h['utilisateur'] == u.user.id:
-                setattr(u, 'hcount', h['count'])
 
     logs = LogEntry.objects.all()
     logs = logs.order_by('-action_time')
-
-    history = History.objects.all()
-    history = history.order_by('-date_creation')
 
     luser = 0
     huser = 0   
@@ -2356,6 +2570,38 @@ def logs(request):
                 messages.append('Logs de "%s" supprimés avec succès !' % (UserProfile.objects.get(pk = int(request.POST['luser'])), ))
             logs = LogEntry.objects.all()
             logs = logs.order_by('-action_time')
+
+    return render_to_response('projects/logs.html',
+        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+         'logs': logs, 'users': users, 'luser': luser, },
+        context_instance = RequestContext(request))
+
+# ------------------------------------------------
+@login_required
+@csrf_protect
+def history(request):
+    user = request.user.get_profile()
+    title = u'Historiques'
+    messages = list()
+    request.session['url'] = home + 'projects/history'
+
+    add_history(user, request.session['url'])
+
+    hcount = History.objects.values('utilisateur').annotate(count = Count('id'))
+    
+    users = UserProfile.objects.all()
+    for u in users:
+        setattr(u, 'hcount', 0)
+        for h in hcount:
+            if h['utilisateur'] == u.user.id:
+                setattr(u, 'hcount', h['count'])
+
+    history = History.objects.all()
+    history = history.order_by('-date_creation')
+
+    luser = 0
+    huser = 0   
+    if request.method == 'POST':
         if request.POST.__contains__('hselect'):
             if request.POST['huser'] != '0':
                 huser = int(request.POST['huser'])
@@ -2378,19 +2624,19 @@ def logs(request):
             history = History.objects.all()
             history = history.order_by('-date_creation')
 
-    return render_to_response('projects/logs.html',
+    return render_to_response('projects/history.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
-         'logs': logs, 'history': history, 'users': users, 'luser': luser, 'huser': huser, },
-        context_instance = RequestContext(request))
+         'history': history, 'users': users, 'huser': huser, },
+        context_instance = RequestContext(request))  
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
-def logs_archives(request):
+def archives(request):
     user = request.user.get_profile()
     title = u'Archives'
     messages = list()
-    request.session['url'] = home + 'projects/logs/archives'
+    request.session['url'] = home + 'projects/archives'
 
     add_history(user, request.session['url'])
 
@@ -2407,6 +2653,6 @@ def logs_archives(request):
             files.append(f)
     files.sort()
 
-    return render_to_response('projects/logs_archives.html',
+    return render_to_response('projects/archives.html',
         {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'files': files, },
         context_instance = RequestContext(request))

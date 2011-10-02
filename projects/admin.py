@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.admin.models import LogEntry, ContentType
 from django.contrib.sessions.models import Session
 
-from scrum.projects.models import Project, Feature, Note, Sprint, Task, Problem, Release, Document, NoteTime, TaskTime, History
+from scrum.projects.models import Project, Feature, Note, Sprint, Task, Problem, Release, Document, NoteTime, TaskTime, Meteo, Poker, History
 
 class ProjectAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -329,6 +329,50 @@ class TaskTimeAdmin(admin.ModelAdmin):
             #obj.utilisateur = request.user
         #obj.save()
 
+class MeteoAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Informations', {
+            'fields': ('sprint', 'jour', 'utilisateur', 'meteo_projet', 'meteo_equipe', 'meteo_avance', 'commentaire', ),
+            'classes': ('wide', ),
+        }),
+    )
+    list_display = ('sprint', 'jour', 'utilisateur', 'meteo_projet', 'meteo_equipe', 'meteo_avance', 'commentaire', )
+    list_filter = ('jour', )
+    search_fields = ('sprint', 'utilisateur', 'commentaire', )
+    
+    def queryset(self, request):
+        if request.user.is_superuser:
+            return Meteo.objects.all()
+        p = Project.objects.filter(membres__in = (request.user, ))
+        return Meteo.objects.filter(sprint__projet__in = p)      
+    
+    #def save_model(self, request, obj, form, change):
+        #if not change:
+            #obj.utilisateur = request.user
+        #obj.save()
+
+class PokerAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Informations', {
+            'fields': ('note', 'utilisateur', 'effort' ),
+            'classes': ('wide', ),
+        }),
+    )
+    list_display = ('note', 'utilisateur', 'effort', )
+    list_filter = ('effort', )
+    search_fields = ('note', 'utilisateur' )
+    
+    def queryset(self, request):
+        if request.user.is_superuser:
+            return Poker.objects.all()
+        p = Project.objects.filter(membres__in = (request.user, ))
+        return Poker.objects.filter(note__feature__projet__in = p)      
+    
+    #def save_model(self, request, obj, form, change):
+        #if not change:
+            #obj.utilisateur = request.user
+        #obj.save()
+
 class HistoryAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Informations', {
@@ -354,6 +398,8 @@ admin.site.register(Release, ReleaseAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(NoteTime, NoteTimeAdmin)
 admin.site.register(TaskTime, TaskTimeAdmin)
+admin.site.register(Meteo, MeteoAdmin)
+admin.site.register(Poker, PokerAdmin)
 admin.site.register(History, HistoryAdmin)
 
 #admin.site.register(LogEntry)

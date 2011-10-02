@@ -7,6 +7,7 @@
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
 		&nbsp;|&nbsp; <strong>Synth&egrave;se</strong>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
@@ -33,37 +34,37 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
+				<tr class="row1">
 					<th>Temps r&eacute;alis&eacute;</th>
 					{% for t in item|dict:"times" %}
 					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"done" }}</td>
 					{% endfor %}
-				</tr><tr>
+				</tr><tr class="row2">
 					<th>Temps restant</th>
 					{% for t in item|dict:"times" %}
 					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"todo" }}</td>
 					{% endfor %}
-				</tr><tr>
+				</tr><tr class="row1">
 					<th>Tendance</th>
 					{% for t in item|dict:"times" %}
 					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|dict:"trend1" }}.png" alt="{{ t|dict:"trend1" }}" /></td>
 					{% endfor %}
-				</tr><tr>
+				</tr><tr class="row2">
 					<th>Progression</th>
 					{% for t in item|dict:"times" %}
 					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"rate1" }} %</td>
 					{% endfor %}
-				</tr><tr>
+				</tr><tr class="row1">
 					<th>Total</th>
 					{% for t in item|dict:"times" %}
 					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"rate2" }} %</td>
 					{% endfor %}
-				</tr><tr>
+				</tr><tr class="row2">
 					<th>Moyenne</th>
 					{% for t in item|dict:"times" %}
 					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"avg" }}</td>
 					{% endfor %}
-				</tr><tr>
+				</tr><tr class="row1">
 					<th>Tendance</th>
 					{% for t in item|dict:"times" %}
 					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|dict:"trend2" }}.png" alt="{{ t|dict:"trend2" }}" /></td>

@@ -7,16 +7,21 @@
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 			&nbsp;(&nbsp;
+				<!--
 				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				&nbsp;-&nbsp; 
+				-->
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
 				&nbsp;-&nbsp; Burndown Chart
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/meteo/">M&eacute;t&eacute;o</a>
 			&nbsp;)
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
@@ -36,52 +41,52 @@
 		<a href="?done">termin&eacute;s</a>
 		<br /><br /><br />
 		<table class="burndown table">
-				<thead>
-					<tr>
-						<th>Type</th>
-						<th>Fonctionnalit&eacute;</th>
-						<th>Titre</th>
-						{% for d in days %}
-						<th {% ifequal d date %}style="color:red"{% endifequal %}>{{ d|date:"d/m" }}</th>
+			<thead>
+				<tr>
+					<th>Type</th>
+					<th>Fonctionnalit&eacute;</th>
+					<th>Titre</th>
+					{% for d in days %}
+					<th {% ifequal d date %}style="color:red"{% endifequal %}>{{ d|date:"d/m" }}</th>
+					{% endfor %}
+					<th>Temps total</th>
+					<th>Termin&eacute;e ?</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for item in times %}
+				<tr id="{{ item|dict:"line" }}" class="{{ item|var2css:"p" }}">
+					<form enctype="multipart/form-data" action="{{ item|dict:"etat" }}#{{ item|dict:"line" }}" method="post" align="center">{% csrf_token %}
+						<td>{{ item|dict:"type" }}</td>
+						<td>
+							<a href="../../../features/?target={{ item|dict:"bid" }}#{{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
+						</td>
+						<td>
+							{% ifequal item|dict:"bid" 0 %}
+							<a href="../tasks/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+							{% else %}
+							<a href="../../../features/{{ item|dict:"bid" }}/notes/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+							{% endifequal %}
+						</td>
+						{% for time in item|dict:"time" %}
+						<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
+							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
+						</td>
 						{% endfor %}
-						<th>Temps total</th>
-						<th>Termin&eacute;e ?</th>
-					</tr>
-				</thead>
-				<tbody>
-				{% for item in times %}
-					<tr id="{{ item|dict:"line" }}" class="{{ item|var2css:"p" }}">
-						<form enctype="multipart/form-data" action="{{ item|dict:"etat" }}#{{ item|dict:"line" }}" method="post" align="center">{% csrf_token %}
-							<td>{{ item|dict:"type" }}</td>
-							<td>
-								<a href="../../../features/?target={{ item|dict:"bid" }}#{{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
-							</td>
-							<td>
-								{% ifequal item|dict:"bid" 0 %}
-								<a href="../tasks/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
-								{% else %}
-								<a href="../../../features/{{ item|dict:"bid" }}/notes/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
-								{% endifequal %}
-							</td>
-							{% for time in item|dict:"time" %}
-							<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
-								<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
-							</td>
-							{% endfor %}
-							<td {% if item|dict:"done" > item|dict:"todo" %}style="color:red; font-weight:bold"{% endif %}>
-								{{ item|dict:"done" }} / {{ item|dict:"todo" }}
-							</td>
-							<td>
-								<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="non" {% if not item|dict:"test" %}checked{% endif %} /> Non&nbsp;
-								<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="oui" {% if item|dict:"test" %}checked{% endif %} /> Oui&nbsp;
-								&nbsp;
-								<input type="hidden" name="lock" value="{{ lock }}" />
-								<input type="submit" value="OK" {% if not user.user.is_staff %}disabled{% endif %}/>
-							</td>
-						</form>	
-					</tr>
-				{% endfor %}
-				</tbody>
+						<td {% if item|dict:"done" > item|dict:"todo" %}style="color:red; font-weight:bold"{% endif %}>
+							{{ item|dict:"done" }} / {{ item|dict:"todo" }}
+						</td>
+						<td>
+							<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="non" {% if not item|dict:"test" %}checked{% endif %} /> Non&nbsp;
+							<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="oui" {% if item|dict:"test" %}checked{% endif %} /> Oui&nbsp;
+							&nbsp;
+							<input type="hidden" name="lock" value="{{ lock }}" />
+							<input type="submit" value="OK" {% if not user.user.is_staff %}disabled{% endif %}/>
+						</td>
+					</form>	
+				</tr>
+			{% endfor %}
+			</tbody>
 		</table>
 		<br /><br />
 	</div>

@@ -1,0 +1,88 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt dict %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
+		&nbsp;|&nbsp; Planning Poker
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<br />
+		Afficher :&nbsp;
+		<a href=".">Tout</a>
+		{% for sprint in sprints %}
+		&nbsp;|&nbsp;
+		<a href="?sprint={{ sprint.id }}">{{ sprint.titre }}</a>
+		{% endfor %}
+		<br /><br />
+		Filter :&nbsp;
+		<a href=".{% if sprint %}?sprint={{ sprint }}{% endif %}">Tous</a>
+		&nbsp;|&nbsp;
+		<a href=".?opt=todo{% if sprint %}&sprint={{ sprint }}{% endif %}">&Agrave; d&eacute;finir</a>
+		&nbsp;|&nbsp;
+		<a href=".?opt=done{% if sprint %}&sprint={{ sprint }}{% endif %}">&Agrave; valider</a>
+		<br /><br /><br />
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Fonctionnalit&eacute;</th>
+					<th>Note</th>
+					<th>Effort</th>
+					<th>{{ user.user.first_name }}</th>
+					<th colspan="2">Moyenne</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for l in liste %}
+				<tr id="{{ l|dict:"nid" }}" class="row{{ l|dict:"row" }}">
+					<td><a href="{{ home }}projects/{{ project.id }}/features/?target={{ l|dict:"fid" }}#{{ l|dict:"fid" }}">{{ l|dict:"f" }}</a></td>
+					<td><a href="{{ home }}projects/{{ project.id }}/features/{{ l|dict:"fid" }}/notes/?target={{ l|dict:"nid" }}#{{ l|dict:"nid" }}">{{ l|dict:"n" }}</a></td>
+					<td>{{ l|dict:"effort" }}</td>
+					<td>
+						<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post">{% csrf_token %}
+							<select name="effort"  onchange="submit()">
+							{% for e in efforts %}
+								<option value="{{ e|dict:0 }}" {% ifequal e|dict:0 l|dict:"perso" %}selected{% endifequal %}>{{ e|dict:1 }}</option>
+							{% endfor %}
+							</select>
+							<input type="hidden" name="id" value="{{ l|dict:"nid" }}" />
+						</form>
+					</td>
+					{% if l|dict:"poker" %}
+					<td onmouseout="UnTip()" onmouseover="Tip('{% for a in l|dict:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
+						<strong>{{ l|dict:"avg" }}</strong>
+					</td>
+					<td>
+						{% ifequal l|dict:"effort" l|dict:"avg" %}
+						&nbsp;
+						{% else %}
+						<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post">{% csrf_token %}
+							<input type="hidden" name="id" value="{{ l|dict:"nid" }}" />
+							<input type="hidden" name="avg" value="{{ l|dict:"avg" }}" />
+							<input type="submit" value="Valider" />
+						</form>
+						{% endifequal %}
+					</td>
+					{% else %}
+					<td colspan="3">&nbsp;</td>
+					{% endif %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block legend %}{% endblock %}

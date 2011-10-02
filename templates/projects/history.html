@@ -1,0 +1,52 @@
+{% extends "base_site.html" %}
+
+{% load var2css var2txt %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/logs/"><strong>Logs</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/archives/"><strong>Archives</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div id="content-main" align="center">
+		<form id="history" enctype="multipart/form-data" action=".#history" method="post" align="center">{% csrf_token %}
+			<label>Historiques de :</label>
+			<select name="huser">
+				<option value="0">( Tous )</option>
+			{% for user in users %}
+				<option value="{{ user.id }}" {% ifequal huser user.id %}selected{% endifequal %}>{{ user }} ({{ user.hcount }})</option>
+			{% endfor %}
+			</select>
+			<input name="hselect" type="submit" value="Afficher" />
+			<input name="hdelete" type="submit" value="Supprimer" {% if not user.user.is_staff %}disabled{% endif %} />
+		</form>
+		<br /><br />
+		<table>
+			<thead>
+				<th>ID</th>
+				<th>Utilisateur</th>
+				<th>URL</th>
+				<th>Date</th>
+				<th>&nbsp;</th>
+			</thead>
+			<tbody>
+			{% for h in history %}
+				<tr>
+					<td>{{ h.id }}</a></td>
+					<td>{{ h.utilisateur.user.first_name }} {{ h.utilisateur.user.last_name }} ({{ h.utilisateur.user.username }})</td>
+					<td><a href="{{ h.url }}">{{ h.url }}</a></td>
+					<td>{{ h.date_creation|date:"l d F Y H:i:s" }}</td>
+					<td>[ <a href="{{ home }}admin/projects/history/{{ h.id }}/">Modifier</a> ]</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block legend %}{% endblock %}
+{% block config %}{% endblock %}

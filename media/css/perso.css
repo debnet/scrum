@@ -253,3 +253,11 @@ div#content {
 	right: 0px;
 	overflow: auto;
 }
+
+select.image {
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	appearance: none;
+	height: 22px;
+	padding-left: 25px;
+}

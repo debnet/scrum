@@ -22,7 +22,7 @@ urlpatterns = patterns('',
     (r'^projects/', include('scrum.projects.urls')),
     
     # Logs archives
-    (r'^logs/(?P<path>.*)$', 'django.views.static.serve', 
+    (r'^archives/(?P<path>.*)$', 'django.views.static.serve', 
      {'document_root': settings.DEFAULT_DIR + 'logs'}),    
     
     # Themes
