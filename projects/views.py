@@ -35,14 +35,16 @@ theme = settings.MEDIA_URL
 
 # ------------------------------------------------
 def recalc_effort(project):
-    notes = Note.objects.filter(feature__projet__id__exact = project.id, priorite__in = ('0', '2', '3', '4', '5'))
-    effort = 0
-    for note in notes:
-        effort += note.effort
-    sprint = Sprint.objects.select_related().filter(projet__id__exact = project.id).order_by('-date_debut')[0]
-    if sprint.date_fin > datetime.date.today():
-        sprint.effort = effort
-        sprint.save()
+    sprint = Sprint.objects.select_related().filter(projet__id__exact = project.id).order_by('-date_debut')
+    if sprint:
+        notes = Note.objects.filter(feature__projet__id__exact = project.id, priorite__in = ('0', '2', '3', '4', '5'))
+        effort = 0
+        for note in notes:
+            effort += note.effort
+        sprint = sprint[0]
+        if sprint.date_fin > datetime.date.today():
+            sprint.effort = effort
+            sprint.save()
     return effort
 
 # ------------------------------------------------
@@ -1993,7 +1995,7 @@ def meteo(request, project_id, sprint_id):
     row = 1
     jours = list()
     holidays = get_holidays(sprint.date_debut.year, sprint.date_fin.year)
-    d = sprint.date_fin if sprint.date_fin < datetime.date.today() else datetime.date.today
+    d = sprint.date_fin if sprint.date_fin < datetime.date.today() else datetime.date.today()
     while d >= sprint.date_debut:
         if d.strftime('%w') not in ('0', '6', ) and d not in holidays:
             jour = dict()
