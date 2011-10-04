@@ -1,0 +1,15 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+	</div>
+{% endblock %}
+
+{% block content %}
+<h3 style="color:red">{{ erreur }}</h3>
+{% endblock %}
+
+{% block legend %}{% endblock %}
+{% block config %}{% endblock %}

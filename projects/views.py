@@ -26,12 +26,29 @@ from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, T
 from scrum.projects.models import ETATS, PRIORITES, STATUS, EFFORTS, CONFIANCE, METEO
 from scrum.projects.forms import UserForm, ProjectForm, FeatureForm, NoteForm, SprintForm, TaskForm, ProblemForm, DocumentForm
 
-NOT_MEMBER_MSG = u'Accès refusé : l\'utilisateur n\'est pas membre du projet !'
+ERREUR_TITRE = u"Accès refusé !"
+ERREUR_TEXTE = u"L'utilisateur n'est pas membre du projet ou ne dispose pas d'autorisations suffisantes pour visualiser cet élément."
 NOTES_PAR_LIGNE = 5
 
-root = settings.DEFAULT_DIR
-home = settings.DEFAULT_HOME
-theme = settings.MEDIA_URL
+ROOT = settings.DEFAULT_DIR
+HOME = settings.DEFAULT_HOME
+THEME = settings.MEDIA_URL
+
+# ------------------------------------------------
+def check_rights(user, project, *objects):
+    previous = None
+    valid = True
+    if user not in project.membres.all():
+        valid = False
+    for o in objects:
+        if hasattr(o, 'projet') and o.projet != project:
+            valid = False
+        elif hasattr(o, 'feature') and o.feature != previous:
+            valid = False
+        elif hasattr(o, 'sprint') and o.sprint != previous:
+            valid = False
+        previous = o
+    return valid
 
 # ------------------------------------------------
 def recalc_effort(project):
@@ -59,14 +76,14 @@ def get_nb_notes(request):
 # ------------------------------------------------
 def get_holidays(year1, year2 = None):
     holidays = list()
-    if (os.path.exists(root + str(year1) + '.xml')):
-        dom = parse(root + str(year1) + '.xml')
+    if (os.path.exists(ROOT + str(year1) + '.xml')):
+        dom = parse(ROOT + str(year1) + '.xml')
         for node in dom.getElementsByTagName('day'):
             day = time.strptime(node.firstChild.nodeValue, "%Y-%m-%d")
             holidays.append(datetime.date(day[0], day[1], day[2]))
     if year2 != None and year1 != year2:
-        if (os.path.exists(root + str(year2) + '.xml')):
-            dom = parse(root + str(year2) + '.xml')
+        if (os.path.exists(ROOT + str(year2) + '.xml')):
+            dom = parse(ROOT + str(year2) + '.xml')
             for node in dom.getElementsByTagName('day'):
                 day = time.strptime(node.firstChild.nodeValue, "%Y-%m-%d")
                 holidays.append(datetime.date(day[0], day[1], day[2]))
@@ -139,8 +156,8 @@ def write_logs():
     history = History.objects.filter(date_creation__lt = datetime.date.today() - datetime.timedelta(settings.ARCHIVE_DAYS)).order_by('date_creation');
     for h in history:
         current = h.date_creation.date()
-        path1 = root + 'logs' + os.sep + 'urls-' + current.strftime('%Y%m%d') + '.html'
-        path2 = root + 'logs' + os.sep + 'urls-' + date.strftime('%Y%m%d') + '.html'
+        path1 = ROOT + 'logs' + os.sep + 'urls-' + current.strftime('%Y%m%d') + '.html'
+        path2 = ROOT + 'logs' + os.sep + 'urls-' + date.strftime('%Y%m%d') + '.html'
         if date != current and os.path.exists(path2):
             file = codecs.open(path2, mode='a', encoding='utf-8')
             file.write(u'</tbody></table></body></html>')
@@ -162,8 +179,8 @@ def write_logs():
     logs = LogEntry.objects.filter(action_time__lt = datetime.date.today() - datetime.timedelta(7)).order_by('action_time')
     for l in logs:
         current = l.action_time.date()
-        path1 = root + 'logs' + os.sep + 'logs-' + l.action_time.strftime('%Y%m%d') + '.html'
-        path2 = root + 'logs' + os.sep + 'logs-' + date.strftime('%Y%m%d') + '.html'
+        path1 = ROOT + 'logs' + os.sep + 'logs-' + l.action_time.strftime('%Y%m%d') + '.html'
+        path2 = ROOT + 'logs' + os.sep + 'logs-' + date.strftime('%Y%m%d') + '.html'
         if date != current and os.path.exists(path2):
             file = codecs.open(path2, mode='a', encoding='utf-8')
             file.write(u'</tbody></table></body></html>')
@@ -518,7 +535,7 @@ def projects(request):
     if request.session.__contains__('messages'):
         messages = request.session['messages']
         del request.session['messages']
-    request.session['url'] = home + 'projects'
+    request.session['url'] = HOME + 'projects'
 
     write_logs()
     add_history(user, request.session['url'])
@@ -534,7 +551,7 @@ def projects(request):
                 membres[p.id].append(m.user.username)
 
     return render_to_response('projects/projects.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'projects': projects, 'membres': membres, 'nb_notes': nb_notes, })
 
 # ------------------------------------------------
@@ -544,12 +561,13 @@ def project(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Projet - "' + unicode(project.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id
+    request.session['url'] = HOME + 'projects/' + project_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -578,7 +596,7 @@ def project(request, project_id):
     problems = list_problems(project_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/project.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'nbf': '%d / %d' % (f_done.count(), f_all.count()), 'nbs': '%d / %d' % (s_done.count(), s_all.count()), 
          'nbp': '%d / %d' % (p_done.count(), p_all.count()), 'nbn': '%d / %d' % (nd, na),
          'features': features, 'sprints': sprints, 'problems': problems, 'nb_notes': nb_notes, },
@@ -591,15 +609,16 @@ def features(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Fonctionnalités - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
         del request.session['messages']
-    request.session['url'] = home + 'projects/' + project_id + '/features'
+    request.session['url'] = HOME + 'projects/' + project_id + '/features'
 
     if request.method == 'GET':
         confiance = False
@@ -667,7 +686,7 @@ def features(request, project_id):
     features = list_features(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/features.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'features': features, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -679,12 +698,13 @@ def feature(request, project_id, feature_id):
     feature = get_object_or_404(Feature, pk = feature_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, feature):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Fonctionnalité - "' + unicode(feature.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id
+    request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -695,7 +715,7 @@ def feature(request, project_id, feature_id):
     notes = list_notes(feature_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/feature.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'project': project, 'feature': feature, 'nbn': '%d / %d' % (n_done.count(), n_all.count()), 
          'notes': notes, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
@@ -708,15 +728,16 @@ def notes(request, project_id, feature_id):
     feature = get_object_or_404(Feature, pk = feature_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, feature):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Notes de backlog - Fonctionnalité "' + unicode(feature.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
         del request.session['messages']
-    request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes'    
+    request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes'    
 
     if request.method == 'GET':
         confiance = False
@@ -806,7 +827,7 @@ def notes(request, project_id, feature_id):
     sprints = Sprint.objects.filter(projet__id__exact = project_id)
 
     return render_to_response('projects/notes.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'project': project, 'feature': feature, 'notes': notes, 'sprints': sprints, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -819,18 +840,19 @@ def note(request, project_id, feature_id, note_id):
     note = get_object_or_404(Note, pk = note_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, feature, note):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Note de backlog - "' + unicode(note.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id
+    request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/note.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'feature': feature, 'note': note, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -841,15 +863,16 @@ def sprints(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Sprints - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
         del request.session['messages']
-    request.session['url'] = home + 'projects/' + project_id + '/sprints'  
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints'  
 
     if request.method == 'GET':
         confiance = False
@@ -950,7 +973,7 @@ def sprints(request, project_id):
     sprints = list_sprints(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/sprints.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprints': sprints, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -962,12 +985,13 @@ def sprint(request, project_id, sprint_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Sprint - "' + unicode(sprint.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -981,7 +1005,7 @@ def sprint(request, project_id, sprint_id):
     tasks = list_tasks(sprint_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/sprint.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'nbn': '%d / %d' % (n_done.count(), n_all.count()), 'nbt': '%d / %d' % (t_done.count(), t_all.count()), 
          'notes': notes, 'tasks': tasks, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
@@ -994,15 +1018,16 @@ def snotes(request, project_id, sprint_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Notes de sprint - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
         del request.session['messages']
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes'
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes'
 
     if request.method == 'GET':
         confiance = False
@@ -1089,7 +1114,7 @@ def snotes(request, project_id, sprint_id):
     notes = list_snotes(sprint_id, sort = sort, all = all, todo = todo, work = work, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/snotes.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'project': project, 'feature': feature, 'sprint': sprint, 'notes': notes, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1102,18 +1127,19 @@ def snote(request, project_id, sprint_id, note_id):
     note = get_object_or_404(Note, pk = note_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint, note):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Note de sprint - "' + unicode(note.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes/' + note_id
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes/' + note_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/snote.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'note': note, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1125,15 +1151,16 @@ def tasks(request, project_id, sprint_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)    
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Tâches - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
         del request.session['messages']
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks' 
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks' 
 
     if request.method == 'GET':
         confiance = False
@@ -1219,7 +1246,7 @@ def tasks(request, project_id, sprint_id):
     tasks = list_tasks(sprint_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/tasks.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'tasks': tasks, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1232,18 +1259,19 @@ def task(request, project_id, sprint_id, task_id):
     task = get_object_or_404(Task, pk = task_id)    
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint, task):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Tâche - Sprint "' + unicode(task.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/' + task_id
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/' + task_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/task.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'task': task, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1255,12 +1283,13 @@ def releases(request, project_id, sprint_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)   
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Livraisons - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
 
     status = '0'
     note = None
@@ -1325,7 +1354,7 @@ def releases(request, project_id, sprint_id):
     releases = list_releases(sprint_id, status)
 
     return render_to_response('projects/releases.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'releases': releases, 'note': note, 'details': details, 'nb_notes': nb_notes, 'status': status, },
         context_instance = RequestContext(request))
 
@@ -1338,18 +1367,19 @@ def release(request, project_id, sprint_id, release_id):
     release = get_object_or_404(Release, pk = release_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint, release):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Livraison - "' + unicode(release.note.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases/' + release_id
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases/' + release_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/releases.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'release': release, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1360,15 +1390,16 @@ def problems(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Problèmes - Projet "' + unicode(project.titre) + '"'
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
         del request.session['messages']
-    request.session['url'] = home + 'projects/' + project_id + '/problems'
+    request.session['url'] = HOME + 'projects/' + project_id + '/problems'
 
     if request.method == 'GET':
         confiance = False
@@ -1436,7 +1467,7 @@ def problems(request, project_id):
     problems = list_problems(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/problems.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'problems': problems, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1448,18 +1479,19 @@ def problem(request, project_id, problem_id):
     problem = get_object_or_404(Problem, pk = problem_id)    
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, problem):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Problème - "' + unicode(problem.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/problems/' + problem_id
+    request.session['url'] = HOME + 'projects/' + project_id + '/problems/' + problem_id
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/problem.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'problem': problem, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1469,16 +1501,18 @@ def problem(request, project_id, problem_id):
 def burndown(request, project_id, sprint_id):
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
-    lock = sprint.date_modification.strftime('%d/%m/%Y %H:%M:%S')
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
+    
+    lock = sprint.date_modification.strftime('%d/%m/%Y %H:%M:%S')
     
     title = u'Burndown Chart - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     erreurs = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/burndown'
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/burndown'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1698,7 +1732,7 @@ def burndown(request, project_id, sprint_id):
     url += '|-1|' + ','.join('%s' % (y) for y in data2)
 
     return render_to_response('projects/burndown.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'project': project, 'sprint': sprint, 'days': days, 'times': times, 'lock': lock,
          'url': url, 'date': datetime.date.today(), 'erreurs': erreurs, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
@@ -1710,12 +1744,13 @@ def velocity(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Velocité - Projet "' + unicode(project.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/velocity'
+    request.session['url'] = HOME + 'projects/' + project_id + '/velocity'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1796,15 +1831,15 @@ def velocity(request, project_id):
             labels.append("Sprint %d" % (len(labels) + 1))
             charge1.append(cumul)
             charge2.append(sprint.effort)
-            l = [max(charge1), max(charge2), max(avgs)]
+            l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0, max(avgs) if len(avgs) > 0 else 0]
     else:
-        l = [max(charge1), max(charge2)]
+        l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0]
     max2 = max(l)
 
     url2  = 'http://chart.apis.google.com/chart'
     url2 += '?chs=800x350'
     url2 += '&cht=lxy'
-    url2 += '&chg=' + str(100.0 / len(charge1)) + ',0'
+    url2 += '&chg=' + str(100.0 / len(charge1) if len(charge1) > 0 else 0) + ',0'
     url2 += '&chdl=Charge réalisée|Charge totale|Charge estimée'
     url2 += '&chdlp=t'
     url2 += '&chxt=x,y'
@@ -1821,7 +1856,7 @@ def velocity(request, project_id):
         url2 += '|-1|0,' + ','.join('%s' % (z) for z in avgs)
 
     return render_to_response('projects/velocity.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'url1': url1, 'url2': url2, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1832,12 +1867,13 @@ def summary(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Synthèse - Projet "' + unicode(project.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/summary'
+    request.session['url'] = HOME + 'projects/' + project_id + '/summary'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1888,7 +1924,7 @@ def summary(request, project_id):
             days.append(time['day'])
             chart1.append(time['done'])
             chart2.append(time['avg'])
-        l = [max(chart1), max(chart2)]
+        l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0]
         max1 = max(l)
         
         url1  = 'http://chart.apis.google.com/chart'
@@ -1923,7 +1959,7 @@ def summary(request, project_id):
             d2 += chart2[-1] if len(chart2) > 0 else 0
             chart2.append(d2)
             chart3.append(item['total_todo'])
-        l = [max(chart1), max(chart2), item['total_todo']]
+        l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0, item['total_todo']]
         max2 = max(l)
         
         url2  = 'http://chart.apis.google.com/chart'
@@ -1948,7 +1984,7 @@ def summary(request, project_id):
         items.append(item)
     
     return render_to_response('projects/summary.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'items': items, 'date': datetime.datetime.today().strftime('%d/%m'), 'sprint': id, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1960,13 +1996,14 @@ def meteo(request, project_id, sprint_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Météo - Sprint "' + unicode(sprint.titre) + '"'
     messages = list()
     erreurs = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/meteo'
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/meteo'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -2052,7 +2089,7 @@ def meteo(request, project_id, sprint_id):
     url += '&chd=t:' + '|'.join('%s' % (','.join('%s' % (v) for v in values)) for values in data)
     
     return render_to_response('projects/meteo.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,  
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,  
          'project': project, 'sprint': sprint, 'jours': jours, 'meteo': METEO, 'url': url, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -2063,12 +2100,13 @@ def documents(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Documents'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/documents'
+    request.session['url'] = HOME + 'projects/' + project_id + '/documents'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -2097,7 +2135,7 @@ def documents(request, project_id):
     documents = documents.order_by('fichier')
 
     return render_to_response('projects/documents.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 
          'documents': documents, 'project': project, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -2108,12 +2146,13 @@ def scrumwall(request, project_id):
     project = get_object_or_404(Project, pk = project_id)    
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Scrum Wall - Projet "' + unicode(project.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/scrumwall'
+    request.session['url'] = HOME + 'projects/' + project_id + '/scrumwall'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -2152,7 +2191,7 @@ def scrumwall(request, project_id):
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
 
     return render_to_response('projects/scrumwall.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'scrumwall': scrumwall, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'scrumwall': scrumwall, 
          'project': project, 'sprints': sprints, 'nb_notes': nb_notes, 'taille': nb_notes * 230, },
         context_instance = RequestContext(request))
 
@@ -2163,12 +2202,13 @@ def poker(request, project_id):
     project = get_object_or_404(Project, pk = project_id)    
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Planning Poker - Projet "' + unicode(project.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/poker'
+    request.session['url'] = HOME + 'projects/' + project_id + '/poker'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -2249,7 +2289,7 @@ def poker(request, project_id):
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
     
     return render_to_response('projects/poker.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprints': sprints, 'sprint': sprint, 'opt': opt, 'liste': liste, 'efforts': EFFORTS, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -2260,7 +2300,7 @@ def new_project(request):
     user = request.user.get_profile()
     title = u'Nouveau projet'
     messages = list()
-    request.session['url'] = home + 'projects/new'
+    request.session['url'] = HOME + 'projects/new'
 
     add_history(user, request.session['url'])
 
@@ -2276,7 +2316,7 @@ def new_project(request):
         form = ProjectForm(initial={'membres': (1, user.id, ) })
 
     return render_to_response('projects/project_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2286,12 +2326,13 @@ def new_feature(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouvelle fonctionnalité'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/features/new'
+    request.session['url'] = HOME + 'projects/' + project_id + '/features/new'
 
     add_history(user, request.session['url'])
 
@@ -2307,7 +2348,7 @@ def new_feature(request, project_id):
         form = FeatureForm(initial={'utilisateur': user.id, 'projet': project.id, })
 
     return render_to_response('projects/feature_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2318,12 +2359,13 @@ def new_note(request, project_id, feature_id):
     feature = get_object_or_404(Feature, pk = feature_id)     
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, feature):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouvelle note de backlog - "' + unicode(feature.titre) + '"'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/new'   
+    request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/new'   
 
     add_history(user, request.session['url'])
 
@@ -2348,7 +2390,7 @@ def new_note(request, project_id, feature_id):
         form = NoteForm(initial={'utilisateur': user.id, 'projet': project.id, 'feature': feature.id, })
 
     return render_to_response('projects/note_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'feature': feature, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'feature': feature, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2358,12 +2400,13 @@ def new_sprint(request, project_id):
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouveau sprint'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/new'
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/new'
 
     add_history(user, request.session['url'])
 
@@ -2385,7 +2428,7 @@ def new_sprint(request, project_id):
         form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2396,12 +2439,13 @@ def new_task(request, project_id, sprint_id):
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, sprint):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouvelle tâche'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/new'
+    request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/new'
 
     add_history(user, request.session['url'])
 
@@ -2418,7 +2462,7 @@ def new_task(request, project_id, sprint_id):
         form = TaskForm(initial={'utilisateur': user.id, 'projet': project.id, 'sprint': sprint.id, })
 
     return render_to_response('projects/task_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'sprint': sprint, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'sprint': sprint, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2428,12 +2472,13 @@ def new_problem(request, project_id):
     project = get_object_or_404(Project, pk = project_id)    
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouveau problème'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/problems/new'   
+    request.session['url'] = HOME + 'projects/' + project_id + '/problems/new'   
 
     add_history(user, request.session['url'])
 
@@ -2449,7 +2494,7 @@ def new_problem(request, project_id):
         form = ProblemForm(initial={'utilisateur': user.id, 'projet': project.id, })
 
     return render_to_response('projects/problem_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2458,7 +2503,7 @@ def new_user(request):
     user = request.user
     title = u'Nouvel utilisateur'
     messages = list()
-    request.session['url'] = home + 'projects/user'
+    request.session['url'] = HOME + 'projects/user'
 
     if request.method == 'POST':
         form = UserForm(request.POST)
@@ -2476,7 +2521,7 @@ def new_user(request):
         form = UserForm()
 
     return render_to_response('projects/user_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2488,12 +2533,13 @@ def add_sprint(request, project_id, feature_id, note_id):
     note = get_object_or_404(Note, pk = note_id)
 
     user = request.user.get_profile()
-    if user not in project.membres.all():
-        raise Exception, NOT_MEMBER_MSG
+    if not check_rights(user, project, feature, note):
+        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouveau sprint'
     messages = list()
-    request.session['url'] = home + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id + '/sprint'
+    request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id + '/sprint'
 
     add_history(user, request.session['url'])
 
@@ -2511,7 +2557,7 @@ def add_sprint(request, project_id, feature_id, note_id):
             add_log(user, 'note', note, 2)
             messages.append(u'Sprint ajouté et associé avec succès !')
             request.session['messages'] = messages
-            return HttpResponseRedirect(home + 'projects/' + project_id + '/features/' + feature_id + '/notes/')
+            return HttpResponseRedirect(HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/')
     else:
         notes = Note.objects.filter(feature__projet__id__exact = project.id, priorite__in = ('0', '2', '3', '4', '5'))
         effort = 0
@@ -2522,7 +2568,7 @@ def add_sprint(request, project_id, feature_id, note_id):
         form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2532,7 +2578,7 @@ def logs(request):
     user = request.user.get_profile()
     title = u'Logs'
     messages = list()
-    request.session['url'] = home + 'projects/logs'
+    request.session['url'] = HOME + 'projects/logs'
 
     add_history(user, request.session['url'])
 
@@ -2574,7 +2620,7 @@ def logs(request):
             logs = logs.order_by('-action_time')
 
     return render_to_response('projects/logs.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'logs': logs, 'users': users, 'luser': luser, },
         context_instance = RequestContext(request))
 
@@ -2585,7 +2631,7 @@ def history(request):
     user = request.user.get_profile()
     title = u'Historiques'
     messages = list()
-    request.session['url'] = home + 'projects/history'
+    request.session['url'] = HOME + 'projects/history'
 
     add_history(user, request.session['url'])
 
@@ -2627,7 +2673,7 @@ def history(request):
             history = history.order_by('-date_creation')
 
     return render_to_response('projects/history.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'history': history, 'users': users, 'huser': huser, },
         context_instance = RequestContext(request))  
 
@@ -2638,16 +2684,16 @@ def archives(request):
     user = request.user.get_profile()
     title = u'Archives'
     messages = list()
-    request.session['url'] = home + 'projects/archives'
+    request.session['url'] = HOME + 'projects/archives'
 
     add_history(user, request.session['url'])
 
     if request.method == 'POST':
         if request.POST.__contains__('files'):
             for f in request.POST.getlist('files'):
-                os.remove(os.path.join(root, 'logs', f))
+                os.remove(os.path.join(ROOT, 'logs', f))
 
-    path = os.path.join(root, 'logs')
+    path = os.path.join(ROOT, 'logs')
     os.chdir(path)
     files = list()
     for f in os.listdir('.'):
@@ -2656,5 +2702,5 @@ def archives(request):
     files.sort()
 
     return render_to_response('projects/archives.html',
-        {'home': home, 'theme': theme, 'user': user, 'title': title, 'messages': messages, 'files': files, },
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'files': files, },
         context_instance = RequestContext(request))
