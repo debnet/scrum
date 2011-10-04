@@ -1524,7 +1524,7 @@ def burndown(request, project_id, sprint_id):
                 if id[0:4] == 'Note':
                     time = NoteTime.objects.get(pk = int(id[4:]))
                     note = time.note
-                    temps = int(request.POST[id])
+                    temps = int(request.POST[id]) if request.POST[id].isdigit() else 0
                     if (temps == 0):
                         time.date_modification = None
                         time.utilisateur = None
@@ -1540,7 +1540,7 @@ def burndown(request, project_id, sprint_id):
                 elif id[0:5] == 'Tache':
                     time = TaskTime.objects.get(pk = int(id[5:]))
                     task = time.task
-                    temps = int(request.POST[id])
+                    temps = int(request.POST[id]) if request.POST[id].isdigit() else 0
                     if (temps == 0):
                         time.date_modification = None
                         time.utilisateur = None
