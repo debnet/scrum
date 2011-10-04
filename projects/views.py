@@ -23,7 +23,7 @@ from django.template import RequestContext
 
 from scrum import settings
 from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, Task, Problem, Release, Meteo, Poker, Document, NoteTime, TaskTime, History
-from scrum.projects.models import ETATS, PRIORITES, STATUS, EFFORTS, CONFIANCE, METEO
+from scrum.projects.models import ETATS, PRIORITES, STATUT, EFFORTS, CONFIANCE, METEO
 from scrum.projects.forms import UserForm, ProjectForm, FeatureForm, NoteForm, SprintForm, TaskForm, ProblemForm, DocumentForm
 
 ERREUR_TITRE = u"Accès refusé !"
@@ -501,7 +501,7 @@ def list_problems(project_id, sort = ['-priorite'], all = False, todo = True, ma
     return problems
 
 # ------------------------------------------------
-def list_releases(sprint_id, status = None):
+def list_releases(sprint_id, statut = None):
     notes = Note.objects.select_related().filter(sprint__id__exact = sprint_id).exclude(etat__exact = 2)
     notes = notes.order_by('-priorite')
     
@@ -511,14 +511,14 @@ def list_releases(sprint_id, status = None):
         if release.count() == 0:    
             release = Release()
             release.note = n
-            release.status = 0
+            release.statut = 0
             release.date_creation = n.date_creation
             release.utilisateur = n.utilisateur
             release.save()
         else:
             release = release.order_by('-date_creation')[0]
-        if status:
-            if release.status == str(status):
+        if statut:
+            if release.statut == str(statut):
                 releases.append(release)
         else:
             releases.append(release)
@@ -1291,15 +1291,15 @@ def releases(request, project_id, sprint_id):
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
 
-    status = '0'
+    statut = '0'
     note = None
     details = list()
     if request.GET.__contains__('id'):
         note = int(request.GET['id'])
         details = Release.objects.filter(note__id__exact = note)
         details = details.order_by('date_creation')
-    if request.GET.__contains__('status'):
-        status = request.GET['status']    
+    if request.GET.__contains__('statut'):
+        statut = request.GET['statut']    
     
     if request.method == 'POST':
         changes = list()
@@ -1309,31 +1309,36 @@ def releases(request, project_id, sprint_id):
             release = Release()
             release.note = note
             release.utilisateur = user
+            release.commentaire = request.POST['commentaire']
             if request.POST.__contains__('livrer'):
-                release.status = 1
-                #status = release.status
+            #if request.POST['fonction'] == 'livrer':
+                release.statut = 1
+                #statut = release.statut
                 release.save()
-                changes.append(u'status = ' + STATUS[release.status][1])
+                changes.append(u'statut = ' + STATUT[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison effectuée avec succès ! ( <a href=".?status=%d#%d">voir l\'élément</a> )' 
-                    % (release.status, release.id))
+                messages.append(u'Livraison effectuée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
+                    % (release.statut, release.id))
             elif request.POST.__contains__('refuser'):
-                release.status = 2
-                #status = release.status
+            #elif request.POST['fonction'] == 'refuser':
+                release.statut = 2
+                #statut = release.statut
                 release.save()
-                changes.append(u'status = ' + STATUS[release.status][1])
+                changes.append(u'statut = ' + STATUT[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison refusée avec succès ! ( <a href=".?status=%d#%d">voir l\'élément</a> )' 
-                    % (release.status, release.id))
+                messages.append(u'Livraison refusée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
+                    % (release.statut, release.id))
             elif request.POST.__contains__('valider'):
-                release.status = 3
-                #status = release.status
+            #elif request.POST['fonction'] == 'valider':
+                release.statut = 3
+                #statut = release.statut
                 release.save()
-                changes.append(u'status = ' + STATUS[release.status][1])
+                changes.append(u'statut = ' + STATUT[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison validée avec succès ! ( <a href=".?status=%d#%d">voir l\'élément</a> )'
-                    % (release.status, release.id))
+                messages.append(u'Livraison validée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )'
+                    % (release.statut, release.id))
             elif request.POST.__contains__('terminer'):
+            #if request.POST['fonction'] == 'terminer':
                 nts = NoteTime.objects.filter(note__in = (note, ))
                 nts = nts.order_by('-jour')
                 for nt in nts:
@@ -1351,11 +1356,11 @@ def releases(request, project_id, sprint_id):
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
 
-    releases = list_releases(sprint_id, status)
+    releases = list_releases(sprint_id, statut)
 
     return render_to_response('projects/releases.html',
         {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'sprint': sprint, 'releases': releases, 'note': note, 'details': details, 'nb_notes': nb_notes, 'status': status, },
+         'sprint': sprint, 'releases': releases, 'note': note, 'details': details, 'nb_notes': nb_notes, 'statut': statut, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -1643,11 +1648,11 @@ def burndown(request, project_id, sprint_id):
         if releases.count() > 0:
             release = releases[0]
             if released:
-                if release.status in ('1', '3') and n.etat != '2':
+                if release.statut in ('1', '3') and n.etat != '2':
                     times.append(d)
             elif done and n.etat == '2':
                 times.append(d)
-            elif not done and release.status in ('0', '2') and n.etat != '2':
+            elif not done and release.statut in ('0', '2') and n.etat != '2':
                 times.append(d)
         else:
             if done and n.etat == '2':
@@ -2377,7 +2382,7 @@ def new_note(request, project_id, feature_id):
             if release.count() == 0:    
                 release = Release()
                 release.note = n
-                release.status = 0
+                release.statut = 0
                 release.date_creation = n.date_creation
                 release.utilisateur = n.utilisateur
                 release.save()

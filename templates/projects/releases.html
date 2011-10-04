@@ -32,13 +32,13 @@
 	<div id="content-main" align="center">
 		<br />
 		Afficher :&nbsp;
-		<a href="?status=0">&agrave; livrer</a>
+		<a href="?statut=0">&agrave; livrer</a>
 		&nbsp;|&nbsp;
-		<a href="?status=1">livr&eacute;s</a>
+		<a href="?statut=1">livr&eacute;s</a>
 		&nbsp;|&nbsp;
-		<a href="?status=2">refus&eacute;s</a>
+		<a href="?statut=2">refus&eacute;s</a>
 		&nbsp;|&nbsp;
-		<a href="?status=3">valid&eacute;s</a>
+		<a href="?statut=3">valid&eacute;s</a>
 		<br /><br /><br />
 		<table class="releases table">
 			<thead>
@@ -48,7 +48,7 @@
 					<th>Titre</th>
 					<th>Options</th>
 					<th></th>
-					<th>Status</th>
+					<th>Statut</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -59,24 +59,26 @@
 					<td><a href="../../../features/{{ r.note.feature.id }}/notes?target={{ r.note.id }}#{{ r.note.id }}">{{ r.note.titre }}</a></td>
 					<td>
 					{% if user.user.is_staff %}
-						<form enctype="multipart/form-data" action=".?status={{ status }}#{{ r.note.id }}" method="post" align="center">{% csrf_token %}
+						<form enctype="multipart/form-data" onsubmit="return test(event, this)" action=".?statut={{ statut }}#{{ r.note.id }}" method="post" align="center">{% csrf_token %}
 							<input name="id" type="hidden" value="{{ r.note.id }}" />
-							<input name="livrer" type="submit" value="Livrer" style="width: 60px;" {% ifequal r.status "1" %}disabled{% else %}{% ifequal r.status "3" %}disabled{% endifequal %}{% endifequal %} />
-							<input name="refuser" type="submit" value="Refuser" style="width: 60px;" {% ifequal r.status "1" %}{% else %}disabled{% endifequal %} />
-							<input name="valider" type="submit" value="Valider" style="width: 60px;" {% ifequal r.status "1" %}{% else %}disabled{% endifequal %} />
-							<input name="terminer" type="submit" value="Terminer" style="width: 60px;" {% ifequal r.status "3" %}{% else %}disabled{% endifequal %} />
+							<input name="commentaire" type="hidden" value="" />
+							<input name="livrer" type="submit" value="Livrer" style="width:60px" {% ifequal r.statut "1" %}disabled{% else %}{% ifequal r.statut "3" %}disabled{% endifequal %}{% endifequal %} />
+							<input name="refuser" type="submit" value="Refuser" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
+							<input name="valider" type="submit" value="Valider" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
+							<input name="terminer" type="submit" value="Terminer" style="width:60px" {% ifequal r.statut "3" %}{% else %}disabled{% endifequal %} />
 						</form>
 					{% endif %}
 					</td>
-					<td>[&nbsp;<a href="?{% if status %}status={{ status }}&{% endif %}id={{ r.note.id }}#{{ r.note.id }}">Historique</a>&nbsp;]</td>
-					<td style="background-color:#eee; font-weight:bold"><img src="{{ home }}media/img/status/i{{ r.status }}.png" />&nbsp;{{ r.status|var2txt:"s" }}</td>
+					<td>[&nbsp;<a href="?{% if statut %}statut={{ statut }}&{% endif %}id={{ r.note.id }}#{{ r.note.id }}">Historique</a>&nbsp;]</td>
+					<td style="background-color:#eee; font-weight:bold"><img src="{{ home }}media/img/statut/i{{ r.statut }}.png" />&nbsp;{{ r.statut|var2txt:"s" }}</td>
 				</tr>
 				{% ifequal r.note.id note %}
 					{% for d in details %}
 						<tr>
-							<td colspan="3">Le {{ d.date_creation|date:"l d F" }} &agrave; {{ d.date_creation|date:"H:i:s" }}</td>
-							<td colspan="2">Par {{ d.utilisateur }}</td>
-							<td colspan="1" style="font-weight:bold"><img src="{{ home }}media/img/status/i{{ d.status }}.png" />&nbsp;{{ d.status|var2txt:"s" }}</td>
+							<td colspan="2">{{ d.date_creation|date:"l d F \à H:i" }}</td>
+							<td colspan="1"><strong>{{ d.utilisateur }}</strong></td>
+							<td colspan="2">{% if d.commentaire %}{{ d.commentaire }}{% else %}<em>Aucun commentaire</em>{% endif %}</td>
+							<td colspan="1" style="font-weight:bold"><img src="{{ home }}media/img/statut/i{{ d.statut }}.png" />&nbsp;{{ d.statut|var2txt:"s" }}</td>
 						</tr>
 					{% endfor %}
 				{% endifequal %}
@@ -84,4 +86,13 @@
 			</tbody>
 		</table>
 	</div>
+	<script language="javascript">
+		function test(event, form) {
+			var commentaire = window.prompt("Commentaire (facultatif) :");
+			if (commentaire != null)
+				form.commentaire.value = commentaire;
+			else event.returnValue = false;
+			return true;
+		}
+	</script>
 {% endblock %}

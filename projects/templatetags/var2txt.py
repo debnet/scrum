@@ -2,7 +2,7 @@
 
 from django import template
 
-from scrum.projects.models import PRIORITES, ETATS, TYPES, STATUS
+from scrum.projects.models import PRIORITES, ETATS, TYPES, STATUT
 
 register = template.Library()
 
@@ -19,9 +19,9 @@ def var2txt(value, arg):
         if arg in ('t', 'T', 'types'):
             if value in str(range(0,4)):
                 return ETATS[int(value['item'].type)][1]
-        if arg in ('s', 'S', 'status'):
+        if arg in ('s', 'S', 'statut'):
             if value in str(range(0,4)):
-                return STATUS[int(value['item'].status)][1]
+                return STATUT[int(value['item'].statut)][1]
     else:
         if arg in ('p', 'P', 'priorites'):
             if value in str(range(0,6)):
@@ -32,9 +32,9 @@ def var2txt(value, arg):
         if arg in ('t', 'T', 'types'):
             if value in str(range(0,4)):
                 return TYPES[int(value)][1]
-        if arg in ('s', 'S', 'status'):
+        if arg in ('s', 'S', 'statut'):
             if value in str(range(0,4)):
-                return STATUS[int(value)][1]
+                return STATUT[int(value)][1]
     return None
 
 register.filter('var2txt', var2txt)

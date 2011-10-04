@@ -37,7 +37,7 @@ CONFIANCE = (
     ('3', u'Haute'),
 )
 
-STATUS = (
+STATUT = (
     ('0', u'À livrer'),
     ('1', u'Livré'),
     ('2', u'Refusé'),
@@ -155,7 +155,7 @@ class Note(models.Model):
     description = models.TextField('Description', default='En tant que...\nje peux...\nafin de...', blank=True, null=True, help_text='Une description de la réalisation, par défaut une user-story.')
     type = models.CharField('Type', max_length=1, choices=TYPES, default='0', help_text='User-story : description du point de vue utilisateur.<br />Spike : Analyse sur une future réalisation dont le coût et l\'évaluation sont/seront traités pendant le sprint.<br />Feature : une fonctionnalité décrite côté fonctionnel.')
     priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la note.', db_index=True)
-    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le status d\'exécution de la note.', db_index=True)
+    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le statut d\'exécution de la note.', db_index=True)
     effort = models.PositiveSmallIntegerField('Effort', choices=EFFORTS, default='0', help_text='Valeur de l\'effort à déployer pour réaliser la tâche.')
     temps_realise = models.IntegerField('Temps réalisé', default=0, help_text='Quantité de temps déjà exécuté sur la réalisation. Evolutive avec le temps.')
     temps_estime = models.IntegerField('Temps estimé', default=0, help_text='Quantité de temps allouée à la réalisation. Normalement non modifiable.')
@@ -181,7 +181,7 @@ class Task(models.Model):
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier la tâche.')
     description = models.TextField('Description', blank=True, null=True)
     priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la tâche.', db_index=True)
-    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le status d\'exécution de la note.', db_index=True)
+    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le statut d\'exécution de la note.', db_index=True)
     effort = models.PositiveSmallIntegerField('Effort', choices=EFFORTS, default='0', help_text='Valeur de l\'effort à déployer pour réaliser la tâche.')
     temps_realise = models.PositiveIntegerField('Temps réalisé', default=0, help_text='Quantité de temps déjà exécuté sur la réalisation. Evolutive avec le temps.')
     temps_estime = models.PositiveIntegerField('Temps estimé', default=0, blank=True, null=True, help_text='Quantité de temps allouée à la tâche. Normalement non modifiable.')
@@ -228,7 +228,8 @@ class Problem(models.Model):
 
 class Release(models.Model):
     note = models.ForeignKey(Note, help_text='Requis. Une livraison doit être lié à une note de backlog.')
-    status = models.CharField('Status', max_length=1, choices=STATUS, default='0', help_text='Définit le status de livraison de la fonctionnalité.', db_index=True)
+    statut = models.CharField('Statut', max_length=1, choices=STATUT, default='0', help_text='Définit le statut de livraison de la fonctionnalité.', db_index=True)
+    commentaire = models.CharField('Commentaire', max_length=200, blank=True, null=True, help_text='Facultatif. Précise les raisons du changement de statut de la livraison.')
     
     date_creation = models.DateTimeField('Date de création', default=datetime.datetime.now)
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
@@ -286,7 +287,7 @@ class Meteo(models.Model):
     meteo_projet = models.CharField('Météo Projet', max_length=1, choices=METEO, default='0', help_text='Indique le niveau de satisfaction concernant le projet.')
     meteo_equipe = models.CharField('Météo Equipe', max_length=1, choices=METEO, default='0', help_text='Indique le niveau de satisfaction concernant l\'équipe.')
     meteo_avance = models.CharField('Météo Avancement', max_length=1, choices=METEO, default='0', help_text='Indique le niveau de satisfaction concernant l\'avancement.')    
-    commentaire = models.CharField('Commentaire', max_length=200, blank=True, null=True, help_text='Facultatif. Un commentaire pour détailler plus précisément la journée.')
+    commentaire = models.CharField('Commentaire', max_length=200, blank=True, null=True, help_text='Facultatif. Permet de détailler plus précisément la journée.')
     
     def __unicode__(self):
         return u'%s' % (self.sprint.titre, )

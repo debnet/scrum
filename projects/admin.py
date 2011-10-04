@@ -37,7 +37,7 @@ class FeatureAdmin(admin.ModelAdmin):
             'fields': ('projet', ),
             'classes': ('wide', ),
         }),
-        ('Status', {
+        ('Statut', {
             'fields': ('priorite', 'termine', ),
             'classes': ('wide', ),
         }),
@@ -75,7 +75,7 @@ class NoteAdmin(admin.ModelAdmin):
             'fields': ('feature', 'sprint', 'temps_realise', 'temps_estime', ),
             'classes': ('wide', ),
         }),
-        ('Status', {
+        ('Statut', {
             'fields': ('type', 'priorite', 'etat', 'effort', ),
             'classes': ('wide', ),
         }),
@@ -147,7 +147,7 @@ class TaskAdmin(admin.ModelAdmin):
             'fields': ('sprint', 'temps_realise', 'temps_estime', ),
             'classes': ('wide', ),
         }),
-        ('Status', {
+        ('Statut', {
             'fields': ('priorite', 'etat', 'effort', ),
             'classes': ('wide', ),
         }),
@@ -185,7 +185,7 @@ class ProblemAdmin(admin.ModelAdmin):
             'fields': ('projet', ),
             'classes': ('wide', ),
         }),
-        ('Status', {
+        ('Statut', {
             'fields': ('priorite', 'resolu', ),
             'classes': ('wide', ),
         }),
@@ -216,7 +216,7 @@ class ProblemAdmin(admin.ModelAdmin):
 class ReleaseAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Informations', {
-            'fields': ('note', 'status',  ),
+            'fields': ('note', 'statut', 'commentaire',  ),
             'classes': ('wide', ),
         }),
         ('Administration', {
@@ -224,9 +224,9 @@ class ReleaseAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('note', 'status', 'date_creation', 'utilisateur', )
-    list_filter = ('date_creation', 'status', )
-    search_fields = ('note', )
+    list_display = ('note', 'statut', 'date_creation', 'utilisateur', 'commentaire', )
+    list_filter = ('date_creation', 'statut', )
+    search_fields = ('note', 'commentaire', )
     
     def queryset(self, request):
         if request.user.is_superuser:
