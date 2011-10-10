@@ -21,6 +21,9 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ('date_creation', )
     search_fields = ('title', 'description', )
     filter_horizontal = ('membres', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['titre']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -50,9 +53,12 @@ class FeatureAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('titre', 'projet', 'priorite', 'termine', 'date_creation', 'utilisateur', )
+    list_display = ('titre', 'projet', 'priorite', 'termine', )
     list_filter = ('date_creation', 'priorite', 'termine', )
-    search_fields = ('projet', 'titre', 'description', )
+    search_fields = ('projet', 'titre', 'description', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['projet', 'titre']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -88,9 +94,12 @@ class NoteAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('titre', 'feature', 'sprint', 'priorite', 'etat', 'type', 'effort', 'temps_realise', 'temps_estime', 'date_creation', 'utilisateur', )
-    list_filter = ('date_creation', 'priorite', 'type', 'etat', 'effort', 'sprint', )
-    search_fields = ('feature', 'sprint', 'titre', 'description', )
+    list_display = ('titre', 'feature', 'sprint', 'priorite', 'etat', 'type', 'effort', 'temps_realise', 'temps_estime', )
+    list_filter = ('date_creation', 'priorite', 'type', 'etat', 'effort', )
+    search_fields = ('feature', 'sprint', 'titre', 'description', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['feature', 'titre']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -122,9 +131,12 @@ class SprintAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('titre', 'projet', 'date_debut', 'date_fin', 'date_creation', 'date_modification', 'utilisateur', )
+    list_display = ('titre', 'projet', 'date_debut', 'date_fin', )
     list_filter = ('date_creation', 'date_modification', 'date_debut', 'date_fin', )
-    search_fields = ('projet', 'titre', 'but', )
+    search_fields = ('projet', 'titre', 'but', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['projet', 'titre']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -160,9 +172,12 @@ class TaskAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('titre', 'sprint', 'priorite', 'etat', 'temps_realise', 'temps_estime', 'date_creation', 'utilisateur', )
+    list_display = ('titre', 'sprint', 'priorite', 'etat', 'temps_realise', 'temps_estime', )
     list_filter = ('date_creation', 'priorite', 'etat', 'temps_realise', 'temps_estime', )
-    search_fields = ('sprint', 'titre', 'description', )
+    search_fields = ('sprint', 'titre', 'description', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['sprint', 'titre']
 
     def queryset(self, request):
         if request.user.is_superuser:
@@ -198,9 +213,12 @@ class ProblemAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('titre', 'projet', 'priorite', 'resolu', 'date_creation', 'utilisateur', )
+    list_display = ('titre', 'projet', 'priorite', 'resolu', )
     list_filter = ('date_creation', 'priorite', 'resolu', )
-    search_fields = ('projet', 'titre', 'description', )
+    search_fields = ('projet', 'titre', 'description', 'utilisateur',  )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['projet', 'titre']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -226,7 +244,10 @@ class ReleaseAdmin(admin.ModelAdmin):
     )
     list_display = ('note', 'statut', 'date_creation', 'utilisateur', 'commentaire', )
     list_filter = ('date_creation', 'statut', )
-    search_fields = ('note', 'commentaire', )
+    search_fields = ('note', 'commentaire', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['note']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -255,8 +276,11 @@ class DocumentAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('fichier', 'titre', 'projet', 'date_creation', 'utilisateur', )
-    list_filter = ('date_creation', 'utilisateur', )
-    search_fields = ('projet', 'titre', 'fichier', )
+    list_filter = ('date_creation', )
+    search_fields = ('projet', 'titre', 'fichier', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['titre']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -284,9 +308,12 @@ class NoteTimeAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('date_modification', 'jour', 'temps', 'temps_fin', 'sprint', 'note', 'utilisateur', )
-    list_filter = ('date_modification', )
-    search_fields = ('sprint', 'note', )
+    list_display = ('jour', 'temps', 'temps_fin', 'sprint', 'note', 'utilisateur', )
+    list_filter = ('date_modification', 'jour', )
+    search_fields = ('sprint', 'note', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['sprint', 'note', 'jour']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -314,9 +341,12 @@ class TaskTimeAdmin(admin.ModelAdmin):
             'classes': ('wide', 'collapse', ),
         }),
     )
-    list_display = ('date_modification', 'jour', 'temps', 'temps_fin', 'sprint', 'task', 'utilisateur', )
-    list_filter = ('date_modification', )
-    search_fields = ('sprint', 'task', )
+    list_display = ('jour', 'temps', 'temps_fin', 'sprint', 'task', 'utilisateur', )
+    list_filter = ('date_modification', 'jour', )
+    search_fields = ('sprint', 'task', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['sprint', 'task', 'jour']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -339,6 +369,9 @@ class MeteoAdmin(admin.ModelAdmin):
     list_display = ('sprint', 'jour', 'utilisateur', 'meteo_projet', 'meteo_equipe', 'meteo_avance', 'commentaire', )
     list_filter = ('jour', )
     search_fields = ('sprint', 'utilisateur', 'commentaire', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['sprint', 'utilisateur', 'jour']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -361,6 +394,9 @@ class PokerAdmin(admin.ModelAdmin):
     list_display = ('note', 'utilisateur', 'effort', )
     list_filter = ('effort', )
     search_fields = ('note', 'utilisateur' )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['note', 'utilisateur']
     
     def queryset(self, request):
         if request.user.is_superuser:
@@ -385,8 +421,11 @@ class HistoryAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('url', 'date_creation', 'utilisateur', )
-    list_filter = ('date_creation', 'utilisateur', )
-    search_fields = ('url', )
+    list_filter = ('date_creation', )
+    search_fields = ('url', 'utilisateur', )
+    actions_on_top = False
+    actions_on_bottom = True
+    ordering = ['date_creation']
     
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Feature, FeatureAdmin)

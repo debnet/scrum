@@ -115,12 +115,12 @@ class Feature(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (self.titre, )
+        return u'%s - %s' % (self.projet.titre, self.titre, )
     
     class Meta:
         verbose_name = u'Feature'
         verbose_name_plural = u'Features'
-        ordering = ('titre', 'projet', '-priorite', 'date_creation', )
+        ordering = ('projet', 'titre', '-priorite', 'date_creation', )
         unique_together = (('projet', 'titre'), )
     
 class Sprint(models.Model):
@@ -140,12 +140,12 @@ class Sprint(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (self.titre, )    
+        return u'%s - %s' % (self.projet.titre, self.titre, )    
     
     class Meta:
         verbose_name = u'Sprint'
         verbose_name_plural = u'Sprints'
-        ordering = ('date_debut', 'titre', 'projet', '-date_fin', 'date_creation', )
+        ordering = ('projet', 'date_debut', 'titre', '-date_fin', 'date_creation', )
         unique_together = (('projet', 'titre'), )
 
 class Note(models.Model):
@@ -168,12 +168,12 @@ class Note(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (self.titre, )
+        return u'%s - %s' % (self.feature.titre, self.titre, )
     
     class Meta:
         verbose_name = u'Note'
         verbose_name_plural = u'Notes'
-        ordering = ('titre', 'feature', '-priorite', '-type', 'etat', 'date_creation', )
+        ordering = ('feature', 'titre', '-priorite', '-type', 'etat', 'date_creation', )
         unique_together = (('feature', 'titre'), )
     
 class Task(models.Model):
@@ -194,12 +194,12 @@ class Task(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s' % (self.titre, )
+        return u'%s - %s' % (self.sprint.titre, self.titre, )
     
     class Meta:
         verbose_name = u'Tâche'
         verbose_name_plural = u'Tâches'
-        ordering = ('titre', 'sprint', '-priorite', 'etat', 'date_creation', )
+        ordering = ('sprint', 'titre', '-priorite', 'etat', 'date_creation', )
         unique_together = (('sprint', 'titre'), )
     
 class Problem(models.Model):
@@ -223,7 +223,7 @@ class Problem(models.Model):
     class Meta:
         verbose_name = u'Problème'
         verbose_name_plural = u'Problèmes'
-        ordering = ('titre', 'projet', 'resolu', '-priorite', 'date_creation', )
+        ordering = ('projet', 'titre', 'resolu', '-priorite', 'date_creation', )
         unique_together = (('projet', 'titre'), )
 
 class Release(models.Model):
@@ -253,7 +253,7 @@ class NoteTime(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (self.note.titre, )
+        return u'%s - %s' % (self.sprint.titre, self.note.titre, )
     
     class Meta:
         verbose_name = u'Temps de note'
@@ -272,7 +272,7 @@ class TaskTime(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
-        return u'%s' % (self.task.titre, )
+        return u'%s - %s' % (self.sprint.titre, self.task.titre, )
     
     class Meta:
         verbose_name = u'Temps de tâche'
@@ -290,7 +290,7 @@ class Meteo(models.Model):
     commentaire = models.CharField('Commentaire', max_length=200, blank=True, null=True, help_text='Facultatif. Permet de détailler plus précisément la journée.')
     
     def __unicode__(self):
-        return u'%s' % (self.sprint.titre, )
+        return u'%s - %s' % (self.sprint.titre, self.sprint.titre, )
     
     class Meta:
         verbose_name = u'Météo'
@@ -319,7 +319,7 @@ class Document(models.Model):
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)    
     
     def __unicode__(self):
-        return u'%s' % (self.titre, )
+        return u'%s - %s' % (self.projet.titre, self.titre, )
     
     class Meta:
         verbose_name = u'Document'

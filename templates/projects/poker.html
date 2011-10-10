@@ -41,7 +41,8 @@
 					<th>Note</th>
 					<th>Effort</th>
 					<th>{{ user.user.first_name }}</th>
-					<th colspan="2">Moyenne</th>
+					<th>Moyenne</th>
+					<th colspan="2">Temps</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -49,8 +50,8 @@
 				<tr id="{{ l|dict:"nid" }}" class="row{{ l|dict:"row" }}">
 					<td><a href="{{ home }}projects/{{ project.id }}/features/?target={{ l|dict:"fid" }}#{{ l|dict:"fid" }}">{{ l|dict:"f" }}</a></td>
 					<td><a href="{{ home }}projects/{{ project.id }}/features/{{ l|dict:"fid" }}/notes/?target={{ l|dict:"nid" }}#{{ l|dict:"nid" }}">{{ l|dict:"n" }}</a></td>
-					<td>{{ l|dict:"effort" }}</td>
-					<td>
+					<td align="center"><strong>{{ l|dict:"effort" }}</strong></td>
+					<td align="center">
 						<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post">{% csrf_token %}
 							<select name="effort"  onchange="submit()">
 							{% for e in efforts %}
@@ -61,20 +62,22 @@
 						</form>
 					</td>
 					{% if l|dict:"poker" %}
-					<td onmouseout="UnTip()" onmouseover="Tip('{% for a in l|dict:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
-						<strong>{{ l|dict:"avg" }}</strong>
-					</td>
-					<td>
-						{% ifequal l|dict:"effort" l|dict:"avg" %}
-						&nbsp;
-						{% else %}
-						<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post">{% csrf_token %}
+					<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post">{% csrf_token %}
+						<td align="center" onmouseout="UnTip()" onmouseover="Tip('{% for a in l|dict:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
+							<select style="color:red" name="avg">
+							{% for e in efforts %}
+								<option value="{{ e|dict:0 }}" {% ifequal e|dict:0 l|dict:"avg" %}selected{% endifequal %}>{{ e|dict:1 }}</option>
+							{% endfor %}
+							</select>
+						</td>
+						<td align="center">
+							<input type="text" name="temps" value="{{ l|dict:"temps" }}" size="2" />
+						</td>
+						<td align="center">
 							<input type="hidden" name="id" value="{{ l|dict:"nid" }}" />
-							<input type="hidden" name="avg" value="{{ l|dict:"avg" }}" />
-							<input type="submit" value="Valider" />
-						</form>
-						{% endifequal %}
-					</td>
+							<input type="submit" value="Valider" title="Cliquez ici pour valider le choix de l'effort et du temps pour cette note." />
+						</td>
+					</form>
 					{% else %}
 					<td colspan="3">&nbsp;</td>
 					{% endif %}

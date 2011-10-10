@@ -2050,7 +2050,7 @@ def meteo(request, project_id, sprint_id):
             jour['perso'] = perso
             jour['autre'] = autre
             jour['meteo'] = meteo
-            jour['nb'] = meteo.count() if meteo.count() > 0 else 1
+            jour['nb'] = autre.count() + 1
             jours.append(jour)
             labels.append(d.strftime('%d/%m'))
             mp = 0
@@ -2222,8 +2222,8 @@ def poker(request, project_id):
         if request.POST.__contains__('effort'):
             effort = int(request.POST['effort'])
             note = Note.objects.get(pk = int(request.POST['id']))
-            test = Poker.objects.filter(note__id__exact = note.id, utilisateur__id__exact = user.user.id)
-            if not test:
+            poker = Poker.objects.filter(note__id__exact = note.id, utilisateur__id__exact = user.user.id)
+            if not poker:
                 poker = Poker()
                 poker.note = note
                 poker.effort = effort
@@ -2231,15 +2231,20 @@ def poker(request, project_id):
                 poker.save()
                 #add_log(user, 'poker', poker, 1)
             else:
-                test = test[0]
-                test.effort = effort
-                test.save()
+                poker = poker[0]
+                poker.effort = effort
+                if poker.effort != 0:
+                    poker.save()
+                else:
+                    poker.delete()
                 #add_log(user, 'poker', test, 2, u'effort = %d' % (effort, ))
             messages.append(u'Estimation d\'effort sauvegardée avec succès !')
         elif request.POST.__contains__('avg'):
             note = Note.objects.get(pk = int(request.POST['id']))
-            avg = int(request.POST['avg'])
+            avg = int(request.POST['avg']) if request.POST['avg'].isdigit() else 0
+            temps = int(request.POST['temps']) if request.POST['temps'].isdigit() else 0
             note.effort = avg
+            note.temps_estime = temps
             note.save()
             poker = Poker.objects.filter(note__id__exact = note.id)
             poker.delete()
@@ -2271,6 +2276,7 @@ def poker(request, project_id):
             data['fid'] = f.id
             data['n'] = n.titre
             data['nid'] = n.id
+            data['temps'] = n.temps_estime
             data['effort'] = n.effort
             data['perso'] = perso[0].effort if perso else 0
             data['poker'] = poker
