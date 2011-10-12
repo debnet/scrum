@@ -42,7 +42,7 @@
 					<th>Effort</th>
 					<th>{{ user.user.first_name }}</th>
 					<th>Moyenne</th>
-					<th colspan="2">Temps</th>
+					<th colspan="2">Temps estim&eacute;</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -62,20 +62,20 @@
 						</form>
 					</td>
 					{% if l|dict:"poker" %}
-					<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post">{% csrf_token %}
+					<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post" onsubmit="return test(event, this)">{% csrf_token %}
 						<td align="center" onmouseout="UnTip()" onmouseover="Tip('{% for a in l|dict:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
-							<select style="color:red" name="avg">
+							<select name="avg" style="color:red">
 							{% for e in efforts %}
 								<option value="{{ e|dict:0 }}" {% ifequal e|dict:0 l|dict:"avg" %}selected{% endifequal %}>{{ e|dict:1 }}</option>
 							{% endfor %}
 							</select>
 						</td>
 						<td align="center">
-							<input type="text" name="temps" value="{{ l|dict:"temps" }}" size="2" />
+							<input type="text" name="temps" value="{{ l|dict:"temps" }}" size="2" style="color:red" />
 						</td>
 						<td align="center">
 							<input type="hidden" name="id" value="{{ l|dict:"nid" }}" />
-							<input type="submit" value="Valider" title="Cliquez ici pour valider le choix de l'effort et du temps pour cette note." />
+							<input type="submit" value="Valider" />
 						</td>
 					</form>
 					{% else %}
@@ -86,6 +86,14 @@
 			</tbody>
 		</table>
 	</div>
+	<script language="javascript">
+		function test(event, form) {
+			if (window.confirm("Sauvegarder la charge moyenne et le temps estimé ?"))
+				return true;
+			else event.returnValue = false;
+			return false;
+		}
+	</script>
 {% endblock %}
 
 {% block legend %}{% endblock %}

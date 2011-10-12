@@ -2043,13 +2043,16 @@ def meteo(request, project_id, sprint_id):
             jour = dict()
             meteo = Meteo.objects.select_related().filter(sprint__id__exact = sprint_id, jour__exact = d).order_by("utilisateur")
             perso = meteo.filter(utilisateur__id__exact = user.user.id)
+            if perso:
+                perso[0].short = perso[0].commentaire[:50]
             autre = meteo.exclude(utilisateur__id__exact = user.user.id)
+            for a in autre:
+                a.short = a.commentaire[:50]
             row = (row + 1) % 2
             jour['row'] = row + 1
             jour['date'] = d.strftime('%d/%m/%Y')
             jour['perso'] = perso
             jour['autre'] = autre
-            jour['meteo'] = meteo
             jour['nb'] = autre.count() + 1
             jours.append(jour)
             labels.append(d.strftime('%d/%m'))
@@ -2235,8 +2238,8 @@ def poker(request, project_id):
                 poker.effort = effort
                 if poker.effort != 0:
                     poker.save()
-                else:
-                    poker.delete()
+                #else:
+                    #poker.delete()
                 #add_log(user, 'poker', test, 2, u'effort = %d' % (effort, ))
             messages.append(u'Estimation d\'effort sauvegardée avec succès !')
         elif request.POST.__contains__('avg'):
@@ -2249,8 +2252,8 @@ def poker(request, project_id):
             poker = Poker.objects.filter(note__id__exact = note.id)
             poker.delete()
             recalc_effort(project)
-            add_log(user, 'note', note, 2, u'effort = %d' % (avg, ))
-            messages.append(u'Nouvelle valeur de l\'effort sauvegardée avec succès !')
+            add_log(user, 'note', note, 2, u'effort = %d, temps = %d' % (avg, temps, ))
+            messages.append(u'Nouvelles valeurs de l\'effort et du temps estimé sauvegardées avec succès !')
 
     sprint = 0
     opt = None
@@ -2597,10 +2600,10 @@ def logs(request):
     
     users = UserProfile.objects.all()
     for u in users:
-        setattr(u, 'lcount', 0)
+        u.lcount = 0
         for l in lcount:
             if l['user'] == u.user.id:
-                setattr(u, 'lcount', l['count'])
+                u.lcount = l['count']
 
     logs = LogEntry.objects.all()
     logs = logs.order_by('-action_time')
@@ -2650,10 +2653,10 @@ def history(request):
     
     users = UserProfile.objects.all()
     for u in users:
-        setattr(u, 'hcount', 0)
+        u.hcount = 0
         for h in hcount:
             if h['utilisateur'] == u.user.id:
-                setattr(u, 'hcount', h['count'])
+                u.hcount = h['count']
 
     history = History.objects.all()
     history = history.order_by('-date_creation')

@@ -54,7 +54,11 @@
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_projet }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_equipe }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_avance }}.png" /></td>
-							<td>{{ perso.commentaire }}</td>
+							{% if perso.commentaire %}
+							<td title="{{ perso.commentaire }}">{{ perso.short }}&hellip;</td>
+							{% else %}
+							<td><em>Aucun commentaire</em></td>
+							{% endif %}
 						</tr>
 						{% endfor %}
 					{% else %}
@@ -97,7 +101,11 @@
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_projet }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_equipe }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_avance }}.png" /></td>
-							<td>{{ autre.commentaire }}</td>
+							{% if autre.commentaire %}
+							<td title="{{ autre.commentaire }}">{{ autre.short }}&hellip;</td>
+							{% else %}
+							<td><em>Aucun commentaire</em></td>
+							{% endif %}						
 						</tr>
 					{% endfor %}
 				{% endfor %}
