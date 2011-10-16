@@ -2238,8 +2238,8 @@ def poker(request, project_id):
                 poker.effort = effort
                 if poker.effort != 0:
                     poker.save()
-                #else:
-                    #poker.delete()
+                else:
+                    poker.delete()
                 #add_log(user, 'poker', test, 2, u'effort = %d' % (effort, ))
             messages.append(u'Estimation d\'effort sauvegardée avec succès !')
         elif request.POST.__contains__('avg'):
@@ -2249,8 +2249,8 @@ def poker(request, project_id):
             note.effort = avg
             note.temps_estime = temps
             note.save()
-            poker = Poker.objects.filter(note__id__exact = note.id)
-            poker.delete()
+            #poker = Poker.objects.filter(note__id__exact = note.id)
+            #poker.delete()
             recalc_effort(project)
             add_log(user, 'note', note, 2, u'effort = %d, temps = %d' % (avg, temps, ))
             messages.append(u'Nouvelles valeurs de l\'effort et du temps estimé sauvegardées avec succès !')
