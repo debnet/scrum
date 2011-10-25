@@ -1737,9 +1737,9 @@ def burndown(request, project_id, sprint_id):
     url += '|-1|' + ','.join('%s' % (y) for y in data2)
 
     return render_to_response('projects/burndown.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,
          'project': project, 'sprint': sprint, 'days': days, 'times': times, 'lock': lock,
-         'url': url, 'date': datetime.date.today(), 'erreurs': erreurs, 'nb_notes': nb_notes, },
+         'url': url, 'date': datetime.date.today(), 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 #-------------------------------------------------
@@ -2216,6 +2216,7 @@ def poker(request, project_id):
     
     title = u'Planning Poker - Projet "' + unicode(project.titre) + '"'
     messages = list()
+    erreurs = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/poker'
 
     add_history(user, request.session['url'])
@@ -2262,48 +2263,48 @@ def poker(request, project_id):
     if request.GET.__contains__('opt'):
         opt = request.GET['opt']
     
-    row = 1
     liste = list()
-    features = Feature.objects.filter(projet__id__exact = project_id).order_by('titre')
-    for f in features:
-        notes = Note.objects.filter(feature__id__exact = f.id).order_by('titre')
-        if sprint != 0:
-            notes = notes.filter(sprint__id__exact = sprint)
-        for n in notes:
-            data = dict()
-            row = (row + 1) % 2
-            data['row'] = row + 1
-            poker = Poker.objects.filter(note__id__exact = n.id).order_by('utilisateur')
-            perso = poker.filter(utilisateur__id__exact = user.user.id)
-            data['f'] = f.titre
-            data['fid'] = f.id
-            data['n'] = n.titre
-            data['nid'] = n.id
-            data['temps'] = n.temps_estime
-            data['effort'] = n.effort
-            data['perso'] = perso[0].effort if perso else 0
-            data['poker'] = poker
-            data['nb'] = poker.count()
-            avg = 0
-            if poker.count() > 0:
-                for p in poker:
-                    avg += p.effort
-                avg = avg * 1.0 / poker.count()
-                old = -1
-                for e in EFFORTS:
-                    if e[0] > avg:
-                        avg = e[0] if (avg - old) > (e[0] - avg) else old
-                        break
-                    old = e[0]
-            data['avg'] = avg
-            if (opt == 'all') or (opt == 'todo' and n.effort == 0) or (opt == 'done' and avg != 0 and n.effort != avg):
-                liste.append(data)
-            
+    if sprint or opt:
+        row = 1
+        features = Feature.objects.filter(projet__id__exact = project_id).order_by('titre')
+        for f in features:
+            notes = Note.objects.filter(feature__id__exact = f.id).order_by('titre')
+            if sprint != 0:
+                notes = notes.filter(sprint__id__exact = sprint)
+            for n in notes:
+                data = dict()
+                row = (row + 1) % 2
+                data['row'] = row + 1
+                poker = Poker.objects.filter(note__id__exact = n.id).order_by('utilisateur')
+                perso = poker.filter(utilisateur__id__exact = user.user.id)
+                data['f'] = f.titre
+                data['fid'] = f.id
+                data['n'] = n.titre
+                data['nid'] = n.id
+                data['temps'] = n.temps_estime
+                data['effort'] = n.effort
+                data['perso'] = perso[0].effort if perso else 0
+                data['poker'] = poker
+                data['nb'] = poker.count()
+                avg = 0
+                if poker.count() > 0:
+                    for p in poker:
+                        avg += p.effort
+                    avg = avg * 1.0 / poker.count()
+                    old = -1
+                    for e in EFFORTS:
+                        if e[0] > avg:
+                            avg = e[0] if (avg - old) > (e[0] - avg) else old
+                            break
+                        old = e[0]
+                data['avg'] = avg
+                if (opt == 'all') or (opt == 'todo' and n.effort == 0) or (opt == 'done' and avg != 0 and n.effort != avg):
+                    liste.append(data)
     
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
     
     return render_to_response('projects/poker.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'project': project, 'messages': messages, 'erreurs': erreurs,
          'sprints': sprints, 'sprint': sprint, 'opt': opt, 'liste': liste, 'efforts': EFFORTS, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 

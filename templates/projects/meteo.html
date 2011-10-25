@@ -67,21 +67,21 @@
 								<td rowspan="{{ jour|dict:"nb" }}"><strong>{{ jour|dict:"date" }}</strong></td>
 								<td>{{ user }}</td>
 								<td>
-									<select name="meteo_projet" class="image" onchange="change(this)">
+									<select name="meteo_projet" class="image noborder" onchange="change(this)">
 									{% for m in meteo %}
 										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
 									{% endfor %}
 									</select>
 								</td>
 								<td>
-									<select name="meteo_equipe" class="image" onchange="change(this)">
+									<select name="meteo_equipe" class="image noborder" onchange="change(this)">
 									{% for m in meteo %}
 										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
 									{% endfor %}
 									</select>
 								</td>
 								<td>
-									<select name="meteo_avance" class="image" onchange="change(this)">
+									<select name="meteo_avance" class="image noborder" onchange="change(this)">
 									{% for m in meteo %}
 										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
 									{% endfor %}

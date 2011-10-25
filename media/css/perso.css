@@ -254,10 +254,13 @@ div#content {
 	overflow: auto;
 }
 
-select.image {
+select.noborder {
 	-moz-appearance: none;
 	-webkit-appearance: none;
 	appearance: none;
+}
+
+select.image {
 	height: 22px;
 	padding-left: 25px;
 }
