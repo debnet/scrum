@@ -52,10 +52,10 @@ def check_rights(user, project, *objects):
 
 # ------------------------------------------------
 def recalc_effort(project):
+    effort = 0
     sprint = Sprint.objects.select_related().filter(projet__id__exact = project.id).order_by('-date_debut')
     if sprint:
         notes = Note.objects.filter(feature__projet__id__exact = project.id, priorite__in = ('0', '2', '3', '4', '5'))
-        effort = 0
         for note in notes:
             effort += note.effort
         sprint = sprint[0]
@@ -1585,7 +1585,7 @@ def burndown(request, project_id, sprint_id):
                 elif id[0:6] == '_Tache':
                     task = Task.objects.get(pk = int(id[6:]))
                     etat = '2' if request.POST[id] == 'oui' else '1'
-                    if task.etat in ('0', '1') and etat == 2:
+                    if task.etat in ('0', '1') and etat == '2':
                         tts = TaskTime.objects.filter(task__in = (task, ))
                         tts = tts.order_by('-jour')
                         for tt in tts:
@@ -2296,7 +2296,7 @@ def poker(request, project_id):
                         break
                     old = e[0]
             data['avg'] = avg
-            if opt == None or (opt == 'todo' and n.effort == 0) or (opt == 'done' and avg != 0 and n.effort != avg):
+            if (opt == 'all') or (opt == 'todo' and n.effort == 0) or (opt == 'done' and avg != 0 and n.effort != avg):
                 liste.append(data)
             
     

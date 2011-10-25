@@ -21,14 +21,14 @@
 	<div id="content-main" align="center">
 		<br />
 		Afficher :&nbsp;
-		<a href=".">Tout</a>
+		<a href="">Tout</a>
 		{% for sprint in sprints %}
 		&nbsp;|&nbsp;
 		<a href="?sprint={{ sprint.id }}">{{ sprint.titre }}</a>
 		{% endfor %}
 		<br /><br />
 		Filter :&nbsp;
-		<a href=".{% if sprint %}?sprint={{ sprint }}{% endif %}">Tous</a>
+		<a href=".?opt=all{% if sprint %}?sprint={{ sprint }}{% endif %}">Tous</a>
 		&nbsp;|&nbsp;
 		<a href=".?opt=todo{% if sprint %}&sprint={{ sprint }}{% endif %}">&Agrave; d&eacute;finir</a>
 		&nbsp;|&nbsp;
@@ -64,7 +64,7 @@
 					{% if l|dict:"poker" %}
 					<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post" onsubmit="return test(event, this)">{% csrf_token %}
 						<td align="center" onmouseout="UnTip()" onmouseover="Tip('{% for a in l|dict:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
-							<select name="avg" style="color:red">
+							<select name="avg" class="image" style="color:red">
 							{% for e in efforts %}
 								<option value="{{ e|dict:0 }}" {% ifequal e|dict:0 l|dict:"avg" %}selected{% endifequal %}>{{ e|dict:1 }}</option>
 							{% endfor %}
