@@ -2298,7 +2298,7 @@ def poker(request, project_id):
                             break
                         old = e[0]
                 data['avg'] = avg
-                if (opt == 'all') or (opt == 'todo' and n.effort == 0) or (opt == 'done' and avg != 0 and n.effort != avg):
+                if (opt == 'all') or (opt == 'todo' and not perso) or (opt == 'done' and avg != 0 and n.effort != avg):
                     liste.append(data)
     
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
