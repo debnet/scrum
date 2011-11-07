@@ -1722,7 +1722,7 @@ def burndown(request, project_id, sprint_id):
     url  = 'http://chart.apis.google.com/chart'
     url += '?chs=800x350'
     url += '&cht=lxy'
-    url += '&chg=' + str(100.0 / len(days)) + ',0'
+    url += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
     url += '&chdl=Temps restant|Temps estimé'
     url += '&chdlp=b'
     url += '&chxt=x,y'
@@ -1825,12 +1825,13 @@ def velocity(request, project_id):
         if sprint.effort > max2:
             max2 = sprint.effort
     
+    l = None
     avgs = list()
     if sprints.count() > 0:
         avg = cumul / sprints.count()
         avgs = charge1[:]
         tmp = cumul
-        while tmp < max2:
+        while tmp < max2 and avg != 0:
             tmp += avg
             avgs.append(tmp)
             labels.append("Sprint %d" % (len(labels) + 1))
@@ -1839,7 +1840,7 @@ def velocity(request, project_id):
             l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0, max(avgs) if len(avgs) > 0 else 0]
     else:
         l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0]
-    max2 = max(l)
+    max2 = max(l) if l else 0
 
     url2  = 'http://chart.apis.google.com/chart'
     url2 += '?chs=800x350'
