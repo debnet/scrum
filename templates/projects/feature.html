@@ -53,7 +53,7 @@
 						<div class="bloc titre">{{ note.titre }}</div>
 						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
 						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
-						<div class="bloc description">{{ note.description }}</div>
+						<div class="bloc description">{{ note.description|safe }}</div>
 						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }} ({{ note.effort }})</div>
 						<div class="element droite">
 							<img class="image" title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" />

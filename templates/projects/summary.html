@@ -19,6 +19,8 @@
 
 {% block content %}
 	<div id="content-main" align="center">
+		{{ data }}
+		<br /><br />
 		{% for item in items %}
 		<hr /><br />
 		<h1 id="{{ item|dict:"id" }}">{{ item|dict:"sprint" }}</h1>

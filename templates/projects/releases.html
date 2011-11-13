@@ -62,10 +62,10 @@
 						<form enctype="multipart/form-data" onsubmit="return test(event, this)" action=".?statut={{ statut }}#{{ r.note.id }}" method="post" align="center">{% csrf_token %}
 							<input name="id" type="hidden" value="{{ r.note.id }}" />
 							<input name="commentaire" type="hidden" value="" />
-							<input name="livrer" type="submit" value="Livrer" style="width:60px" {% ifequal r.statut "1" %}disabled{% else %}{% ifequal r.statut "3" %}disabled{% endifequal %}{% endifequal %} />
-							<input name="refuser" type="submit" value="Refuser" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
-							<input name="valider" type="submit" value="Valider" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
-							<input name="terminer" type="submit" value="Terminer" style="width:60px" {% ifequal r.statut "3" %}{% else %}disabled{% endifequal %} />
+							<input name="livrer" type="submit" value="Livrer" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}disabled{% else %}{% ifequal r.statut "3" %}disabled{% endifequal %}{% endifequal %} />
+							<input name="refuser" type="submit" value="Refuser" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
+							<input name="valider" type="submit" value="Valider" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
+							<input name="terminer" type="submit" value="Terminer" onclick="use=false" style="width:60px" {% ifequal r.statut "3" %}{% else %}disabled{% endifequal %} />
 						</form>
 					{% endif %}
 					</td>
@@ -88,6 +88,7 @@
 	</div>
 	<script language="javascript">
 		function test(event, form) {
+			if (use == false) return;
 			var commentaire = window.prompt("Commentaire (facultatif) :");
 			if (commentaire != null)
 				form.commentaire.value = commentaire;

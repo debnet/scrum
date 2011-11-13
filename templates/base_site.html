@@ -19,7 +19,7 @@
             <td class="minor">Possible</td>
             <td class="major">Souhaitable</td>
             <td class="critical">Indispensable</td>
-            <td class="blocking">Report&eacute;(e)</td>
+            <td class="blocking">&Agrave; sp&eacute;cifier</td>
         </tr>
     </table>
 </div>
@@ -27,7 +27,8 @@
 
 {% block config %}
 <div class="config">
-    <form enctype="multipart/form-data" action="." method="post">{% csrf_token %}
+    <form name="config" enctype="multipart/form-data" action="." method="post">{% csrf_token %}
+        <!--
         <select name="nb_notes" title="Nombre de notes par ligne" onchange="submit()">
             <option value="3" {% if nb_notes == 3 %}selected{% endif %}>3</option>
             <option value="4" {% if nb_notes == 4 %}selected{% endif %}>4</option>
@@ -37,7 +38,18 @@
             <option value="8" {% if nb_notes == 8 %}selected{% endif %}>8</option>
             <option value="9" {% if nb_notes == 9 %}selected{% endif %}>9</option>
         </select>
+        -->
+        <input type="hidden" name="nb_notes" value="{{ nb_notes }}" />
     </form>
+    <script type="text/javascript">
+        var nb_notes = parseInt(self.innerWidth / 230);
+        if (nb_notes < 1) nb_notes = 1;
+        var current = document.forms.config.nb_notes.value;
+        if (nb_notes != current) {
+            document.forms.config.nb_notes.value = nb_notes;
+            document.forms.config.submit()
+        }
+    </script>
 </div>
 {% endblock %}
 

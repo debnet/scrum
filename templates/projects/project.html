@@ -87,7 +87,7 @@
 						<div class="bloc titre">{{ feature.titre }}</div>
 						<div class="element gauche">{{ feature.priorite|var2txt:"p" }}</div>
 						<div class="element droite">{% if feature.termine %}Termin&eacute;e{% else %}&Agrave; faire{% endif %}</div>
-						<div class="bloc description">{{ feature.description }}</div>
+						<div class="bloc description">{{ feature.description|safe }}</div>
 						<div class="element gauche">{{ feature.temps_realise }} / {{ feature.temps_estime }} ({{ feature.notes }})</div>
 						<div class="element droite">
 							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ feature.confiance_dev }}.png" />
@@ -112,7 +112,7 @@
 						<div class="bloc titre">{{ sprint.titre }}</div>
 						<div class="element gauche">{{ sprint.date_debut|date:"d/m/Y" }}</div>
 						<div class="element droite">{{ sprint.date_fin|date:"d/m/Y" }}</div>
-						<div class="bloc description">{{ sprint.objectif }}</div>
+						<div class="bloc description">{{ sprint.objectif|safe }}</div>
 						<div class="element gauche">{{ sprint.temps_realise }} / {{ sprint.temps_estime }}<!-- ({{ sprint.notes }}) --></div>
 						<div class="element droite">
 							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" />
@@ -137,7 +137,7 @@
 						<div class="bloc titre">{{ probleme.titre }}</div>
 						<div class="element gauche">{{ probleme.priorite|var2txt:"p" }}</div>
 						<div class="element droite">{% if probleme.termine %}R&eacute;solu{% else %}&Agrave; faire{% endif %}</div>
-						<div class="bloc description">{{ probleme.description }}</div>
+						<div class="bloc description">{{ probleme.description|safe }}</div>
 						<div class="element gauche"></div>
 						<div class="element droite">
 							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ probleme.confiance_dev }}.png" />

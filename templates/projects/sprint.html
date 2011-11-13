@@ -82,7 +82,7 @@
 						<div class="bloc titre">{{ note.titre }}</div>
 						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
 						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
-						<div class="bloc description">{{ note.description }}</div>
+						<div class="bloc description">{{ note.description|safe }}</div>
 						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }}</div>
 						<div class="element droite">
 							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" />
@@ -107,7 +107,7 @@
 							<div class="bloc titre">{{ task.titre }}</div>
 							<div class="element gauche">{{ task.priorite|var2txt:"p" }}</div>
 							<div class="element droite">{{ task.etat|var2txt:"e" }}</div>
-							<div class="bloc description">{{ task.description }}</div>
+							<div class="bloc description">{{ task.description|safe }}</div>
 							<div class="element gauche"></div>
 							<div class="element droite">
 								<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ task.confiance_dev }}.png" />

@@ -46,7 +46,7 @@
 						<div class="bloc titre">{{ probleme.titre }}</div>
 						<div class="element gauche">{{ probleme.priorite|var2txt:"p" }}</div>
 						<div class="element droite">{% if probleme.termine %}R&eacute;solu{% else %}&Agrave; r&eacute;soudre{% endif %}</div>
-						<div class="bloc description">{{ probleme.description }}</div>
+						<div class="bloc description">{{ probleme.description|safe }}</div>
 						<div class="element gauche">{{ probleme.effort }}</div>
 						<div class="element droite">
 							<a class="image" href="?d={{ probleme.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ probleme.confiance_dev }}.png" /></a>

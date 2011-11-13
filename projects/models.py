@@ -14,13 +14,15 @@ PRIORITES = (
     ('2', u'Possible'),
     ('3', u'Souhaitable'),
     ('4', u'Indispensable'),
-    ('5', u'Reporté(e)'),
+    ('5', u'À spécifier'),
 )
 
 ETATS = (
-    ('0', u'À faire'),
-    ('1', u'En cours'),
-    ('2', u'Terminé'),
+    ('0', u'Backlog'),
+    ('1', u'À faire'),
+    ('2', u'En cours'),
+    ('3', u'Livré'),
+    ('4', u'Terminé'),
 )
 
 TYPES = (
@@ -153,9 +155,9 @@ class Note(models.Model):
     sprint = models.ForeignKey(Sprint, blank=True, null=True, help_text='Définit le sprint dans laquelle la note est/sera traitée ou rien sinon.')
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier la note.')
     description = models.TextField('Description', default='En tant que...\nje peux...\nafin de...', blank=True, null=True, help_text='Une description de la réalisation, par défaut une user-story.')
-    type = models.CharField('Type', max_length=1, choices=TYPES, default='0', help_text='User-story : description du point de vue utilisateur.<br />Spike : Analyse sur une future réalisation dont le coût et l\'évaluation sont/seront traités pendant le sprint.<br />Feature : une fonctionnalité décrite côté fonctionnel.')
-    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la note.', db_index=True)
-    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le statut d\'exécution de la note.', db_index=True)
+    type = models.CharField('Type', max_length=1, choices=TYPES, default='0', help_text='User-story : description du point de vue utilisateur, à préconiser.<br />Feature : une fonctionnalité décrite côté fonctionnel, à éviter si possible.<br />Spike : Analyse sur une future réalisation dont le coût et l\'évaluation sont/seront traités pendant le sprint.')
+    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité de réalisation de la note.', db_index=True)
+    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit l\'état de progression de la note.', db_index=True)
     effort = models.PositiveSmallIntegerField('Effort', choices=EFFORTS, default='0', help_text='Valeur de l\'effort à déployer pour réaliser la tâche.')
     temps_realise = models.IntegerField('Temps réalisé', default=0, help_text='Quantité de temps déjà exécuté sur la réalisation. Evolutive avec le temps.')
     temps_estime = models.IntegerField('Temps estimé', default=0, help_text='Quantité de temps allouée à la réalisation. Normalement non modifiable.')
@@ -180,8 +182,8 @@ class Task(models.Model):
     sprint = models.ForeignKey(Sprint, help_text='Requis. Une tâche doit appartenir à un sprint.')
     titre = models.CharField('Titre', max_length=128, help_text='Requis. Un titre pour identifier la tâche.')
     description = models.TextField('Description', blank=True, null=True)
-    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité d\'exécution de la tâche.', db_index=True)
-    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit le statut d\'exécution de la note.', db_index=True)
+    priorite = models.CharField('Priorité', max_length=1, choices=PRIORITES, default='0', help_text='Définit la priorité de réalisation de la tâche.', db_index=True)
+    etat = models.CharField('État', max_length=1, choices=ETATS, default='0', help_text='Définit l\'état de progression de la note.', db_index=True)
     effort = models.PositiveSmallIntegerField('Effort', choices=EFFORTS, default='0', help_text='Valeur de l\'effort à déployer pour réaliser la tâche.')
     temps_realise = models.PositiveIntegerField('Temps réalisé', default=0, help_text='Quantité de temps déjà exécuté sur la réalisation. Evolutive avec le temps.')
     temps_estime = models.PositiveIntegerField('Temps estimé', default=0, blank=True, null=True, help_text='Quantité de temps allouée à la tâche. Normalement non modifiable.')

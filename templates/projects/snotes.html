@@ -53,7 +53,7 @@
 						<div class="bloc titre">{{ note.feature.titre }}<br />{{ note.titre }}</div>
 						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
 						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
-						<div class="bloc description">{{ note.description }}</div>
+						<div class="bloc description">{{ note.description|safe }}</div>
 						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }} ({{ note.effort }})</div>
 						<div class="element droite">
 							<a class="image" href="?d={{ note.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" /></a>
@@ -65,9 +65,11 @@
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action=".#{{ note.id }}" method="post" align="center">{% csrf_token %}
 							<select name="etat" onchange="submit()">
-								<option value="0" {% ifequal note.etat '0' %}selected{% endifequal %}>&Agrave; faire</option>
-								<option value="1" {% ifequal note.etat '1' %}selected{% endifequal %}>En cours</option>
-								<option value="2" {% ifequal note.etat '2' %}selected{% endifequal %}>Termin&eacute;</option>
+								<option value="0" {% ifequal note.etat '0' %}selected{% endifequal %}>Backlog</option>
+								<option value="1" {% ifequal note.etat '1' %}selected{% endifequal %}>&Agrave; faire</option>
+								<option value="2" {% ifequal note.etat '2' %}selected{% endifequal %}>En cours</option>
+								<option value="3" {% ifequal note.etat '3' %}selected{% endifequal %}>Livr&eacute;</option>
+								<option value="4" {% ifequal note.etat '4' %}selected{% endifequal %}>Termin&eacute;</option>
 							</select>
 							<select name="priorite" onchange="submit()">
 								<option value="0" {% ifequal note.priorite '0' %}selected{% endifequal %}>Aucune</option>
@@ -75,7 +77,7 @@
 								<option value="2" {% ifequal note.priorite '2' %}selected{% endifequal %}>Possible</option>
 								<option value="3" {% ifequal note.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
 								<option value="4" {% ifequal note.priorite '4' %}selected{% endifequal %}>Indispensable</option>
-								<option value="5" {% ifequal note.priorite '5' %}selected{% endifequal %}>Report&eacute;(e)</option>
+								<option value="5" {% ifequal note.priorite '5' %}selected{% endifequal %}>&Agrave; sp&eacute;cifier</option>
 							</select>
 							<input type="hidden" name="id" value="{{ note.id }}" />
 						</form>

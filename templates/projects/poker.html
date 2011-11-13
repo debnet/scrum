@@ -93,6 +93,7 @@
 	</div>
 	<script language="javascript">
 		function test(event, form) {
+			return true;
 			if (window.confirm("Sauvegarder la charge moyenne et le temps estimé ?"))
 				return true;
 			else event.returnValue = false;

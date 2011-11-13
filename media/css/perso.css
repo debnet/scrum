@@ -222,7 +222,7 @@ span.erreur {
 
 div.legende {
 	position: fixed; 
-	right: 50px; 
+	right: 5px; 
 	bottom: 5px; 
 	text-align: center; 
 	z-index: 10; 
@@ -235,6 +235,10 @@ div.legende table {
 
 div.legende table tr td { 
 	width: 70px; 
+}
+
+div.config {
+	display: none;
 }
 
 div.config {

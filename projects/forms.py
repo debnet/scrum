@@ -48,7 +48,7 @@ class NoteForm(forms.ModelForm):
     
     class Meta:
         model = Note
-        exclude = ('temps_realise', 'etat', 'date_creation', 'confiance_dev', 'confiance_sm', 'confiance_po', )
+        exclude = ('temps_realise', 'date_creation', 'confiance_dev', 'confiance_sm', 'confiance_po', )
 
 class SprintForm(forms.ModelForm):
     utilisateur = forms.ModelChoiceField(UserProfile.objects.all(), widget=forms.HiddenInput)
@@ -65,7 +65,7 @@ class TaskForm(forms.ModelForm):
     
     class Meta:
         model = Task
-        exclude = ('temps_realise', 'etat', 'date_creation', 'confiance_dev', 'confiance_sm', 'confiance_po', )
+        exclude = ('temps_realise', 'etat', 'effort', 'date_creation', 'confiance_dev', 'confiance_sm', 'confiance_po', )
 
 class ProblemForm(forms.ModelForm):
     utilisateur = forms.ModelChoiceField(UserProfile.objects.all(), widget=forms.HiddenInput)

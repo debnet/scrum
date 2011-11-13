@@ -59,7 +59,7 @@
 						<div class="bloc titre">{{ task.titre }}</div>
 						<div class="element gauche">{{ task.priorite|var2txt:"p" }}</div>
 						<div class="element droite">{{ task.etat|var2txt:"e" }}</div>
-						<div class="bloc description">{{ task.description }}</div>
+						<div class="bloc description">{{ task.description|safe }}</div>
 						<div class="element gauche">{{ task.temps_realise }} / {{ task.temps_estime }} ({{ task.effort }})</div>
 						<div class="element droite">
 							<a class="image" href="?d={{ task.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ task.confiance_dev }}.png" /></a>
@@ -81,7 +81,7 @@
 								<option value="2" {% ifequal task.priorite '2' %}selected{% endifequal %}>Possible</option>
 								<option value="3" {% ifequal task.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
 								<option value="4" {% ifequal task.priorite '4' %}selected{% endifequal %}>Indispensable</option>
-								<option value="5" {% ifequal task.priorite '5' %}selected{% endifequal %}>Report&eacute;(e)</option>
+								<option value="5" {% ifequal task.priorite '5' %}selected{% endifequal %}>&Agrave; sp&eacute;cifier</option>
 							</select>
 							<br />
 							<label>Temps : </label><input type="text" name="temps" value="{{ task.temps_estime }}" size="2" onfocus="" />

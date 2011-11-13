@@ -4,8 +4,10 @@ from django import template
 
 ETATS = (
     ('0', 'todo'),
-    ('1', 'run'),
-    ('2', 'done'),
+    ('1', 'todo'),
+    ('2', 'run'),
+    ('3', 'run'),
+    ('4', 'done'),
 )
 
 PRIORITES = (
@@ -41,7 +43,7 @@ def var2css(value, arg):
             if value in str(range(0,6)):
                 return PRIORITES[int(value)][1]
         if arg in ('e', 'E', 'etats'):
-            if value in str(range(0,3)):
+            if value in str(range(0,5)):
                 return ETATS[int(value)][1]
         if arg in ('s', 'S', 'statut'):
             if value in str(range(0,4)):

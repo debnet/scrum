@@ -267,7 +267,7 @@ def list_notes(feature_id, sort = ['-priorite'], all = False, todo = True, toset
     tmp = Note.objects.filter(feature__id__exact = feature_id)
     tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
-        tmp = tmp.exclude(etat__exact = 2) if todo else tmp.filter(etat__exact = 2)
+        tmp = tmp.exclude(etat__exact = '4') if todo else tmp.filter(etat__exact = '4')
         tmp = tmp.exclude(sprint__id__isnull = False) if toset else tmp.filter(sprint__id__isnull = False)
 
     notes = list()
@@ -317,13 +317,13 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
         t.temps_realise = 0
         t.temps_estime = 0
         for note in notes:
-            if note.etat == '2' and note.temps_estime >= note.temps_realise:
+            if note.etat == '4' and note.temps_estime >= note.temps_realise:
                 t.temps_realise += note.temps_estime
             else:
                 t.temps_realise += note.temps_realise
             t.temps_estime += note.temps_estime
         for task in tasks:
-            if task.etat == 2 and task.temps_estime >= task.temps_realise:
+            if task.etat == '4' and task.temps_estime >= task.temps_realise:
                 t.temps_realise += task.temps_estime
             else:
                 t.temps_realise += task.temps_realise
@@ -350,13 +350,7 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
             t.etat = 'done'
             t.urgence = 'none'
 
-        if t.etat == 'done':
-            value1 = '1'
-        else:
-            if t.temps_estime > 0:
-                value1 = str(float(t.temps_realise) / t.temps_estime)
-            else:
-                value1 = '0'
+        value1 = '1' if t.etat == 'done' else str(float(t.temps_realise) / t.temps_estime) if t.temps_estime > 0 else '0'
 
         holidays = get_holidays(t.date_debut.year, t.date_fin.year)
 
@@ -415,7 +409,7 @@ def list_snotes(sprint_id, sort = ['-priorite'], all = False, todo = True, work 
     tmp = Note.objects.select_related().filter(sprint__id__exact = sprint_id)
     tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
-        tmp = tmp.filter(etat__exact = 0) if todo else tmp.filter(etat__exact = 1) if work else tmp.filter(etat__exact = 2)
+        tmp = tmp.filter(etat__in = ('0', '1')) if todo else tmp.filter(etat__in = ('2', '3')) if work else tmp.filter(etat__exact = '4')
 
     notes = list()
     notes.append(list())
@@ -445,7 +439,7 @@ def list_tasks(sprint_id, sort = ['-priorite'], all = False, todo = True, work =
     tmp = Task.objects.filter(sprint__id__exact = sprint_id)
     tmp = tmp.order_by(*sort) if sort else tmp
     if not all:
-        tmp = tmp.filter(etat__exact = 0) if todo else tmp.filter(etat__exact = 1) if work else tmp.filter(etat__exact = 2)
+        tmp = tmp.filter(etat__in = ('0', '1')) if todo else tmp.filter(etat__in = ('2', '3')) if work else tmp.filter(etat__exact = '4')
 
     tasks = list()
     tasks.append(list())
@@ -502,7 +496,7 @@ def list_problems(project_id, sort = ['-priorite'], all = False, todo = True, ma
 
 # ------------------------------------------------
 def list_releases(sprint_id, statut = None):
-    notes = Note.objects.select_related().filter(sprint__id__exact = sprint_id).exclude(etat__exact = 2)
+    notes = Note.objects.select_related().filter(sprint__id__exact = sprint_id).exclude(etat__exact = '4')
     notes = notes.order_by('-priorite')
     
     releases = list()
@@ -582,7 +576,7 @@ def project(request, project_id):
     p_done = p_all.filter(resolu__gt = 0)
 
     n_all = Note.objects.filter(feature__projet__id__exact = project.id, priorite__in = ('0', '2', '3', '4', '5'))
-    n_done = n_all.filter(etat__exact = 2)
+    n_done = n_all.filter(etat__exact = '4')
 
     na = 0
     for n in n_all:
@@ -710,7 +704,7 @@ def feature(request, project_id, feature_id):
     nb_notes = get_nb_notes(request)
 
     n_all = Note.objects.filter(feature__id__exact = feature_id)
-    n_done = n_all.filter(etat__exact = 2)
+    n_done = n_all.filter(etat__exact = '4')
 
     notes = list_notes(feature_id, max = nb_notes, nb_notes = nb_notes)
 
@@ -840,7 +834,7 @@ def note(request, project_id, feature_id, note_id):
     note = get_object_or_404(Note, pk = note_id)
 
     user = request.user.get_profile()
-    if not check_rights(user, project, feature, note):
+    if not check_rights(user, project, feature):
         return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
@@ -998,8 +992,8 @@ def sprint(request, project_id, sprint_id):
 
     n_all = Note.objects.filter(sprint__id__exact = sprint_id)
     t_all = Task.objects.filter(sprint__id__exact = sprint_id)
-    n_done = n_all.filter(etat__exact = 2)
-    t_done = t_all.filter(etat__exact = 2)
+    n_done = n_all.filter(etat__exact = '4')
+    t_done = t_all.filter(etat__exact = '4')
 
     notes = list_snotes(sprint_id, max = nb_notes, nb_notes = nb_notes)
     tasks = list_tasks(sprint_id, max = nb_notes, nb_notes = nb_notes)
@@ -1067,7 +1061,7 @@ def snotes(request, project_id, sprint_id):
                 changes.append(u'priorité = ' + PRIORITES[note.priorite][1])
             if request.POST.__contains__('etat'):
                 note.etat = int(request.POST['etat'])
-                if note.etat == 2:
+                if note.etat == '4':
                     nts = NoteTime.objects.filter(note__in = (note, ))
                     nts = nts.order_by('-jour')
                     for nt in nts:
@@ -1081,7 +1075,7 @@ def snotes(request, project_id, sprint_id):
                     for nt in nts:
                         nt.temps_fin = 0
                         nt.save()
-                changes.append(u'état = ' + ETATS[note.etat][1])
+                changes.append(u'état = ' + ETATS[int(note.etat)][1])
             note.utilisateur = user
             note.save()
             recalc_effort(project)
@@ -1199,7 +1193,7 @@ def tasks(request, project_id, sprint_id):
                 task.priorite = int(request.POST['priorite'])
             if request.POST.__contains__('etat'):
                 task.etat = int(request.POST['etat'])
-                if task.etat == 2:
+                if task.etat == '4':
                     tts = TaskTime.objects.filter(task__in = (task, ))
                     tts = tts.order_by('-jour')
                     for tt in tts:
@@ -1315,6 +1309,8 @@ def releases(request, project_id, sprint_id):
                 release.statut = 1
                 #statut = release.statut
                 release.save()
+                note.etat = '3'
+                note.save()
                 changes.append(u'statut = ' + STATUT[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
                 messages.append(u'Livraison effectuée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
@@ -1324,6 +1320,8 @@ def releases(request, project_id, sprint_id):
                 release.statut = 2
                 #statut = release.statut
                 release.save()
+                note.etat = '2'
+                note.save()
                 changes.append(u'statut = ' + STATUT[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
                 messages.append(u'Livraison refusée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
@@ -1347,9 +1345,9 @@ def releases(request, project_id, sprint_id):
                         nt.temps_fin = fin
                         nt.save()
                         break
-                note.etat = 2
+                note.etat = '4'
                 note.save()
-                changes.append(u'etat = ' + ETATS[note.etat][1])
+                changes.append(u'etat = ' + ETATS[int(note.etat)][1])
                 add_log(user, 'note', note, 2, ', '.join(changes))
                 messages.append(u'Note de backlog terminée avec succès !')
 
@@ -1534,7 +1532,7 @@ def burndown(request, project_id, sprint_id):
                         time.date_modification = None
                         time.utilisateur = None
                     elif (time.temps != temps):
-                        note.etat = '1'
+                        note.etat = '2'
                         time.date_modification = datetime.datetime.now()
                         time.utilisateur = user
                     note.temps_realise = note.temps_realise - time.temps
@@ -1550,7 +1548,7 @@ def burndown(request, project_id, sprint_id):
                         time.date_modification = None
                         time.utilisateur = None
                     elif (time.temps != temps):
-                        task.etat = '1'
+                        task.etat = '2'
                         time.date_modification = datetime.datetime.now()
                         time.utilisateur = user
                     task.temps_realise = task.temps_realise - time.temps
@@ -1560,8 +1558,8 @@ def burndown(request, project_id, sprint_id):
                     time.save()
                 elif id[0:5] == '_Note':
                     note = Note.objects.get(pk = int(id[5:]))
-                    etat = '2' if request.POST[id] == 'oui' else '1'
-                    if note.etat in ('0', '1') and etat == '2':
+                    etat = '4' if request.POST[id] == 'oui' else '2'
+                    if note.etat in ('1', '2') and etat == '4':
                         nts = NoteTime.objects.filter(note__in = (note, ))
                         nts = nts.order_by('-jour')
                         for nt in nts:
@@ -1570,12 +1568,12 @@ def burndown(request, project_id, sprint_id):
                                 nt.temps_fin = fin
                                 nt.save()
                                 break
-                    elif note.etat == '2' and etat == '1':
+                    elif note.etat == '4' and etat == '2':
                         nts = NoteTime.objects.filter(note__in = (note, ))
-                        etat = '0'
+                        etat = '1'
                         for nt in nts:
                             if nt.temps > 0:
-                                etat = '1'
+                                etat = '2'
                             nt.temps_fin = 0
                             nt.save()
                     note.etat = etat
@@ -1584,8 +1582,8 @@ def burndown(request, project_id, sprint_id):
                     add_log(user, 'note', note, 2, ', '.join(changes))
                 elif id[0:6] == '_Tache':
                     task = Task.objects.get(pk = int(id[6:]))
-                    etat = '2' if request.POST[id] == 'oui' else '1'
-                    if task.etat in ('0', '1') and etat == '2':
+                    etat = '4' if request.POST[id] == 'oui' else '2'
+                    if task.etat in ('1', '2') and etat == '4':
                         tts = TaskTime.objects.filter(task__in = (task, ))
                         tts = tts.order_by('-jour')
                         for tt in tts:
@@ -1594,12 +1592,12 @@ def burndown(request, project_id, sprint_id):
                                 tt.temps_fin = fin
                                 tt.save()
                                 break
-                    elif task.etat == '2' and etat == '1':
+                    elif task.etat == '4' and etat == '2':
                         tts = TaskTime.objects.filter(task__in = (task, ))
-                        etat = '0'
+                        etat = '1'
                         for tt in tts:
                             if tt.temps > 0:
-                                etat = '1'
+                                etat = '2'
                             tt.temps_fin = 0
                             tt.save()
                     task.etat = etat
@@ -1623,9 +1621,36 @@ def burndown(request, project_id, sprint_id):
     times = list()
     total = 0
 
+    tasks = Task.objects.filter(sprint__id__exact = sprint_id)
+    tasks = tasks.order_by('-priorite')
+    for t in tasks:
+        d = dict()
+        tt = TaskTime.objects.filter(sprint__id__exact = sprint_id, task__id__exact = t.id)
+        tt = tt.exclude(jour__in = holidays)
+        tt = tt.order_by('jour')
+        d['id'] = t.id
+        d['bid'] = 0
+        d['base'] = ''
+        d['name'] = t.titre
+        d['type'] = u'Tache'
+        d['item'] = t
+        d['time'] = tt
+        d['done'] = t.temps_realise
+        d['todo'] = t.temps_estime
+        d['test'] = (t.etat == '4')
+        d['line'] = str(t.id)
+        d['etat'] = '?done' if done else '.'
+        d['url'] = 'tasks'
+        if done and t.etat in ('3', '4'):
+            times.append(d)
+        elif not done and t.etat not in ('3', '4'):
+            times.append(d)
+        for d in tt:
+            days.append(d.jour)
+        total += t.temps_estime
+
     notes = Note.objects.select_related().filter(sprint__id__exact = sprint_id)
     notes = notes.order_by('-priorite')
-
     for n in notes:
         d = dict()
         nt = NoteTime.objects.filter(sprint__id__exact = sprint_id, note__id__exact = n.id)
@@ -1640,10 +1665,11 @@ def burndown(request, project_id, sprint_id):
         d['time'] = nt
         d['done'] = n.temps_realise
         d['todo'] = n.temps_estime
-        d['test'] = (n.etat == '2')
+        d['test'] = (n.etat == '4')
         d['line'] = str(n.feature.id) + '_' + str(n.id)
         d['etat'] = '?done' if done else '?released' if released else '.'
         d['url'] = 'notes'
+        """
         releases = Release.objects.filter(note__id__exact = n.id).order_by('-date_creation')
         if releases.count() > 0:
             release = releases[0]
@@ -1659,38 +1685,16 @@ def burndown(request, project_id, sprint_id):
                 times.append(d)
             elif not done and n.etat != '2':
                 times.append(d)
+        """
+        if released and n.etat == '3':
+            times.append(d)
+        elif done and n.etat == '4':
+            times.append(d)
+        elif not released and not done and n.etat not in ('3', '4'):
+            times.append(d)
         for d in nt:
             days.append(d.jour)
         total += n.temps_estime
-
-    tasks = Task.objects.filter(sprint__id__exact = sprint_id)
-    tasks = tasks.order_by('-priorite')
-
-    for t in tasks:
-        d = dict()
-        tt = TaskTime.objects.filter(sprint__id__exact = sprint_id, task__id__exact = t.id)
-        tt = tt.exclude(jour__in = holidays)
-        tt = tt.order_by('jour')
-        d['id'] = t.id
-        d['bid'] = 0
-        d['base'] = ''
-        d['name'] = t.titre
-        d['type'] = u'Tache'
-        d['item'] = t
-        d['time'] = tt
-        d['done'] = t.temps_realise
-        d['todo'] = t.temps_estime
-        d['test'] = (t.etat == '2')
-        d['line'] = str(n.id)
-        d['etat'] = '?done' if done else '.'
-        d['url'] = 'tasks'
-        if done and t.etat == '2':
-            times.append(d)
-        elif not done and t.etat != '2':
-            times.append(d)
-        for d in tt:
-            days.append(d.jour)
-        total += t.temps_estime
 
     days = list(set(days))
     days.sort()
@@ -1772,7 +1776,7 @@ def velocity(request, project_id):
     for i in range(4):
         s = 0
         for sprint in sprints:
-            notes = Note.objects.filter(sprint__id__exact = sprint.id, type__exact = i, etat__exact = 2)
+            notes = Note.objects.filter(sprint__id__exact = sprint.id, type__exact = i, etat__exact = '4')
             n = 0
             for note in notes:
                 n += note.effort
@@ -1792,7 +1796,7 @@ def velocity(request, project_id):
     url1 += '&cht=bvs'
     url1 += '&chbh=a'
     url1 += '&chdl=User-story|Feature|Bug|Spike'
-    url1 += '&chdlp=t'
+    url1 += '&chdlp=t|l'
     url1 += '&chxt=x,y'
     url1 += '&chxl=0:|' + '|'.join(labels)
     url1 += '&chxr=1,0,' + str(max1)
@@ -1812,7 +1816,7 @@ def velocity(request, project_id):
     for sprint in sprints:
         i += 1
         labels.append("Sprint %d" % (i))
-        notes = Note.objects.filter(sprint__id__exact = sprint.id, etat__exact = 2)
+        notes = Note.objects.filter(sprint__id__exact = sprint.id, etat__exact = '4')
         n = 0
         for note in notes:
             n += note.effort
@@ -1840,26 +1844,50 @@ def velocity(request, project_id):
             l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0, max(avgs) if len(avgs) > 0 else 0]
     else:
         l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0]
-    max2 = max(l) if l else 0
+    max2 = max(l) if l else sprint.effort
 
     url2  = 'http://chart.apis.google.com/chart'
     url2 += '?chs=800x350'
     url2 += '&cht=lxy'
     url2 += '&chg=' + str(100.0 / len(charge1) if len(charge1) > 0 else 0) + ',0'
-    url2 += '&chdl=Charge réalisée|Charge totale|Charge estimée'
-    url2 += '&chdlp=t'
+    url2 += '&chdl=Charge réalisée puis estimée|Charge totale'
+    url2 += '&chdlp=t|l'
     url2 += '&chxt=x,y'
     url2 += '&chxl=0:||' + '|'.join(labels)
     url2 += '&chxr=1,0,' + str(max2)
-    url2 += '&chds=0,0,0,' + str(max2)
-    url2 += '&chco=00aa00,ff0000,0000ff'
-    url2 += '&chls=2,4,2|2,0,0|2,4,2'
-    url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11|s,ff0000,2,-1,5|N*f0*,000000,2,-1,11'
+    url2 += '&chds=0,' + str(max2)
+    url2 += '&chco=0000ff,ff0000'
+    url2 += '&chls=2,4,2|2,0,0'
+    url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
     url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-    url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in charge1)
+    url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in avgs)
     url2 += '|-1|' + ','.join('%s' % (y) for y in charge2)
-    if len(avgs) > 0:
-        url2 += '|-1|0,' + ','.join('%s' % (z) for z in avgs)
+    
+    """
+    i = 0
+    max3 = 0
+    labels = list()
+    data = list()
+    for sprint in sprints:
+        i += 1
+        labels.append("Sprint %d" % (i))
+    
+    url3  = 'http://chart.apis.google.com/chart'
+    url3 += '?chs=800x350'
+    url3 += '&cht=lxy'
+    url3 += '&chg=' + str(100.0 / len(labels) if len(labels) > 0 else 0) + ',0'
+    url3 += '&chdl=A spécifier|A faire|En cours|Livré|Terminé'
+    url3 += '&chdlp=t|l'
+    url3 += '&chxt=x,y'
+    url3 += '&chxl=0:||' + '|'.join(labels)
+    url3 += '&chxr=1,0,' + str(max3)
+    url3 += '&chds=0,' + str(max3)
+    url3 += '&chco=ccffff,ffcc99,ffffcc,ccffcc,eeeeee'
+    url3 += '&chls=1,1,1,1,1'
+    url3 += '&chm=B,ccffff,0,0,0|b,ffcc99,0,1,0|b,ffffcc,1,2,0|b,ccffcc,2,3,0|b,eeeeee,3,4,0'
+    url3 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url3 += '&chd=t:'
+    """
 
     return render_to_response('projects/velocity.html',
         {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
@@ -1936,13 +1964,13 @@ def summary(request, project_id):
         url1  = 'http://chart.apis.google.com/chart'
         url1 += '?chs=800x350'
         url1 += '&cht=lxy'
-        url1 += '&chg=' + str(100.0 / len(days)) + ',0'
+        url1 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
         url1 += '&chdl=Temps réalisé|Temps moyen estimé'
         url1 += '&chdlp=t'
         url1 += '&chxt=x,y'
         url1 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
         url1 += '&chxr=1,0,' + str(max1)
-        url1 += '&chds=0,0,0,' + str(max1)
+        url1 += '&chds=0,' + str(max1)
         url1 += '&chco=0000ff,ff0000'
         url1 += '&chls=2,4,2|2,0,0|2,0,0'
         url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
@@ -1971,13 +1999,13 @@ def summary(request, project_id):
         url2  = 'http://chart.apis.google.com/chart'
         url2 += '?chs=800x350'
         url2 += '&cht=lxy'
-        url2 += '&chg=' + str(100.0 / len(days)) + ',0'
+        url2 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
         url2 += '&chdl=Progression réelle|Progression estimée'
         url2 += '&chdlp=t'
         url2 += '&chxt=x,y'
         url2 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
         url2 += '&chxr=1,0,' + str(max2)
-        url2 += '&chds=0,0,0,' + str(max2)
+        url2 += '&chds=0,' + str(max2)
         url2 += '&chco=0000ff,ff0000,000000'
         url2 += '&chls=2,4,2|2,0,0|2,0,0'
         url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
@@ -2127,7 +2155,7 @@ def documents(request, project_id):
             add_log(user, 'document', d, 1)
             messages.append(u'Document ajouté avec succès !')
     else:
-        form = DocumentForm(initial={'utilisateur': user.id, 'projet': project.id, })
+        form = DocumentForm(initial = {'utilisateur': user.id, 'projet': project.id, })
 
     if request.method == 'GET':
         if request.GET.__contains__('delete'):
@@ -2170,7 +2198,8 @@ def scrumwall(request, project_id):
     if request.method == 'GET':
         if request.GET.__contains__('sprint'):
             sprint = int(request.GET['sprint'])
-
+    
+    backlog = False
     scrumwall = list()
     features = Feature.objects.filter(projet__id__exact = project_id)
     features = features.order_by('-priorite')
@@ -2179,29 +2208,47 @@ def scrumwall(request, project_id):
         items['id'] = f.id
         items['name'] = f.titre
         items['item'] = f
-        todo = Note.objects.filter(feature__id__exact = f.id, etat__exact = 0)
+        # Backlog
+        spec = Note.objects.filter(feature__id__exact = f.id, etat__exact = '0')
+        if sprint != 0:
+            spec = spec.filter(sprint__id__exact = sprint)
+        spec = spec.order_by('-priorite')
+        items['spec'] = spec
+        # À faire
+        todo = Note.objects.filter(feature__id__exact = f.id, etat__exact = '1')
         if sprint != 0:
             todo = todo.filter(sprint__id__exact = sprint)
         todo = todo.order_by('-priorite')
         items['todo'] = todo
-        run  = Note.objects.filter(feature__id__exact = f.id, etat__exact = 1)
+        # En cours
+        run  = Note.objects.filter(feature__id__exact = f.id, etat__exact = '2')
         if sprint != 0:
             run = run.filter(sprint__id__exact = sprint)
         run  = run.order_by('-priorite')
         items['run'] = run
-        done = Note.objects.filter(feature__id__exact = f.id, etat__exact = 2)
+        # Livré
+        gone = Note.objects.filter(feature__id__exact = f.id, etat__exact = '3')
+        if sprint != 0:
+            gone = gone.filter(sprint__id__exact = sprint)
+        gone = gone.order_by('-priorite')
+        items['gone'] = gone
+        # Terminé
+        done = Note.objects.filter(feature__id__exact = f.id, etat__exact = '4')
         if sprint != 0:
             done = done.filter(sprint__id__exact = sprint)
         done = done.order_by('-priorite')
         items['done'] = done
-        if todo.count() + run.count() + done.count() > 0:
+        # ---
+        if spec.count() > 0:
+            backlog = True
+        if spec.count() + todo.count() + run.count() + gone.count() + done.count() > 0:
             scrumwall.append(items)
     
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
 
     return render_to_response('projects/scrumwall.html',
         {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'scrumwall': scrumwall, 
-         'project': project, 'sprints': sprints, 'nb_notes': nb_notes, 'taille': nb_notes * 230, },
+         'project': project, 'sprints': sprints, 'backlog': backlog, 'nb_notes': nb_notes, 'taille': nb_notes * 230, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2274,8 +2321,6 @@ def poker(request, project_id):
                 notes = notes.filter(sprint__id__exact = sprint)
             for n in notes:
                 data = dict()
-                row = (row + 1) % 2
-                data['row'] = row + 1
                 poker = Poker.objects.filter(note__id__exact = n.id).order_by('utilisateur')
                 perso = poker.filter(utilisateur__id__exact = user.user.id)
                 data['f'] = f.titre
@@ -2300,6 +2345,8 @@ def poker(request, project_id):
                         old = e[0]
                 data['avg'] = avg
                 if (opt == 'all') or (opt == 'todo' and not perso) or (opt == 'done' and avg != 0 and n.effort != avg):
+                    row = (row + 1) % 2
+                    data['row'] = row + 1                    
                     liste.append(data)
     
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
@@ -2403,7 +2450,7 @@ def new_note(request, project_id, feature_id):
             recalc_effort(project)
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
-        form = NoteForm(initial={'utilisateur': user.id, 'projet': project.id, 'feature': feature.id, })
+        form = NoteForm(initial={'utilisateur': user.id, 'projet': project.id, 'feature': feature.id, 'etat': '1', })
 
     return render_to_response('projects/note_new.html',
         {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'feature': feature, },
@@ -2475,7 +2522,7 @@ def new_task(request, project_id, sprint_id):
             request.session['messages'] = messages
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
-        form = TaskForm(initial={'utilisateur': user.id, 'projet': project.id, 'sprint': sprint.id, })
+        form = TaskForm(initial={'utilisateur': user.id, 'projet': project.id, 'sprint': sprint.id, 'etat': '1', })
 
     return render_to_response('projects/task_new.html',
         {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'sprint': sprint, },

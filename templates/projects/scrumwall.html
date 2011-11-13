@@ -29,51 +29,79 @@
 		<br /><br /><br />
 		<table class="scrumwall" width="{{ taille }}px">
 			<thead>
-				<th style="width:25%;">Fonctionnalit&eacute;</th>
-				<th style="width:25%;">&Agrave; faire</th>
-				<th style="width:25%;">En cours</th>
-				<th style="width:25%;">Termin&eacute;e</th>
+				<th style="width:{% if backlog %}16.65{% else %}20{% endif %}%;">Fonctionnalit&eacute;</th>
+				{% if backlog %}
+				<th style="width:16.67%;">Backlog</th>
+				{% endif %}
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">&Agrave; faire</th>
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">En cours</th>
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">Livr&eacute;</th>
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">Termin&eacute;e</th>
 			</thead>
 			<tbody>
 				{% for s in scrumwall %}
 				<tr>
-					<td style="width:25%;">
+					<td style="width:{% if backlog %}16.65{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
 							<tr>
-								<td class="cellule {{ s|var2css:"p" }}" onclick="document.location='../features/?target={{ s|dict:"id" }}#{{ s|dict:"id" }}'">
-									{{ s|dict:"name" }}
+								<td class="cellule {{ s|var2css:"p" }}" title="{{ s|dict:"name" }}" onclick="document.location='../features/?target={{ s|dict:"id" }}#{{ s|dict:"id" }}'">
+									<span>{{ s|dict:"name" }}</span>
 								</td>
 							</tr>
 						</table>
 					</td>
-					<td style="width:25%;">
+					{% if backlog %}
+					<td style="width:16.67%;">
 						<table class="table" width="100%">
-							{% for t in s|dict:"todo" %}
+							{% for t in s|dict:"spec" %}
 							<tr>
-								<td class="cellule {{ t.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
-									{{ t.titre }}
+								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
+									<span>{{ t.titre }}</span>
 								</td>
 							</tr>
 							{% endfor %}
 						</table>
 					</td>
-					<td style="width:25%;">
+					{% endif %}
+					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
+						<table class="table" width="100%">
+							{% for t in s|dict:"todo" %}
+							<tr>
+								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
+									<span>{{ t.titre }}</span>
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</td>
+					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
 							{% for r in s|dict:"run" %}
 							<tr>
-								<td class="cellule {{ r.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ r.id }}#{{ r.id }}'">
+								<td class="cellule {{ r.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ r.id }}#{{ r.id }}'">
 									{{ r.titre }}
 								</td>
 							</tr>
 							{% endfor %}
 						</table>
 					</td>
-					<td style="width:25%;">
+					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
+						<table class="table" width="100%">
+							{% for t in s|dict:"gone" %}
+							<tr>
+								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
+									<span>{{ t.titre }}</span>
+								</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</td>
+					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
 							{% for d in s|dict:"done" %}
 							<tr>
-								<td class="cellule {{ d.priorite|var2css:"p" }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ d.id }}#{{ d.id }}'">
-									{{ d.titre }}
+								<td class="cellule {{ d.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ d.id }}#{{ d.id }}'">
+									<span>{{ d.titre }}</span>
 								</td>
 							</tr>
 							{% endfor %}

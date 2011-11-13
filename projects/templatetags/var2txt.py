@@ -14,7 +14,7 @@ def var2txt(value, arg):
             if value in str(range(0,6)):
                 return PRIORITES[int(value['item'].priorite)][1]
         if arg in ('e', 'E', 'etats'):
-            if value in str(range(0,3)):
+            if value in str(range(0,5)):
                 return ETATS[int(value['item'].etat)][1]
         if arg in ('t', 'T', 'types'):
             if value in str(range(0,4)):
@@ -27,7 +27,7 @@ def var2txt(value, arg):
             if value in str(range(0,6)):
                 return PRIORITES[int(value)][1]
         if arg in ('e', 'E', 'etats'):
-            if value in str(range(0,3)):
+            if value in str(range(0,5)):
                 return ETATS[int(value)][1]
         if arg in ('t', 'T', 'types'):
             if value in str(range(0,4)):
