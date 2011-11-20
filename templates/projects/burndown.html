@@ -8,8 +8,7 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 			&nbsp;(&nbsp;
@@ -17,7 +16,7 @@
 				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
 				&nbsp;-&nbsp; 
 				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
 				&nbsp;-&nbsp; Burndown Chart
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
@@ -27,6 +26,8 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
 	</div>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
 
 {% block content %}
 	<div id="content-main" align="center">
@@ -54,31 +55,38 @@
 				</tr>
 			</thead>
 			<tbody>
+			{% if not times %}
+				<tr>
+					<td colspan="3">&nbsp;</td>
+					<td align="center" colspan="{{ days|length }}">Aucun &eacute;l&eacute;ment &agrave; afficher</td>
+					<td colspan="2">&nbsp;</td>
+				</tr>
+			{% else %}
 			{% for item in times %}
-				<tr id="{{ item|dict:"line" }}" class="{{ item|var2css:"p" }}">
-					<form enctype="multipart/form-data" action="{{ item|dict:"etat" }}#{{ item|dict:"line" }}" method="post" align="center">{% csrf_token %}
-						<td>{{ item|dict:"type" }}</td>
+				<tr id="{{ item|values:"line" }}" class="{{ item|var2css:"p" }}">
+					<form enctype="multipart/form-data" action="{{ item|values:"etat" }}#{{ item|values:"line" }}" method="post" align="center">{% csrf_token %}
+						<td>{{ item|values:"type" }}</td>
 						<td>
-							<a href="../../../features/?target={{ item|dict:"bid" }}#{{ item|dict:"bid" }}">{{ item|dict:"base" }}</a>
+							<a href="../../../features/?target={{ item|values:"bid" }}#{{ item|values:"bid" }}">{{ item|values:"base" }}</a>
 						</td>
 						<td>
-							{% ifequal item|dict:"bid" 0 %}
-							<a href="../tasks/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+							{% ifequal item|values:"bid" 0 %}
+							<a href="../tasks/?target={{ item|values:"id" }}#{{ item|values:"id" }}">{{ item|values:"name" }}</a>
 							{% else %}
-							<a href="../../../features/{{ item|dict:"bid" }}/notes/?target={{ item|dict:"id" }}#{{ item|dict:"id" }}">{{ item|dict:"name" }}</a>
+							<a href="../../../features/{{ item|values:"bid" }}/notes/?target={{ item|values:"id" }}#{{ item|values:"id" }}">{{ item|values:"name" }}</a>
 							{% endifequal %}
 						</td>
-						{% for time in item|dict:"time" %}
+						{% for time in item|values:"time" %}
 						<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
-							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|dict:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|dict:"test" %}disabled{% endif %} />
+							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|values:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|values:"test" %}disabled{% endif %} />
 						</td>
 						{% endfor %}
-						<td {% if item|dict:"done" > item|dict:"todo" %}style="color:red; font-weight:bold"{% endif %}>
-							{{ item|dict:"done" }} / {{ item|dict:"todo" }}
+						<td {% if item|values:"done" > item|values:"todo" %}style="color:red; font-weight:bold"{% endif %}>
+							{{ item|values:"done" }} / {{ item|values:"todo" }}
 						</td>
 						<td>
-							<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="non" {% if not item|dict:"test" %}checked{% endif %} /> Non&nbsp;
-							<input name="_{{ item|dict:"type" }}{{ item|dict:"id" }}" type="radio" value="oui" {% if item|dict:"test" %}checked{% endif %} /> Oui&nbsp;
+							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="non" {% if not item|values:"test" %}checked{% endif %} /> Non&nbsp;
+							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="oui" {% if item|values:"test" %}checked{% endif %} /> Oui&nbsp;
 							&nbsp;
 							<input type="hidden" name="lock" value="{{ lock }}" />
 							<input type="submit" value="OK" {% if not user.user.is_staff %}disabled{% endif %}/>
@@ -86,6 +94,7 @@
 					</form>	
 				</tr>
 			{% endfor %}
+			{% endif %}
 			</tbody>
 		</table>
 		<br /><br />

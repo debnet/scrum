@@ -11,6 +11,8 @@
 	</div>
 {% endblock %}
 
+{% block content_title %}{% endblock %}
+
 {% block content %}
 	<div id="content-main" align="center">
 		<form id="history" enctype="multipart/form-data" action=".#history" method="post" align="center">{% csrf_token %}
@@ -35,7 +37,7 @@
 			</thead>
 			<tbody>
 			{% for h in history %}
-				<tr>
+				<tr class="{% cycle 'row1' 'row2' %}">
 					<td>{{ h.id }}</a></td>
 					<td>{{ h.utilisateur.user.first_name }} {{ h.utilisateur.user.last_name }} ({{ h.utilisateur.user.username }})</td>
 					<td><a href="{{ h.url }}">{{ h.url }}</a></td>

@@ -8,8 +8,7 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <strong>Synth&egrave;se</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <strong>Indicateurs</strong>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
@@ -17,70 +16,87 @@
 	</div>
 {% endblock %}
 
+{% block content_title %}{% endblock %}
+
 {% block content %}
 	<div id="content-main" align="center">
-		{{ data }}
+		Indicateurs :&nbsp;
+		<a href="{{ home }}projects/{{ project.id }}/summary/">Synth&egrave;se des sprints</a>
+		&nbsp;|&nbsp;
+		<a href="{{ home }}projects/{{ project.id }}/velocity/">V&eacute;locit&eacute; et progression</a>
+		&nbsp;|&nbsp;
+		<a href="{{ home }}projects/{{ project.id }}/pareto/">Diagramme de Pareto</a>
+		<br />
+		
+		<br />
+		Afficher :&nbsp;
+		<a href="?sprint=0">Aucun</a>
+		{% for sprint in sprints %}
+		&nbsp;|&nbsp;
+		<a href="?sprint={{ sprint.id }}">{{ sprint.titre }}</a>
+		{% endfor %}
+		<br />
+		
 		<br /><br />
 		{% for item in items %}
-		<hr /><br />
-		<h1 id="{{ item|dict:"id" }}">{{ item|dict:"sprint" }}</h1>
-		<h4>Progression g&eacute;n&eacute;rale : {{ item|dict:"total_done" }} / {{ item|dict:"total_todo" }}</h4>
+		<h1 id="{{ item|values:"id" }}">{{ item|values:"sprint" }}</h1>
+		<h4>Progression g&eacute;n&eacute;rale : {{ item|values:"total_done" }} / {{ item|values:"total_todo" }}</h4>
 		<br />
 		<table>
 			<thead>
 				<tr>
 					<th>&nbsp;</th>
-					{% for t in item|dict:"times" %}
-					<th>{{ t|dict:"day" }}</th>
+					{% for t in item|values:"times" %}
+					<th>{{ t|values:"day" }}</th>
 					{% endfor %}
 				</tr>
 			</thead>
 			<tbody>
 				<tr class="row1">
 					<th>Temps r&eacute;alis&eacute;</th>
-					{% for t in item|dict:"times" %}
-					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"done" }}</td>
+					{% for t in item|values:"times" %}
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"done" }}</td>
 					{% endfor %}
 				</tr><tr class="row2">
 					<th>Temps restant</th>
-					{% for t in item|dict:"times" %}
-					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"todo" }}</td>
+					{% for t in item|values:"times" %}
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"todo" }}</td>
 					{% endfor %}
 				</tr><tr class="row1">
 					<th>Tendance</th>
-					{% for t in item|dict:"times" %}
-					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|dict:"trend1" }}.png" alt="{{ t|dict:"trend1" }}" /></td>
+					{% for t in item|values:"times" %}
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|values:"trend1" }}.png" alt="{{ t|values:"trend1" }}" /></td>
 					{% endfor %}
 				</tr><tr class="row2">
 					<th>Progression</th>
-					{% for t in item|dict:"times" %}
-					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"rate1" }} %</td>
+					{% for t in item|values:"times" %}
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"rate1" }} %</td>
 					{% endfor %}
 				</tr><tr class="row1">
 					<th>Total</th>
-					{% for t in item|dict:"times" %}
-					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"rate2" }} %</td>
+					{% for t in item|values:"times" %}
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"rate2" }} %</td>
 					{% endfor %}
 				</tr><tr class="row2">
 					<th>Moyenne</th>
-					{% for t in item|dict:"times" %}
-					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}>{{ t|dict:"avg" }}</td>
+					{% for t in item|values:"times" %}
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"avg" }}</td>
 					{% endfor %}
 				</tr><tr class="row1">
 					<th>Tendance</th>
-					{% for t in item|dict:"times" %}
-					<td {% ifequal t|dict:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|dict:"trend2" }}.png" alt="{{ t|dict:"trend2" }}" /></td>
+					{% for t in item|values:"times" %}
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|values:"trend2" }}.png" alt="{{ t|values:"trend2" }}" /></td>
 					{% endfor %}
 				</tr>
 			</tbody>
 		</table>
+		<br /><br /><br />
+		{% ifequal item|values:"id" sprint %}
+		<img style="width: 800px; height: 350px;" src="{{ item|values:"url1" }}" />
 		<br /><br />
-		{% ifequal item|dict:"id" sprint %}
-		<img style="width: 800px; height: 350px;" src="{{ item|dict:"url1" }}" />
-		<br /><br />
-		<img style="width: 800px; height: 350px;" src="{{ item|dict:"url2" }}" />
+		<img style="width: 800px; height: 350px;" src="{{ item|values:"url2" }}" />
 		{% else %}
-		<a href="?sprint={{ item|dict:"id" }}#{{ item|dict:"id" }}">Afficher les graphiques</a>
+		<a href="?sprint={{ item|values:"id" }}#{{ item|values:"id" }}">Afficher les graphiques</a>
 		{% endifequal %}
 		<br /><br />
 		{% endfor %}

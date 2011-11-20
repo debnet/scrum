@@ -11,6 +11,8 @@
 	</div>
 {% endblock %}
 
+{% block content_title %}{% endblock %}
+
 {% block content %}
 	<div id="content-main" align="center">
 		<form id="logs" enctype="multipart/form-data" action=".#logs" method="post" align="center">{% csrf_token %}
@@ -38,7 +40,7 @@
 			</thead>
 			<tbody>
 			{% for l in logs %}
-				<tr>
+				<tr class="{% cycle 'row1' 'row2' %}">
 					<td>{{ l.object_id }}</a></td>
 					<td>{{ l.object_repr }}</td>
 					<td>{{ l.content_type }}</td>

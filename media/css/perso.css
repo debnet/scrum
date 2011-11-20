@@ -1,21 +1,21 @@
 .none { 
-	background-color: #eee; 
-	border: 2px solid #999; 
+	background-color: #eeeeee; 
+	border: 2px solid #999999; 
 }
 .trivial { 
-	background-color: #cff; 
+	background-color: #ccffff; 
 	border: 2px solid #6fccca; 
 }
 .minor { 
-	background-color: #cfc; 
+	background-color: #ccffcc; 
 	border: 2px solid #9bcc9a; 
 }
 .major { 
-	background-color: #ffc; 
+	background-color: #ffffcc; 
 	border: 2px solid #cacc9b; 
 }
 .critical { 
-	background-color: #fc9; 
+	background-color: #ffcc99; 
 	border: 2px solid #f5643b; 
 }
 .blocking { 
@@ -23,10 +23,10 @@
 	border: 2px solid #9a98ca; 
 }
 .done {
-	background-color: #fff; 
+	background-color: #ffffff; 
 }
 .hl {
-	background-color: #ffc;
+	background-color: #ffffcc;
 }
 
 table tr td {

@@ -8,8 +8,7 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 			&nbsp;(&nbsp;
@@ -17,7 +16,7 @@
 				"{{ sprint.titre }}"
 				&nbsp;-&nbsp; 
 				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
@@ -27,6 +26,8 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
 	</div>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
 
 {% block content %}
 	<div id="content-main" align="center">
@@ -45,27 +46,6 @@
 						T&acirc;ches
 						<br /><br />
 						<span class="info">{{ nbt }}</span>
-					</div>
-				</td>
-				<td>
-					<div onclick="document.location='burndown'" class="button">
-						Burndown Chart
-						<br /><br />
-						</span class="info">&nbsp;</span>
-					</div>
-				</td>
-				<td>
-					<div onclick="document.location='releases'" class="button">
-						Livraisons
-						<br /><br />
-						</span class="info">&nbsp;</span>
-					</div>
-				</td>
-				<td>
-					<div onclick="document.location='meteo'" class="button">
-						M&eacute;t&eacute;o
-						<br /><br />
-						</span class="info">&nbsp;</span>
 					</div>
 				</td>
 			</tr>

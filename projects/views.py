@@ -19,11 +19,11 @@ from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.models import LogEntry, ContentType
 from django.contrib.auth.models import User
-from django.template import RequestContext
+from django.template import RequestContext, Context, loader
 
 from scrum import settings
 from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, Task, Problem, Release, Meteo, Poker, Document, NoteTime, TaskTime, History
-from scrum.projects.models import ETATS, PRIORITES, STATUT, EFFORTS, CONFIANCE, METEO
+from scrum.projects.models import ETATS, PRIORITES, TYPES, STATUTS, EFFORTS, CONFIANCE, METEO
 from scrum.projects.forms import UserForm, ProjectForm, FeatureForm, NoteForm, SprintForm, TaskForm, ProblemForm, DocumentForm
 
 ERREUR_TITRE = u"Accès refusé !"
@@ -331,8 +331,8 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
 
         t.notes = notes.count() + tasks.count()
 
-        nbn = Note.objects.filter(sprint__id__exact = t.id, etat__in = ('0', '1', )).count()
-        nbt = Task.objects.filter(sprint__id__exact = t.id, etat__in = ('0', '1', )).count()
+        nbn = Note.objects.filter(sprint__id__exact = t.id, etat__in = ('0', '1', '2', )).count()
+        nbt = Task.objects.filter(sprint__id__exact = t.id, etat__in = ('0', '1', '2', )).count()
         nb = nbn + nbt
         if t.date_debut > datetime.date.today():
             t.etat = 'todo'
@@ -522,6 +522,8 @@ def list_releases(sprint_id, statut = None):
 @login_required
 @csrf_protect
 def projects(request):
+    page = 'projects'
+    
     user = request.user.get_profile()
     title = u'Projets'
     messages = list()
@@ -545,18 +547,20 @@ def projects(request):
                 membres[p.id].append(m.user.username)
 
     return render_to_response('projects/projects.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'projects': projects, 'membres': membres, 'nb_notes': nb_notes, })
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def project(request, project_id):
+    page = 'project'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Projet - "' + unicode(project.titre) + '"'
@@ -590,7 +594,7 @@ def project(request, project_id):
     problems = list_problems(project_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/project.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'nbf': '%d / %d' % (f_done.count(), f_all.count()), 'nbs': '%d / %d' % (s_done.count(), s_all.count()), 
          'nbp': '%d / %d' % (p_done.count(), p_all.count()), 'nbn': '%d / %d' % (nd, na),
          'features': features, 'sprints': sprints, 'problems': problems, 'nb_notes': nb_notes, },
@@ -600,11 +604,13 @@ def project(request, project_id):
 @login_required
 @csrf_protect
 def features(request, project_id):
+    page = 'features'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Fonctionnalités - Projet "' + unicode(project.titre) + '"'
@@ -680,20 +686,22 @@ def features(request, project_id):
     features = list_features(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/features.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'features': features, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'features': features, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def feature(request, project_id, feature_id):
+    page = 'feature'
+    
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, feature):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Fonctionnalité - "' + unicode(feature.titre) + '"'
@@ -709,7 +717,7 @@ def feature(request, project_id, feature_id):
     notes = list_notes(feature_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/feature.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'project': project, 'feature': feature, 'nbn': '%d / %d' % (n_done.count(), n_all.count()), 
          'notes': notes, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
@@ -718,12 +726,14 @@ def feature(request, project_id, feature_id):
 @login_required
 @csrf_protect
 def notes(request, project_id, feature_id):
+    page = 'notes'
+    
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, feature):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Notes de backlog - Fonctionnalité "' + unicode(feature.titre) + '"'
@@ -821,7 +831,7 @@ def notes(request, project_id, feature_id):
     sprints = Sprint.objects.filter(projet__id__exact = project_id)
 
     return render_to_response('projects/notes.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'project': project, 'feature': feature, 'notes': notes, 'sprints': sprints, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -829,13 +839,15 @@ def notes(request, project_id, feature_id):
 @login_required
 @csrf_protect
 def note(request, project_id, feature_id, note_id):
+    page = 'note'
+    
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)
     note = get_object_or_404(Note, pk = note_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, feature):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Note de backlog - "' + unicode(note.titre) + '"'
@@ -846,19 +858,21 @@ def note(request, project_id, feature_id, note_id):
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/note.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'feature': feature, 'note': note, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'feature': feature, 'note': note, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def sprints(request, project_id):
+    page = 'sprints'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Sprints - Projet "' + unicode(project.titre) + '"'
@@ -967,20 +981,22 @@ def sprints(request, project_id):
     sprints = list_sprints(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/sprints.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'sprints': sprints, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 
+         'messages': messages, 'project': project, 'sprints': sprints, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def sprint(request, project_id, sprint_id):
+    page = 'sprint'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Sprint - "' + unicode(sprint.titre) + '"'
@@ -999,7 +1015,7 @@ def sprint(request, project_id, sprint_id):
     tasks = list_tasks(sprint_id, max = nb_notes, nb_notes = nb_notes)
 
     return render_to_response('projects/sprint.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'nbn': '%d / %d' % (n_done.count(), n_all.count()), 'nbt': '%d / %d' % (t_done.count(), t_all.count()), 
          'notes': notes, 'tasks': tasks, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
@@ -1008,12 +1024,14 @@ def sprint(request, project_id, sprint_id):
 @login_required
 @csrf_protect
 def snotes(request, project_id, sprint_id):
+    page = 'snotes'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Notes de sprint - Sprint "' + unicode(sprint.titre) + '"'
@@ -1108,7 +1126,7 @@ def snotes(request, project_id, sprint_id):
     notes = list_snotes(sprint_id, sort = sort, all = all, todo = todo, work = work, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/snotes.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'project': project, 'feature': feature, 'sprint': sprint, 'notes': notes, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1116,13 +1134,15 @@ def snotes(request, project_id, sprint_id):
 @login_required
 @csrf_protect
 def snote(request, project_id, sprint_id, note_id):
+    page = 'snote'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
     note = get_object_or_404(Note, pk = note_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint, note):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Note de sprint - "' + unicode(note.titre) + '"'
@@ -1133,20 +1153,22 @@ def snote(request, project_id, sprint_id, note_id):
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/snote.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'sprint': sprint, 'note': note, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'sprint': sprint, 'note': note, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def tasks(request, project_id, sprint_id):
+    page = 'tasks'    
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)    
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Tâches - Sprint "' + unicode(sprint.titre) + '"'
@@ -1240,8 +1262,8 @@ def tasks(request, project_id, sprint_id):
     tasks = list_tasks(sprint_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/tasks.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'sprint': sprint, 'tasks': tasks, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'sprint': sprint, 'tasks': tasks, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -1254,7 +1276,7 @@ def task(request, project_id, sprint_id, task_id):
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint, task):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Tâche - Sprint "' + unicode(task.titre) + '"'
@@ -1265,20 +1287,22 @@ def task(request, project_id, sprint_id, task_id):
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/task.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'sprint': sprint, 'task': task, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'sprint': sprint, 'task': task, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def releases(request, project_id, sprint_id):
+    page = 'releases'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)   
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Livraisons - Sprint "' + unicode(sprint.titre) + '"'
@@ -1311,7 +1335,7 @@ def releases(request, project_id, sprint_id):
                 release.save()
                 note.etat = '3'
                 note.save()
-                changes.append(u'statut = ' + STATUT[release.statut][1])
+                changes.append(u'statut = ' + STATUTS[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
                 messages.append(u'Livraison effectuée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
                     % (release.statut, release.id))
@@ -1322,7 +1346,7 @@ def releases(request, project_id, sprint_id):
                 release.save()
                 note.etat = '2'
                 note.save()
-                changes.append(u'statut = ' + STATUT[release.statut][1])
+                changes.append(u'statut = ' + STATUTS[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
                 messages.append(u'Livraison refusée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
                     % (release.statut, release.id))
@@ -1331,7 +1355,7 @@ def releases(request, project_id, sprint_id):
                 release.statut = 3
                 #statut = release.statut
                 release.save()
-                changes.append(u'statut = ' + STATUT[release.statut][1])
+                changes.append(u'statut = ' + STATUTS[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
                 messages.append(u'Livraison validée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )'
                     % (release.statut, release.id))
@@ -1357,7 +1381,7 @@ def releases(request, project_id, sprint_id):
     releases = list_releases(sprint_id, statut)
 
     return render_to_response('projects/releases.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'releases': releases, 'note': note, 'details': details, 'nb_notes': nb_notes, 'statut': statut, },
         context_instance = RequestContext(request))
 
@@ -1365,13 +1389,15 @@ def releases(request, project_id, sprint_id):
 @login_required
 @csrf_protect
 def release(request, project_id, sprint_id, release_id):
+    page = 'release'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id) 
     release = get_object_or_404(Release, pk = release_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint, release):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Livraison - "' + unicode(release.note.titre) + '"'
@@ -1382,7 +1408,7 @@ def release(request, project_id, sprint_id, release_id):
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/releases.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
          'sprint': sprint, 'release': release, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -1390,11 +1416,13 @@ def release(request, project_id, sprint_id, release_id):
 @login_required
 @csrf_protect
 def problems(request, project_id):
+    page = 'problems'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Problèmes - Projet "' + unicode(project.titre) + '"'
@@ -1470,20 +1498,22 @@ def problems(request, project_id):
     problems = list_problems(project_id, sort = sort, all = all, todo = todo, max = 0, target = target, nb_notes = nb_notes)
 
     return render_to_response('projects/problems.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'problems': problems, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'problems': problems, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def problem(request, project_id, problem_id):
+    page = 'problem'
+    
     project = get_object_or_404(Project, pk = project_id)
     problem = get_object_or_404(Problem, pk = problem_id)    
 
     user = request.user.get_profile()
     if not check_rights(user, project, problem):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Problème - "' + unicode(problem.titre) + '"'
@@ -1494,20 +1524,22 @@ def problem(request, project_id, problem_id):
     nb_notes = get_nb_notes(request)
 
     return render_to_response('projects/problem.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'problem': problem, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'problem': problem, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def burndown(request, project_id, sprint_id):
+    page = 'burndown'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     lock = sprint.date_modification.strftime('%d/%m/%Y %H:%M:%S')
@@ -1519,6 +1551,9 @@ def burndown(request, project_id, sprint_id):
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
+
+    csv = True if request.GET.__contains__('csv') else False
+    csvdata = list()
 
     if request.method == 'POST':
         changes = list()
@@ -1641,6 +1676,14 @@ def burndown(request, project_id, sprint_id):
         d['line'] = str(t.id)
         d['etat'] = '?done' if done else '.'
         d['url'] = 'tasks'
+        
+        if csv:
+            export = [ d['type'], d['base'], d['name'], PRIORITES[int(t.priorite)][1], '', ETATS[int(t.etat)][1], ]
+            for x in tt:
+                export.append(str(x.temps))
+            export.extend([ str(d['done']), str(d['todo']), ])
+            csvdata.append(export)        
+        
         if done and t.etat in ('3', '4'):
             times.append(d)
         elif not done and t.etat not in ('3', '4'):
@@ -1669,6 +1712,14 @@ def burndown(request, project_id, sprint_id):
         d['line'] = str(n.feature.id) + '_' + str(n.id)
         d['etat'] = '?done' if done else '?released' if released else '.'
         d['url'] = 'notes'
+
+        if csv:
+            export = [ d['type'], d['base'], d['name'], PRIORITES[int(n.priorite)][1], TYPES[int(n.type)][1], ETATS[int(n.etat)][1], ]
+            for x in nt:
+                export.append(str(x.temps))
+            export.extend([ str(d['done']), str(d['todo']), ])
+            csvdata.append(export)
+        
         """
         releases = Release.objects.filter(note__id__exact = n.id).order_by('-date_creation')
         if releases.count() > 0:
@@ -1698,12 +1749,15 @@ def burndown(request, project_id, sprint_id):
 
     days = list(set(days))
     days.sort()
-
+    
+    headers = [ '', 'Fonctionnalité', 'Titre', 'Priorité', 'Type', 'État', ]
+    
     min = 0
     data1 = list()
     tmp = total
     data1.append(tmp)
     for day in days:
+        headers.append(day.strftime('%d/%m'))
         nts = NoteTime.objects.filter(sprint__id__exact = sprint.id, jour__exact = day)
         tts = TaskTime.objects.filter(sprint__id__exact = sprint.id, jour__exact = day)
         for t in nts:
@@ -1713,6 +1767,8 @@ def burndown(request, project_id, sprint_id):
         if tmp < 0 and tmp < min:
             min = tmp
         data1.append(tmp)
+    
+    headers.extend([ 'Temps réalisé', 'Temps estimé', ]) 
 
     data2 = list()
     tmp = total
@@ -1740,21 +1796,32 @@ def burndown(request, project_id, sprint_id):
     url += '&chd=t:-1|' + ','.join('%s' % (x) for x in data1)
     url += '|-1|' + ','.join('%s' % (y) for y in data2)
 
-    return render_to_response('projects/burndown.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,
-         'project': project, 'sprint': sprint, 'days': days, 'times': times, 'lock': lock,
-         'url': url, 'date': datetime.date.today(), 'nb_notes': nb_notes, },
-        context_instance = RequestContext(request))
+    if not csv:
+        return render_to_response('projects/burndown.html',
+            {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+             'erreurs': erreurs, 'project': project, 'sprint': sprint, 'days': days, 'times': times, 'lock': lock,
+             'url': url, 'date': datetime.date.today(), 'nb_notes': nb_notes, },
+            context_instance = RequestContext(request))
+    else:
+        csvreturn = HttpResponse(mimetype = 'text/csv')
+        csvreturn['Content-Disposition'] = 'attachement; filename=%s' % (sprint.titre, )
+        t = loader.get_template('projects/csvexport.txt')
+        csvdata.insert(0, headers)
+        c = Context({ 'data': csvdata, })
+        csvreturn.write(t.render(c))
+        return csvreturn
 
 #-------------------------------------------------
 @login_required
 @csrf_protect
-def velocity(request, project_id):
+def velocity(request, project_id):    
+    page = 'velocity'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Velocité - Projet "' + unicode(project.titre) + '"'
@@ -1890,19 +1957,120 @@ def velocity(request, project_id):
     """
 
     return render_to_response('projects/velocity.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'url1': url1, 'url2': url2, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'project': project, 'url1': url1, 'url2': url2, 'nb_notes': nb_notes, },
+        context_instance = RequestContext(request))
+
+# ------------------------------------------------
+@login_required
+@csrf_protect
+def pareto(request, project_id):
+    page = 'pareto'
+    
+    project = get_object_or_404(Project, pk = project_id)    
+
+    user = request.user.get_profile()
+    if not check_rights(user, project):
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
+            'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
+    
+    title = u'Pareto - Projet "' + unicode(project.titre) + '"'
+    request.session['url'] = HOME + 'projects/' + project_id + '/poker'
+
+    add_history(user, request.session['url'])
+    nb_notes = get_nb_notes(request)
+    
+    data = dict() # Données
+    rows = dict() # Total en bout de ligne
+    taux = dict() # Taux de réalisation et cumul
+    features = Feature.objects.filter(projet__id__exact = project_id)
+    for feature in features:
+        data[feature.titre] = list()
+        rows[feature.titre] = 0
+        taux[feature.titre] = [0, 0]
+    
+    i = 0
+    cols = list() # Total en bout de colonne
+    labels = list() # Labels des sprints
+    sprints = Sprint.objects.filter(projet__id__exact = project_id)
+    for sprint in sprints:
+        cols.append(0)
+        i += 1
+        labels.append("Sprint %d" % (i))
+        for feature in features:
+            data[feature.titre].append(0)
+        notes = Note.objects.select_related().filter(sprint__id__exact = sprint.id)
+        for note in notes:
+            name = note.feature.titre
+            data[name][-1] += note.temps_realise
+            rows[name] += note.temps_realise
+            cols[-1] += note.temps_realise
+    
+    cols.append(0)
+    for (k, v) in rows.iteritems():
+        cols[-1] += v
+    total = cols[-1]
+    for (k, v) in rows.iteritems():
+        taux[k][0] = round(v * 100.0 / total, 1)
+    
+    data = sorted(data.iteritems(), key = lambda d: sum(d[1]))
+    data.reverse()
+    
+    numbers = dict()
+    colors = dict()
+    cumul = 0.0
+    i = 0
+    for (k, v) in data:
+        i += 1
+        numbers[k] = i
+        cumul += taux[k][0]
+        taux[k][1] = cumul
+        colors[k] = 'ccffcc' if cumul <= 80 else 'ffffcc' if cumul > 80 and cumul <= 95 else 'ffcc99'
+    
+    nbs = numbers.values()
+    nbs.sort()
+    
+    chart1 = rows.values()
+    chart1.sort()
+    chart1.reverse()
+    
+    chart2 = [round(t[1]) for t in taux.values()]
+    chart2.sort()
+    
+    maxi = str(max(chart1)) if len(chart1) > 0 else '0'
+    url  = 'http://chart.apis.google.com/chart'
+    url += '?chs=800x350'
+    url += '&cht=bvg'
+    url += '&chg=0,10'
+    url += '&chbh=a'
+    #url += '&chdl=Temps passé|Taux cumulés'
+    #url += '&chdlp=t'
+    url += '&chxt=x,y,r'
+    url += '&chxl=0:|' + '|'.join('%s' % (n) for n in nbs)
+    url += '&chxr=1,0,' + maxi + '|2,0,100'
+    url += '&chds=0,' + maxi + ',0,100'
+    url += '&chco=' + '|'.join('%s' % (colors[k]) for (k, v) in data) + ',ff0000'
+    url += '&chm=N,000000,0,,11,,t:0:15|D,ff0000,1,0,2|N** %,ff0000,1,,9,,t:0:-15'
+    url += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url += '&chd=t1:' + ','.join('%s' % (x) for x in chart1)
+    url += '|' + ','.join('%s' % (y) for y in chart2)
+    
+    return render_to_response('projects/pareto.html',
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'project': project, 'nb_notes': nb_notes, 'url': url, 
+         'labels': labels, 'numbers': numbers, 'data': data, 'rows': rows, 'cols': cols, 'taux': taux, 'colors': colors, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def summary(request, project_id):
+    page = 'summary'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Synthèse - Projet "' + unicode(project.titre) + '"'
@@ -1912,126 +2080,129 @@ def summary(request, project_id):
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
     
-    id = request.GET['sprint'] if request.GET.__contains__('sprint') else 0
-    sprints = Sprint.objects.filter(projet__id__exact = project.id).order_by('-date_debut')
+    sprints = Sprint.objects.filter(projet__id__exact = project.id).order_by('date_debut')
+    id = int(request.GET['sprint']) if request.GET.__contains__('sprint') else sprints[sprints.count() - 1].id if sprints.count() > 0 else 0
     
     items = list()
     for sprint in sprints:
-        item = dict()
-        item['id'] = str(sprint.id)
-        item['sprint'] = sprint
-        done = NoteTime.objects.filter(note__sprint__id__exact = sprint.id).values('jour').annotate(done = Sum('temps'), more = Sum('temps_fin')).order_by('jour')
-        todo = Note.objects.filter(sprint__id__exact = sprint.id).values('sprint').annotate(todo = Sum('temps_estime'))
-        item['total_todo'] = todo[0]['todo'] if todo.count() > 0 else 0
-        item['total_done'] = 0
-        last = 0
-        avg = list()
-        rates = list()
-        times_todo = list()
-        times_done = list()
-        for time in done:
-            time['day'] = time['jour'].strftime('%d/%m')
-            time_done = time['done'] + time['more']
-            item['total_done'] += time_done
-            time['todo'] = times_todo[-1] - time_done if len(times_todo) > 0 else item['total_todo'] - time_done if item['total_todo'] > 0 else 0
-            times_todo.append(time['todo'])
-            rate1 = int(round(100.0 * time_done / item['total_todo'])) if item['total_todo'] > 0 else 0
-            time['rate1'] = rate1
-            rate2 = rate1 + sum(rates)
-            time['rate2'] = rate2
-            if time['done'] > 0:
-                times_done.append(time['done'])
-                time['avg'] = int(round(1.0 * sum(times_done) / len(times_done)))
-                last = time['avg']
-            else:
-                time['avg'] = last
-            time['trend1'] = u'=' if len(rates) < 1 else u'+' if rates[-1] < rate1 else u'-' if rates[-1] > rate1 else u'='
-            time['trend2'] = u'=' if len(avg) < 1 else u'+' if avg[-1] < time['avg'] else u'-' if avg[-1] > time['avg'] else u'='
-            avg.append(time['avg'])
-            rates.append(rate1)
-        item['times'] = done
+        if sprint.id == id:
+            item = dict()
+            item['id'] = str(sprint.id)
+            item['sprint'] = sprint
+            done = NoteTime.objects.filter(note__sprint__id__exact = sprint.id).values('jour').annotate(done = Sum('temps'), more = Sum('temps_fin')).order_by('jour')
+            todo = Note.objects.filter(sprint__id__exact = sprint.id).values('sprint').annotate(todo = Sum('temps_estime'))
+            item['total_todo'] = todo[0]['todo'] if todo.count() > 0 else 0
+            item['total_done'] = 0
+            last = 0
+            avg = list()
+            rates = list()
+            times_todo = list()
+            times_done = list()
+            for time in done:
+                time['day'] = time['jour'].strftime('%d/%m')
+                time_done = time['done'] + time['more']
+                item['total_done'] += time_done
+                time['todo'] = times_todo[-1] - time_done if len(times_todo) > 0 else item['total_todo'] - time_done if item['total_todo'] > 0 else 0
+                times_todo.append(time['todo'])
+                rate1 = int(round(100.0 * time_done / item['total_todo'])) if item['total_todo'] > 0 else 0
+                time['rate1'] = rate1
+                rate2 = rate1 + sum(rates)
+                time['rate2'] = rate2
+                if time['done'] > 0:
+                    times_done.append(time['done'])
+                    time['avg'] = int(round(1.0 * sum(times_done) / len(times_done)))
+                    last = time['avg']
+                else:
+                    time['avg'] = last
+                time['trend1'] = u'=' if len(rates) < 1 else u'+' if rates[-1] < rate1 else u'-' if rates[-1] > rate1 else u'='
+                time['trend2'] = u'=' if len(avg) < 1 else u'+' if avg[-1] < time['avg'] else u'-' if avg[-1] > time['avg'] else u'='
+                avg.append(time['avg'])
+                rates.append(rate1)
+            item['times'] = done
         
-        days = list()
-        chart1 = list()
-        chart2 = list()
-        for time in done:
-            days.append(time['day'])
-            chart1.append(time['done'])
-            chart2.append(time['avg'])
-        l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0]
-        max1 = max(l)
-        
-        url1  = 'http://chart.apis.google.com/chart'
-        url1 += '?chs=800x350'
-        url1 += '&cht=lxy'
-        url1 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
-        url1 += '&chdl=Temps réalisé|Temps moyen estimé'
-        url1 += '&chdlp=t'
-        url1 += '&chxt=x,y'
-        url1 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
-        url1 += '&chxr=1,0,' + str(max1)
-        url1 += '&chds=0,' + str(max1)
-        url1 += '&chco=0000ff,ff0000'
-        url1 += '&chls=2,4,2|2,0,0|2,0,0'
-        url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
-        url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-        url1 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
-        url1 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
-        item['url1'] = url1
-        
-        days = list()
-        chart1 = list()
-        chart2 = list()
-        chart3 = list()
-        chart3.append(item['total_todo'])
-        for time in done:
-            days.append(time['day'])
-            d1 = time['done']
-            d1 += chart1[-1] if len(chart1) > 0 else 0
-            chart1.append(d1)
-            d2 = time['done'] if time['done'] > 0 else time['avg']
-            d2 += chart2[-1] if len(chart2) > 0 else 0
-            chart2.append(d2)
+            days = list()
+            chart1 = list()
+            chart2 = list()
+            for time in done:
+                days.append(time['day'])
+                chart1.append(time['done'])
+                chart2.append(time['avg'])
+            l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0]
+            max1 = max(l)
+            
+            url1  = 'http://chart.apis.google.com/chart'
+            url1 += '?chs=800x350'
+            url1 += '&cht=lxy'
+            url1 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
+            url1 += '&chdl=Temps réalisé|Temps moyen estimé'
+            url1 += '&chdlp=t'
+            url1 += '&chxt=x,y'
+            url1 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
+            url1 += '&chxr=1,0,' + str(max1)
+            url1 += '&chds=0,' + str(max1)
+            url1 += '&chco=0000ff,ff0000'
+            url1 += '&chls=2,4,2|2,0,0|2,0,0'
+            url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
+            url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+            url1 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
+            url1 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
+            item['url1'] = url1
+            
+            days = list()
+            chart1 = list()
+            chart2 = list()
+            chart3 = list()
             chart3.append(item['total_todo'])
-        l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0, item['total_todo']]
-        max2 = max(l)
-        
-        url2  = 'http://chart.apis.google.com/chart'
-        url2 += '?chs=800x350'
-        url2 += '&cht=lxy'
-        url2 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
-        url2 += '&chdl=Progression réelle|Progression estimée'
-        url2 += '&chdlp=t'
-        url2 += '&chxt=x,y'
-        url2 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
-        url2 += '&chxr=1,0,' + str(max2)
-        url2 += '&chds=0,' + str(max2)
-        url2 += '&chco=0000ff,ff0000,000000'
-        url2 += '&chls=2,4,2|2,0,0|2,0,0'
-        url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
-        url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-        url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
-        url2 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
-        url2 += '|-1|' + ','.join('%s' % (z) for z in chart3)
-        item['url2'] = url2
-        
-        items.append(item)
+            for time in done:
+                days.append(time['day'])
+                d1 = time['done']
+                d1 += chart1[-1] if len(chart1) > 0 else 0
+                chart1.append(d1)
+                d2 = time['done'] if time['done'] > 0 else time['avg']
+                d2 += chart2[-1] if len(chart2) > 0 else 0
+                chart2.append(d2)
+                chart3.append(item['total_todo'])
+            l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0, item['total_todo']]
+            max2 = max(l)
+            
+            url2  = 'http://chart.apis.google.com/chart'
+            url2 += '?chs=800x350'
+            url2 += '&cht=lxy'
+            url2 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
+            url2 += '&chdl=Progression réelle|Progression estimée'
+            url2 += '&chdlp=t'
+            url2 += '&chxt=x,y'
+            url2 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
+            url2 += '&chxr=1,0,' + str(max2)
+            url2 += '&chds=0,' + str(max2)
+            url2 += '&chco=0000ff,ff0000,000000'
+            url2 += '&chls=2,4,2|2,0,0|2,0,0'
+            url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
+            url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+            url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
+            url2 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
+            url2 += '|-1|' + ','.join('%s' % (z) for z in chart3)
+            item['url2'] = url2
+            
+            items.append(item)
     
     return render_to_response('projects/summary.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
-         'items': items, 'date': datetime.datetime.today().strftime('%d/%m'), 'sprint': id, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'project': project, 
+         'items': items, 'date': datetime.datetime.today().strftime('%d/%m'), 'sprint': str(id), 'sprints': sprints, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 #-------------------------------------------------
 @login_required
 @csrf_protect
 def meteo(request, project_id, sprint_id):
+    page = 'meteo'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Météo - Sprint "' + unicode(sprint.titre) + '"'
@@ -2126,7 +2297,7 @@ def meteo(request, project_id, sprint_id):
     url += '&chd=t:' + '|'.join('%s' % (','.join('%s' % (v) for v in values)) for values in data)
     
     return render_to_response('projects/meteo.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,  
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,  
          'project': project, 'sprint': sprint, 'jours': jours, 'meteo': METEO, 'url': url, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -2134,11 +2305,13 @@ def meteo(request, project_id, sprint_id):
 @login_required
 @csrf_protect
 def documents(request, project_id):
+    page = 'documents'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Documents'
@@ -2172,19 +2345,21 @@ def documents(request, project_id):
     documents = documents.order_by('fichier')
 
     return render_to_response('projects/documents.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 
-         'documents': documents, 'project': project, 'nb_notes': nb_notes, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'documents': documents, 'project': project, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def scrumwall(request, project_id):
+    page = 'scrumwall'
+    
     project = get_object_or_404(Project, pk = project_id)    
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Scrum Wall - Projet "' + unicode(project.titre) + '"'
@@ -2247,7 +2422,7 @@ def scrumwall(request, project_id):
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
 
     return render_to_response('projects/scrumwall.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'scrumwall': scrumwall, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'scrumwall': scrumwall, 
          'project': project, 'sprints': sprints, 'backlog': backlog, 'nb_notes': nb_notes, 'taille': nb_notes * 230, },
         context_instance = RequestContext(request))
 
@@ -2255,11 +2430,13 @@ def scrumwall(request, project_id):
 @login_required
 @csrf_protect
 def poker(request, project_id):
+    page = 'poker'    
+    
     project = get_object_or_404(Project, pk = project_id)    
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Planning Poker - Projet "' + unicode(project.titre) + '"'
@@ -2313,7 +2490,6 @@ def poker(request, project_id):
     
     liste = list()
     if sprint or opt:
-        row = 1
         features = Feature.objects.filter(projet__id__exact = project_id).order_by('titre')
         for f in features:
             notes = Note.objects.filter(feature__id__exact = f.id).order_by('titre')
@@ -2345,14 +2521,12 @@ def poker(request, project_id):
                         old = e[0]
                 data['avg'] = avg
                 if (opt == 'all') or (opt == 'todo' and not perso) or (opt == 'done' and avg != 0 and n.effort != avg):
-                    row = (row + 1) % 2
-                    data['row'] = row + 1                    
                     liste.append(data)
     
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
     
     return render_to_response('projects/poker.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'project': project, 'messages': messages, 'erreurs': erreurs,
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'project': project, 'messages': messages, 'erreurs': erreurs,
          'sprints': sprints, 'sprint': sprint, 'opt': opt, 'liste': liste, 'efforts': EFFORTS, 'nb_notes': nb_notes, },
         context_instance = RequestContext(request))
 
@@ -2360,6 +2534,8 @@ def poker(request, project_id):
 @login_required
 @csrf_protect
 def new_project(request):
+    page = 'new!project'    
+    
     user = request.user.get_profile()
     title = u'Nouveau projet'
     messages = list()
@@ -2379,18 +2555,20 @@ def new_project(request):
         form = ProjectForm(initial={'membres': (1, user.id, ) })
 
     return render_to_response('projects/project_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def new_feature(request, project_id):
+    page = 'new_feature'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouvelle fonctionnalité'
@@ -2411,19 +2589,22 @@ def new_feature(request, project_id):
         form = FeatureForm(initial={'utilisateur': user.id, 'projet': project.id, })
 
     return render_to_response('projects/feature_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def new_note(request, project_id, feature_id):
+    page = 'new_note'
+    
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)     
 
     user = request.user.get_profile()
     if not check_rights(user, project, feature):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouvelle note de backlog - "' + unicode(feature.titre) + '"'
@@ -2453,18 +2634,21 @@ def new_note(request, project_id, feature_id):
         form = NoteForm(initial={'utilisateur': user.id, 'projet': project.id, 'feature': feature.id, 'etat': '1', })
 
     return render_to_response('projects/note_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'feature': feature, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'project': project, 'feature': feature, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def new_sprint(request, project_id):
+    page = 'new_sprint'
+    
     project = get_object_or_404(Project, pk = project_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouveau sprint'
@@ -2491,19 +2675,22 @@ def new_sprint(request, project_id):
         form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def new_task(request, project_id, sprint_id):
+    page = 'new_task'
+    
     project = get_object_or_404(Project, pk = project_id)
     sprint = get_object_or_404(Sprint, pk = sprint_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, sprint):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouvelle tâche'
@@ -2525,18 +2712,21 @@ def new_task(request, project_id, sprint_id):
         form = TaskForm(initial={'utilisateur': user.id, 'projet': project.id, 'sprint': sprint.id, 'etat': '1', })
 
     return render_to_response('projects/task_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, 'sprint': sprint, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'project': project, 'sprint': sprint, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def new_problem(request, project_id):
+    page = 'new_problem'
+    
     project = get_object_or_404(Project, pk = project_id)    
 
     user = request.user.get_profile()
     if not check_rights(user, project):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouveau problème'
@@ -2557,12 +2747,15 @@ def new_problem(request, project_id):
         form = ProblemForm(initial={'utilisateur': user.id, 'projet': project.id, })
 
     return render_to_response('projects/problem_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @csrf_protect
 def new_user(request):
+    page = 'new_user'
+    
     user = request.user
     title = u'Nouvel utilisateur'
     messages = list()
@@ -2584,20 +2777,23 @@ def new_user(request):
         form = UserForm()
 
     return render_to_response('projects/user_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def add_sprint(request, project_id, feature_id, note_id):
+    page = 'add_sprint'
+    
     project = get_object_or_404(Project, pk = project_id)
     feature = get_object_or_404(Feature, pk = feature_id)
     note = get_object_or_404(Note, pk = note_id)
 
     user = request.user.get_profile()
     if not check_rights(user, project, feature, note):
-        return render_to_response('error.html', { 'home': HOME, 'theme': THEME, 
+        return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = u'Nouveau sprint'
@@ -2631,13 +2827,16 @@ def add_sprint(request, project_id, feature_id, note_id):
         form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, 'project': project, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+         'form': form, 'project': project, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
 @csrf_protect
 def logs(request):
+    page = 'logs'
+    
     user = request.user.get_profile()
     title = u'Logs'
     messages = list()
@@ -2683,7 +2882,7 @@ def logs(request):
             logs = logs.order_by('-action_time')
 
     return render_to_response('projects/logs.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'logs': logs, 'users': users, 'luser': luser, },
         context_instance = RequestContext(request))
 
@@ -2691,6 +2890,8 @@ def logs(request):
 @login_required
 @csrf_protect
 def history(request):
+    page = 'history'
+    
     user = request.user.get_profile()
     title = u'Historiques'
     messages = list()
@@ -2736,7 +2937,7 @@ def history(request):
             history = history.order_by('-date_creation')
 
     return render_to_response('projects/history.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
          'history': history, 'users': users, 'huser': huser, },
         context_instance = RequestContext(request))  
 
@@ -2744,6 +2945,8 @@ def history(request):
 @login_required
 @csrf_protect
 def archives(request):
+    page = 'archives'
+    
     user = request.user.get_profile()
     title = u'Archives'
     messages = list()
@@ -2765,5 +2968,6 @@ def archives(request):
     files.sort()
 
     return render_to_response('projects/archives.html',
-        {'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'files': files, },
+        {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 
+         'messages': messages, 'files': files, },
         context_instance = RequestContext(request))

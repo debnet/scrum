@@ -10,7 +10,7 @@ from scrum import fields
 
 PRIORITES = (
     ('0', u'Aucune'),
-    ('1', u'Éliminé(e)'),
+    ('1', u'Annulé'),
     ('2', u'Possible'),
     ('3', u'Souhaitable'),
     ('4', u'Indispensable'),
@@ -39,7 +39,7 @@ CONFIANCE = (
     ('3', u'Haute'),
 )
 
-STATUT = (
+STATUTS = (
     ('0', u'À livrer'),
     ('1', u'Livré'),
     ('2', u'Refusé'),
@@ -230,7 +230,7 @@ class Problem(models.Model):
 
 class Release(models.Model):
     note = models.ForeignKey(Note, help_text='Requis. Une livraison doit être lié à une note de backlog.')
-    statut = models.CharField('Statut', max_length=1, choices=STATUT, default='0', help_text='Définit le statut de livraison de la fonctionnalité.', db_index=True)
+    statut = models.CharField('Statut', max_length=1, choices=STATUTS, default='0', help_text='Définit le statut de livraison de la fonctionnalité.', db_index=True)
     commentaire = models.CharField('Commentaire', max_length=200, blank=True, null=True, help_text='Facultatif. Précise les raisons du changement de statut de la livraison.')
     
     date_creation = models.DateTimeField('Date de création', default=datetime.datetime.now)

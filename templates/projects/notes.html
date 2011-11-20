@@ -8,8 +8,7 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 			<!--
 			&nbsp;(&nbsp;
@@ -22,6 +21,8 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
 	</div>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
 
 {% block content %}
 	<div align="center" id="content-main">
@@ -79,7 +80,7 @@
 							<br />
 							<select name="priorite" onchange="submit()">
 								<option value="0" {% ifequal note.priorite '0' %}selected{% endifequal %}>Aucune</option>
-								<option value="1" {% ifequal note.priorite '1' %}selected{% endifequal %}>&Eacute;limin&eacute;(e)</option>
+								<option value="1" {% ifequal note.priorite '1' %}selected{% endifequal %}>Annul&eacute;</option>
 								<option value="2" {% ifequal note.priorite '2' %}selected{% endifequal %}>Possible</option>
 								<option value="3" {% ifequal note.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
 								<option value="4" {% ifequal note.priorite '4' %}selected{% endifequal %}>Indispensable</option>

@@ -8,8 +8,7 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 			&nbsp;(&nbsp;
@@ -17,7 +16,7 @@
 				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
 				&nbsp;-&nbsp; 
 				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
 				&nbsp;-&nbsp; Livraisons
@@ -27,6 +26,8 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
 	</div>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
 
 {% block content %}
 	<div id="content-main" align="center">
@@ -47,11 +48,15 @@
 					<th>Fonctionnalit&eacute;</th>
 					<th>Titre</th>
 					<th>Options</th>
-					<th></th>
-					<th>Statut</th>
+					<th colspan="2">Statut</th>
 				</tr>
 			</thead>
 			<tbody>
+			{% if not releases %}
+				<tr>
+					<td align="center" colspan="6">Aucun &eacute;l&eacute;ment &agrave; afficher</td>
+				</tr>
+			{% else %}
 			{% for r in releases %}
 				<tr id="{{ r.note.id }}" class="{{ r.note.priorite|var2css:"p" }}">
 					<td>{{ r.note.type|var2txt:"t" }}</td>
@@ -83,6 +88,7 @@
 					{% endfor %}
 				{% endifequal %}
 			{% endfor %}
+			{% endif %}
 			</tbody>
 		</table>
 	</div>

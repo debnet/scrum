@@ -1,6 +1,6 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
@@ -19,7 +19,7 @@
 {% block content_title %}{% endblock %}
 
 {% block content %}
-	<div id="content-main" align="center">
+	<div align="center" id="content-main">
 		Indicateurs :&nbsp;
 		<a href="{{ home }}projects/{{ project.id }}/summary/">Synth&egrave;se des sprints</a>
 		&nbsp;|&nbsp;
@@ -27,16 +27,43 @@
 		&nbsp;|&nbsp;
 		<a href="{{ home }}projects/{{ project.id }}/pareto/">Diagramme de Pareto</a>
 		<br /><br /><br />
-		
-		<h1>Velocity Chart</h1>
-		<br />
-		<img style="width: 800px; height: 350px;" src="{{ url1 }}" />
+	
+		<img style="width: 800px; height: 350px;" src="{{ url }}" />
 		<br /><br /><br />
-		<h1>Progression Chart</h1>
-		<br />
-		<img style="width: 800px; height: 350px;" src="{{ url2 }}" />
+		<table>
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Fonctionnalit&eacute;</th>
+					{% for l in labels %}
+					<th style="width: 50px">{{ l }}</th>
+					{% endfor %}
+					<th style="width: 50px">Total</th>
+					<th style="width: 100px" colspan="2">Total (%)</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for k in data|keys %}
+					<tr class="{% cycle 'row1' 'row2' %}">
+						<td><strong>{{ numbers|values:k }}</strong></td>
+						<td>{{ k }}</td>
+						{% for v in data|values:k %}
+							<td align="right">{{ v }}</td>
+						{% endfor %}
+						<td align="right"><strong>{{ rows|values:k }}</strong></td>
+						{% for v in taux|values:k %}
+							<td align="right" bgcolor="#{{ colors|values:k }}"><strong>{{ v }} %</strong></td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+				<tr bgcolor="#eee">
+					<td colspan="2"><strong>Total</strong></td>
+					{% for t in cols %}
+						<td align="right"><strong>{{ t }}</strong></td>
+					{% endfor %}
+					<td colspan="2">&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 {% endblock %}
-
-{% block legend %}{% endblock %}
-{% block config %}{% endblock %}

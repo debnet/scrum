@@ -8,14 +8,15 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <strong>Scrum Wall</strong>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
 	</div>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
 
 {% block content %}
 	<div id="content-main" align="center">
@@ -44,8 +45,8 @@
 					<td style="width:{% if backlog %}16.65{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
 							<tr>
-								<td class="cellule {{ s|var2css:"p" }}" title="{{ s|dict:"name" }}" onclick="document.location='../features/?target={{ s|dict:"id" }}#{{ s|dict:"id" }}'">
-									<span>{{ s|dict:"name" }}</span>
+								<td class="cellule {{ s|var2css:"p" }}" title="{{ s|values:"name" }}" onclick="document.location='../features/?target={{ s|values:"id" }}#{{ s|values:"id" }}'">
+									<span>{{ s|values:"name" }}</span>
 								</td>
 							</tr>
 						</table>
@@ -53,9 +54,9 @@
 					{% if backlog %}
 					<td style="width:16.67%;">
 						<table class="table" width="100%">
-							{% for t in s|dict:"spec" %}
+							{% for t in s|values:"spec" %}
 							<tr>
-								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
+								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
 									<span>{{ t.titre }}</span>
 								</td>
 							</tr>
@@ -65,9 +66,9 @@
 					{% endif %}
 					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
-							{% for t in s|dict:"todo" %}
+							{% for t in s|values:"todo" %}
 							<tr>
-								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
+								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
 									<span>{{ t.titre }}</span>
 								</td>
 							</tr>
@@ -76,9 +77,9 @@
 					</td>
 					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
-							{% for r in s|dict:"run" %}
+							{% for r in s|values:"run" %}
 							<tr>
-								<td class="cellule {{ r.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ r.id }}#{{ r.id }}'">
+								<td class="cellule {{ r.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ r.id }}#{{ r.id }}'">
 									{{ r.titre }}
 								</td>
 							</tr>
@@ -87,9 +88,9 @@
 					</td>
 					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
-							{% for t in s|dict:"gone" %}
+							{% for t in s|values:"gone" %}
 							<tr>
-								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
+								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
 									<span>{{ t.titre }}</span>
 								</td>
 							</tr>
@@ -98,9 +99,9 @@
 					</td>
 					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
-							{% for d in s|dict:"done" %}
+							{% for d in s|values:"done" %}
 							<tr>
-								<td class="cellule {{ d.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|dict:"id" }}/notes/?target={{ d.id }}#{{ d.id }}'">
+								<td class="cellule {{ d.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ d.id }}#{{ d.id }}'">
 									<span>{{ d.titre }}</span>
 								</td>
 							</tr>

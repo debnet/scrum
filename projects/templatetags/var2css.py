@@ -19,7 +19,7 @@ PRIORITES = (
     ('5', 'blocking'),
 )
 
-STATUT = (
+STATUTS = (
     ('0', 'none'),
     ('1', 'major'),
     ('2', 'critical'),
@@ -37,7 +37,7 @@ def var2css(value, arg):
         if arg in ('e', 'E', 'etats'):
             return ETATS[int(value['item'].etat)][1]
         if arg in ('s', 'S', 'statut'):
-            return STATUT[int(value['item'].statut)][1]
+            return STATUTS[int(value['item'].statut)][1]
     else:
         if arg in ('p', 'P', 'priorites'):
             if value in str(range(0,6)):
@@ -47,7 +47,7 @@ def var2css(value, arg):
                 return ETATS[int(value)][1]
         if arg in ('s', 'S', 'statut'):
             if value in str(range(0,4)):
-                return STATUT[int(value)][1]
+                return STATUTS[int(value)][1]
     return None
 
 register.filter('var2css', var2css)

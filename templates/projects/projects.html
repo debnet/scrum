@@ -8,6 +8,8 @@
 	</div>
 {% endblock %}
 
+{% block content_title %}{% endblock %}
+
 {% block content %}
 	<div id="content-main" align="center" >
 		<br />
@@ -27,7 +29,7 @@
 					<div id="{{ projet.id }}" class="note none" onclick="document.location='{{ projet.id }}'">
 						<div class="bloc titre">{{ projet.titre }}</div>
 						<div class="bloc projet">{{ projet.description|safe }}</div>
-						<div class="bloc membres">{{ membres|dict:projet.id|join:" &nbsp; " }}</div>
+						<div class="bloc membres">{{ membres|values:projet.id|join:" &nbsp; " }}</div>
 					</div>
 					<div onclick="document.location='{{ projet.id }}/scrumwall/'" class="sousmenu blocking">Scrum Wall</div>
 					<div onclick="document.location='{{ projet.id }}/velocity/'" class="sousmenu minor">Velocit&eacute; &amp; Progression</div>

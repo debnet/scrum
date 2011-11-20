@@ -7,15 +7,16 @@
 		<a href="{{ home }}projects/"><strong>Projets</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; Planning Poker
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <strong>Planning Poker</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
 	</div>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
 
 {% block content %}
 	<div id="content-main" align="center">
@@ -51,35 +52,40 @@
 				</tr>
 			</thead>
 			<tbody>
+				{% if not liste %}
+					<tr>
+						<td align="center" colspan="7">Aucun &eacute;l&eacute;ment &agrave; afficher</td>
+					</tr>
+				{% else %}
 				{% for l in liste %}
-				<tr id="{{ l|dict:"nid" }}" class="row{{ l|dict:"row" }}">
-					<td><a href="{{ home }}projects/{{ project.id }}/features/?target={{ l|dict:"fid" }}#{{ l|dict:"fid" }}">{{ l|dict:"f" }}</a></td>
-					<td><a href="{{ home }}projects/{{ project.id }}/features/{{ l|dict:"fid" }}/notes/?target={{ l|dict:"nid" }}#{{ l|dict:"nid" }}">{{ l|dict:"n" }}</a></td>
-					<td align="center"><strong>{{ l|dict:"effort" }}</strong></td>
+				<tr id="{{ l|values:"nid" }}" class="{% cycle 'row1' 'row2' %}">
+					<td><a href="{{ home }}projects/{{ project.id }}/features/?target={{ l|values:"fid" }}#{{ l|values:"fid" }}">{{ l|values:"f" }}</a></td>
+					<td><a href="{{ home }}projects/{{ project.id }}/features/{{ l|values:"fid" }}/notes/?target={{ l|values:"nid" }}#{{ l|values:"nid" }}">{{ l|values:"n" }}</a></td>
+					<td align="center"><strong>{{ l|values:"effort" }}</strong></td>
 					<td align="center">
-						<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post">{% csrf_token %}
+						<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|values:"nid" }}" method="post">{% csrf_token %}
 							<select name="effort"  onchange="submit()">
 							{% for e in efforts %}
-								<option value="{{ e|dict:0 }}" {% ifequal e|dict:0 l|dict:"perso" %}selected{% endifequal %}>{{ e|dict:1 }}</option>
+								<option value="{{ e|values:0 }}" {% ifequal e|values:0 l|values:"perso" %}selected{% endifequal %}>{{ e|values:1 }}</option>
 							{% endfor %}
 							</select>
-							<input type="hidden" name="id" value="{{ l|dict:"nid" }}" />
+							<input type="hidden" name="id" value="{{ l|values:"nid" }}" />
 						</form>
 					</td>
-					{% if l|dict:"poker" %}
-					<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|dict:"nid" }}" method="post" onsubmit="return test(event, this)">{% csrf_token %}
-						<td align="center" onmouseout="UnTip()" onmouseover="Tip('{% for a in l|dict:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
+					{% if l|values:"poker" %}
+					<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|values:"nid" }}" method="post" onsubmit="return test(event, this)">{% csrf_token %}
+						<td align="center" onmouseout="UnTip()" onmouseover="Tip('{% for a in l|values:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
 							<select name="avg" class="noborder" style="color:red">
 							{% for e in efforts %}
-								<option value="{{ e|dict:0 }}" {% ifequal e|dict:0 l|dict:"avg" %}selected{% endifequal %}>{{ e|dict:1 }}</option>
+								<option value="{{ e|values:0 }}" {% ifequal e|values:0 l|values:"avg" %}selected{% endifequal %}>{{ e|values:1 }}</option>
 							{% endfor %}
 							</select>
 						</td>
 						<td align="center">
-							<input type="text" name="temps" value="{{ l|dict:"temps" }}" size="2" style="color:red" />
+							<input type="text" name="temps" value="{{ l|values:"temps" }}" size="2" style="color:red" />
 						</td>
 						<td align="center">
-							<input type="hidden" name="id" value="{{ l|dict:"nid" }}" />
+							<input type="hidden" name="id" value="{{ l|values:"nid" }}" />
 							<input type="submit" value="Valider" />
 						</td>
 					</form>
@@ -88,6 +94,7 @@
 					{% endif %}
 				</tr>
 				{% endfor %}
+				{% endif %}
 			</tbody>
 		</table>
 	</div>

@@ -8,8 +8,7 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Synth&egrave;se</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/velocity/"><strong>Velocit&eacute;</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
 			&nbsp;(&nbsp;
@@ -17,7 +16,7 @@
 				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
 				&nbsp;-&nbsp; 
 				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes de sprint</a> 
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
@@ -27,6 +26,8 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
 	</div>
 {% endblock %}
+
+{% block content_title %}{% endblock %}
 
 {% block content %}
 	<div id="content-main" align="center">
@@ -46,10 +47,10 @@
 			</thead>
 			<tbody>
 				{% for jour in jours %}
-					{% if jour|dict:"perso" %}
-						{% for perso in jour|dict:"perso" %}
-						<tr id="{{ perso.id }}" class="row{{ jour|dict:"row" }}" >
-							<td rowspan="{{ jour|dict:"nb" }}"><strong>{{ jour|dict:"date" }}</strong></td>
+					{% if jour|values:"perso" %}
+						{% for perso in jour|values:"perso" %}
+						<tr id="{{ perso.id }}" class="row{{ jour|values:"row" }}">
+							<td rowspan="{{ jour|values:"nb" }}"><strong>{{ jour|values:"date" }}</strong></td>
 							<td>{{ perso.utilisateur }}</td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_projet }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_equipe }}.png" /></td>
@@ -62,41 +63,41 @@
 						</tr>
 						{% endfor %}
 					{% else %}
-						<tr class="row{{ jour|dict:"row" }}">
+						<tr class="row{{ jour|values:"row" }}">
 							<form enctype="multipart/form-data" action="." method="post">{% csrf_token %}
-								<td rowspan="{{ jour|dict:"nb" }}"><strong>{{ jour|dict:"date" }}</strong></td>
+								<td rowspan="{{ jour|values:"nb" }}"><strong>{{ jour|values:"date" }}</strong></td>
 								<td>{{ user }}</td>
 								<td>
 									<select name="meteo_projet" class="image noborder" onchange="change(this)">
 									{% for m in meteo %}
-										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
+										<option value="{{ m|values:0 }}">{{ m|values:1 }}</option>
 									{% endfor %}
 									</select>
 								</td>
 								<td>
 									<select name="meteo_equipe" class="image noborder" onchange="change(this)">
 									{% for m in meteo %}
-										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
+										<option value="{{ m|values:0 }}">{{ m|values:1 }}</option>
 									{% endfor %}
 									</select>
 								</td>
 								<td>
 									<select name="meteo_avance" class="image noborder" onchange="change(this)">
 									{% for m in meteo %}
-										<option value="{{ m|dict:0 }}">{{ m|dict:1 }}</option>
+										<option value="{{ m|values:0 }}">{{ m|values:1 }}</option>
 									{% endfor %}
 									</select>
 								</td>
 								<td>
 									<input type="text" name="commentaire" maxlength="200" size="30" />
-									<input type="hidden" name="date" value="{{ jour|dict:"date" }}" />
+									<input type="hidden" name="date" value="{{ jour|values:"date" }}" />
 									<input type="submit" value="Ok" />
 								</td>
 							</form>
 						</tr>
 					{% endif %}
-					{% for autre in jour|dict:"autre" %}
-						<tr id="{{ autre.id }}" class="row{{ jour|dict:"row" }}">
+					{% for autre in jour|values:"autre" %}
+						<tr id="{{ autre.id }}" class="row{{ jour|values:"row" }}">
 							<td>{{ autre.utilisateur }}</td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_projet }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_equipe }}.png" /></td>
