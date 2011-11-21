@@ -1079,7 +1079,7 @@ def snotes(request, project_id, sprint_id):
                 changes.append(u'priorité = ' + PRIORITES[note.priorite][1])
             if request.POST.__contains__('etat'):
                 note.etat = int(request.POST['etat'])
-                if note.etat == '4':
+                if note.etat in ('3', '4', ):
                     nts = NoteTime.objects.filter(note__in = (note, ))
                     nts = nts.order_by('-jour')
                     for nt in nts:
@@ -1355,7 +1355,6 @@ def releases(request, project_id, sprint_id):
                     if nt.temps_fin != 0:
                         nt.temps_fin = 0
                         nt.save()
-                        break
                 release.statut = 2
                 #statut = release.statut
                 release.save()
@@ -1371,7 +1370,6 @@ def releases(request, project_id, sprint_id):
                     if nt.temps_fin != 0:
                         nt.temps_fin = 0
                         nt.save()
-                        break
                 release.statut = 3
                 #statut = release.statut
                 release.save()

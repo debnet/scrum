@@ -72,9 +72,9 @@
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action=".#{{ task.id }}" method="post" align="center">{% csrf_token %}
 							<select name="etat" onchange="submit()">
-								<option value="0" {% ifequal task.etat '0' %}selected{% endifequal %}>&Agrave; faire</option>
-								<option value="1" {% ifequal task.etat '1' %}selected{% endifequal %}>En cours</option>
-								<option value="2" {% ifequal task.etat '2' %}selected{% endifequal %}>Termin&eacute;</option>
+								<option value="1" {% ifequal task.etat '1' %}selected{% endifequal %}>&Agrave; faire</option>
+								<option value="2" {% ifequal task.etat '2' %}selected{% endifequal %}>En cours</option>
+								<option value="4" {% ifequal task.etat '4' %}selected{% endifequal %}>Termin&eacute;</option>
 							</select>
 							<select name="priorite" onchange="submit()">
 								<option value="0" {% ifequal task.priorite '0' %}selected{% endifequal %}>Aucune</option>
