@@ -1324,12 +1324,22 @@ def releases(request, project_id, sprint_id):
         if request.POST.__contains__('id'):
             id = request.POST['id']
             note = Note.objects.get(pk = id)
+            nts = NoteTime.objects.filter(note__in = (note, ))
+            nts = nts.order_by('-jour')
+            
             release = Release()
             release.note = note
             release.utilisateur = user
             release.commentaire = request.POST['commentaire']
+            
             if request.POST.__contains__('livrer'):
             #if request.POST['fonction'] == 'livrer':
+                for nt in nts:
+                    if nt.temps > 0:
+                        fin = nt.note.temps_estime - nt.note.temps_realise
+                        nt.temps_fin = fin
+                        nt.save()
+                        break
                 release.statut = 1
                 #statut = release.statut
                 release.save()
@@ -1341,6 +1351,11 @@ def releases(request, project_id, sprint_id):
                     % (release.statut, release.id))
             elif request.POST.__contains__('refuser'):
             #elif request.POST['fonction'] == 'refuser':
+                for nt in nts:
+                    if nt.temps_fin != 0:
+                        nt.temps_fin = 0
+                        nt.save()
+                        break
                 release.statut = 2
                 #statut = release.statut
                 release.save()
@@ -1352,6 +1367,11 @@ def releases(request, project_id, sprint_id):
                     % (release.statut, release.id))
             elif request.POST.__contains__('valider'):
             #elif request.POST['fonction'] == 'valider':
+                for nt in nts:
+                    if nt.temps_fin != 0:
+                        nt.temps_fin = 0
+                        nt.save()
+                        break
                 release.statut = 3
                 #statut = release.statut
                 release.save()
@@ -1361,8 +1381,6 @@ def releases(request, project_id, sprint_id):
                     % (release.statut, release.id))
             elif request.POST.__contains__('terminer'):
             #if request.POST['fonction'] == 'terminer':
-                nts = NoteTime.objects.filter(note__in = (note, ))
-                nts = nts.order_by('-jour')
                 for nt in nts:
                     if nt.temps > 0:
                         fin = nt.note.temps_estime - nt.note.temps_realise
@@ -1672,7 +1690,7 @@ def burndown(request, project_id, sprint_id):
         d['time'] = tt
         d['done'] = t.temps_realise
         d['todo'] = t.temps_estime
-        d['test'] = (t.etat == '4')
+        d['test'] = t.etat == '4'
         d['line'] = str(t.id)
         d['etat'] = '?done' if done else '.'
         d['url'] = 'tasks'
@@ -1708,7 +1726,7 @@ def burndown(request, project_id, sprint_id):
         d['time'] = nt
         d['done'] = n.temps_realise
         d['todo'] = n.temps_estime
-        d['test'] = (n.etat == '4')
+        d['test'] = n.etat in ('3', '4', )
         d['line'] = str(n.feature.id) + '_' + str(n.id)
         d['etat'] = '?done' if done else '?released' if released else '.'
         d['url'] = 'notes'
@@ -1804,7 +1822,7 @@ def burndown(request, project_id, sprint_id):
             context_instance = RequestContext(request))
     else:
         csvreturn = HttpResponse(mimetype = 'text/csv')
-        csvreturn['Content-Disposition'] = 'attachement; filename=%s' % (sprint.titre, )
+        csvreturn['Content-Disposition'] = 'attachement; filename=%s - %s.csv' % (project.titre, sprint.titre, )
         t = loader.get_template('projects/csvexport.txt')
         csvdata.insert(0, headers)
         c = Context({ 'data': csvdata, })
