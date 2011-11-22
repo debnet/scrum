@@ -1079,20 +1079,41 @@ def snotes(request, project_id, sprint_id):
                 changes.append(u'priorité = ' + PRIORITES[note.priorite][1])
             if request.POST.__contains__('etat'):
                 note.etat = int(request.POST['etat'])
-                if note.etat in ('3', '4', ):
-                    nts = NoteTime.objects.filter(note__in = (note, ))
+                if note.etat in (3, 4, ):
+                    nts = NoteTime.objects.select_related().filter(note__in = (note, ))
                     nts = nts.order_by('-jour')
+                    for nt in nts:
+                        if nt.temps_fin != 0:
+                            nt.temps_fin = 0
+                            nt.save()
                     for nt in nts:
                         if nt.temps > 0:
                             fin = nt.note.temps_estime - nt.note.temps_realise
                             nt.temps_fin = fin
                             nt.save()
                             break
+                    if note.etat == 3:
+                        release = Release()
+                        release.note = note
+                        release.utilisateur = user
+                        release.statut = '1'
+                        release.commentaire = u'( Livraison automatique )'
+                        release.save()
                 else:
-                    nts = NoteTime.objects.filter(note__in = (note, ))
+                    nts = NoteTime.objects.select_related().filter(note__in = (note, ))
                     for nt in nts:
                         nt.temps_fin = 0
                         nt.save()
+                    release = Release.objects.select_related().filter(note__id__exact = note.id)
+                    if release.count() != 0:                        
+                        release = release.order_by('-date_creation')[0]
+                        if release.statut == '1':
+                            release = Release()
+                            release.note = note
+                            release.utilisateur = user
+                            release.statut = '2'
+                            release.commentaire = u'( Refus automatique )'
+                            release.save()
                 changes.append(u'état = ' + ETATS[int(note.etat)][1])
             note.utilisateur = user
             note.save()
@@ -1324,7 +1345,7 @@ def releases(request, project_id, sprint_id):
         if request.POST.__contains__('id'):
             id = request.POST['id']
             note = Note.objects.get(pk = id)
-            nts = NoteTime.objects.filter(note__in = (note, ))
+            nts = NoteTime.objects.select_related().filter(note__in = (note, ))
             nts = nts.order_by('-jour')
             
             release = Release()
@@ -1370,6 +1391,12 @@ def releases(request, project_id, sprint_id):
                     if nt.temps_fin != 0:
                         nt.temps_fin = 0
                         nt.save()
+                for nt in nts:
+                    if nt.temps > 0:
+                        fin = nt.note.temps_estime - nt.note.temps_realise
+                        nt.temps_fin = fin
+                        nt.save()
+                        break
                 release.statut = 3
                 #statut = release.statut
                 release.save()
@@ -1686,11 +1713,11 @@ def burndown(request, project_id, sprint_id):
         d['type'] = u'Tache'
         d['item'] = t
         d['time'] = tt
-        d['done'] = t.temps_realise
-        d['todo'] = t.temps_estime
-        d['test'] = t.etat == '4'
+        d['done'] = '%02d' % (t.temps_realise, )
+        d['todo'] = '%02d' % (t.temps_estime, )
+        d['etat'] = t.etat
         d['line'] = str(t.id)
-        d['etat'] = '?done' if done else '.'
+        d['form'] = '?done' if done else '.'
         d['url'] = 'tasks'
         
         if csv:
@@ -1702,7 +1729,7 @@ def burndown(request, project_id, sprint_id):
         
         if done and t.etat in ('3', '4'):
             times.append(d)
-        elif not done and t.etat not in ('3', '4'):
+        elif not done and t.etat not in ('0', '3', '4'):
             times.append(d)
         for d in tt:
             days.append(d.jour)
@@ -1722,11 +1749,11 @@ def burndown(request, project_id, sprint_id):
         d['type'] = u'Note'
         d['item'] = n
         d['time'] = nt
-        d['done'] = n.temps_realise
-        d['todo'] = n.temps_estime
-        d['test'] = n.etat in ('3', '4', )
+        d['done'] = '%02d' % (n.temps_realise, )
+        d['todo'] = '%02d' % (n.temps_estime, )
+        d['etat'] = n.etat
         d['line'] = str(n.feature.id) + '_' + str(n.id)
-        d['etat'] = '?done' if done else '?released' if released else '.'
+        d['form'] = '?done' if done else '?released' if released else '.'
         d['url'] = 'notes'
 
         if csv:
@@ -1736,23 +1763,6 @@ def burndown(request, project_id, sprint_id):
             export.extend([ str(d['done']), str(d['todo']), ])
             csvdata.append(export)
         
-        """
-        releases = Release.objects.filter(note__id__exact = n.id).order_by('-date_creation')
-        if releases.count() > 0:
-            release = releases[0]
-            if released:
-                if release.statut in ('1', '3') and n.etat != '2':
-                    times.append(d)
-            elif done and n.etat == '2':
-                times.append(d)
-            elif not done and release.statut in ('0', '2') and n.etat != '2':
-                times.append(d)
-        else:
-            if done and n.etat == '2':
-                times.append(d)
-            elif not done and n.etat != '2':
-                times.append(d)
-        """
         if released and n.etat == '3':
             times.append(d)
         elif done and n.etat == '4':

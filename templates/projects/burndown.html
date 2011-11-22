@@ -64,7 +64,7 @@
 			{% else %}
 			{% for item in times %}
 				<tr id="{{ item|values:"line" }}" class="{{ item|var2css:"p" }}">
-					<form enctype="multipart/form-data" action="{{ item|values:"etat" }}#{{ item|values:"line" }}" method="post" align="center">{% csrf_token %}
+					<form enctype="multipart/form-data" action="{{ item|values:"form" }}#{{ item|values:"line" }}" method="post" align="center">{% csrf_token %}
 						<td>{{ item|values:"type" }}</td>
 						<td>
 							<a href="../../../features/?target={{ item|values:"bid" }}#{{ item|values:"bid" }}">{{ item|values:"base" }}</a>
@@ -78,15 +78,15 @@
 						</td>
 						{% for time in item|values:"time" %}
 						<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
-							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|values:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|values:"test" %}disabled{% endif %} />
+							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|values:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|values:"etat" == "0" or item|values:"etat" == "3" or item|values:"etat" == "4" %}disabled{% endif %} />
 						</td>
 						{% endfor %}
-						<td {% if item|values:"done" > item|values:"todo" %}style="color:red; font-weight:bold"{% endif %}>
+						<td align="center" {% if item|values:"done" > item|values:"todo" %}style="color:red; font-weight:bold"{% endif %}>
 							{{ item|values:"done" }} / {{ item|values:"todo" }}
 						</td>
 						<td>
-							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="non" {% if not item|values:"test" %}checked{% endif %} /> Non&nbsp;
-							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="oui" {% if item|values:"test" %}checked{% endif %} /> Oui&nbsp;
+							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="non" {% if item|values:"etat" != "4" %}checked{% endif %} /> Non&nbsp;
+							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="oui" {% if item|values:"etat" == "4" %}checked{% endif %} /> Oui&nbsp;
 							&nbsp;
 							<input type="hidden" name="lock" value="{{ lock }}" />
 							<input type="submit" value="OK" {% if not user.user.is_staff %}disabled{% endif %}/>
