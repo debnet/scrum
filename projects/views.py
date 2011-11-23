@@ -9,7 +9,7 @@ from xml.dom.minidom import parse
 import logging
 logging.basicConfig (
     level = logging.DEBUG, 
-    format = '%(asctime)s %(levelname)s %(message)s', 
+    format = '(%(asctime)s) [%(levelname)s] :\n%(message)s\n', 
 )
 
 from django.db.models import Count, Sum, Avg
@@ -1713,8 +1713,8 @@ def burndown(request, project_id, sprint_id):
         d['type'] = u'Tache'
         d['item'] = t
         d['time'] = tt
-        d['done'] = '%02d' % (t.temps_realise, )
-        d['todo'] = '%02d' % (t.temps_estime, )
+        d['done'] = t.temps_realise
+        d['todo'] = t.temps_estime
         d['etat'] = t.etat
         d['line'] = str(t.id)
         d['form'] = '?done' if done else '.'
@@ -1749,8 +1749,8 @@ def burndown(request, project_id, sprint_id):
         d['type'] = u'Note'
         d['item'] = n
         d['time'] = nt
-        d['done'] = '%02d' % (n.temps_realise, )
-        d['todo'] = '%02d' % (n.temps_estime, )
+        d['done'] = n.temps_realise
+        d['todo'] = n.temps_estime
         d['etat'] = n.etat
         d['line'] = str(n.feature.id) + '_' + str(n.id)
         d['form'] = '?done' if done else '?released' if released else '.'
