@@ -1,18 +1,18 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt dict %}
+{% load i18n var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <strong>Scrum Wall</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <strong>{% trans "Scrum Wall" %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -21,8 +21,8 @@
 {% block content %}
 	<div id="content-main" align="center">
 		<br />
-		Afficher :&nbsp;
-		<a href=".">Tout</a>
+		{% trans "Afficher :" %}&nbsp;
+		<a href=".">{% trans "Tout" %}</a>
 		{% for sprint in sprints %}
 		&nbsp;|&nbsp;
 		<a href="?sprint={{ sprint.id }}">{{ sprint.titre }}</a>
@@ -30,14 +30,14 @@
 		<br /><br /><br />
 		<table class="scrumwall" width="{{ taille }}px">
 			<thead>
-				<th style="width:{% if backlog %}16.65{% else %}20{% endif %}%;">Fonctionnalit&eacute;</th>
+				<th style="width:{% if backlog %}16.65{% else %}20{% endif %}%;">{% trans "Fonctionnalité" %}</th>
 				{% if backlog %}
-				<th style="width:16.67%;">Backlog</th>
+				<th style="width:16.67%;">{% trans "Backlog" %}</th>
 				{% endif %}
-				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">&Agrave; faire</th>
-				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">En cours</th>
-				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">Livr&eacute;</th>
-				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">Termin&eacute;e</th>
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">{% trans "À faire" %}</th>
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">{% trans "En cours" %}</th>
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">{% trans "Livré" %}</th>
+				<th style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">{% trans "Terminée" %}</th>
 			</thead>
 			<tbody>
 				{% for s in scrumwall %}
@@ -54,10 +54,10 @@
 					{% if backlog %}
 					<td style="width:16.67%;">
 						<table class="table" width="100%">
-							{% for t in s|values:"spec" %}
+							{% for b in s|values:"spec" %}
 							<tr>
-								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
-									<span>{{ t.titre }}</span>
+								<td class="cellule {{ b.priorite|var2css:"p" }}" title="{{ b.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ b.id }}#{{ b.id }}'">
+									<span>{{ b.titre }}</span>
 								</td>
 							</tr>
 							{% endfor %}
@@ -79,8 +79,8 @@
 						<table class="table" width="100%">
 							{% for r in s|values:"run" %}
 							<tr>
-								<td class="cellule {{ r.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ r.id }}#{{ r.id }}'">
-									{{ r.titre }}
+								<td class="cellule {{ r.priorite|var2css:"p" }}" title="{{ r.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ r.id }}#{{ r.id }}'">
+									<span>{{ r.titre }}</span>
 								</td>
 							</tr>
 							{% endfor %}
@@ -88,10 +88,10 @@
 					</td>
 					<td style="width:{% if backlog %}16.67{% else %}20{% endif %}%;">
 						<table class="table" width="100%">
-							{% for t in s|values:"gone" %}
+							{% for g in s|values:"gone" %}
 							<tr>
-								<td class="cellule {{ t.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ t.id }}#{{ t.id }}'">
-									<span>{{ t.titre }}</span>
+								<td class="cellule {{ g.priorite|var2css:"p" }}" title="{{ g.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ g.id }}#{{ g.id }}'">
+									<span>{{ g.titre }}</span>
 								</td>
 							</tr>
 							{% endfor %}
@@ -101,7 +101,7 @@
 						<table class="table" width="100%">
 							{% for d in s|values:"done" %}
 							<tr>
-								<td class="cellule {{ d.priorite|var2css:"p" }}" title="{{ t.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ d.id }}#{{ d.id }}'">
+								<td class="cellule {{ d.priorite|var2css:"p" }}" title="{{ d.titre }}" onclick="document.location='../features/{{ s|values:"id" }}/notes/?target={{ d.id }}#{{ d.id }}'">
 									<span>{{ d.titre }}</span>
 								</td>
 							</tr>

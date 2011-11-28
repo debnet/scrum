@@ -1,29 +1,29 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt dict %}
+{% load i18n var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
 			&nbsp;(&nbsp;
 				<!--
 				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
 				&nbsp;-&nbsp; 
 				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes</a> 
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
-				&nbsp;-&nbsp; Livraisons
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/meteo/">M&eacute;t&eacute;o</a>
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">{% trans "Notes" %}</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">{% trans "Tâches" %}</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">{% trans "Burndown Chart" %}</a>
+				&nbsp;-&nbsp; {% trans "Livraisons" %}
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/meteo/">{% trans "Météo" %}</a>
 			&nbsp;)
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -32,29 +32,29 @@
 {% block content %}
 	<div id="content-main" align="center">
 		<br />
-		Afficher :&nbsp;
-		<a href="?statut=0">&agrave; livrer</a>
+		{% trans "Afficher :" %}&nbsp;
+		<a href="?statut=0">{% trans "à livrer" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?statut=1">livr&eacute;s</a>
+		<a href="?statut=1">{% trans "livrés" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?statut=2">refus&eacute;s</a>
+		<a href="?statut=2">{% trans "refusés" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?statut=3">valid&eacute;s</a>
+		<a href="?statut=3">{% trans "validés" %}</a>
 		<br /><br /><br />
 		<table class="releases table">
 			<thead>
 				<tr>
-					<th>Type</th>
-					<th>Fonctionnalit&eacute;</th>
-					<th>Titre</th>
-					<th>Options</th>
-					<th colspan="2">Statut</th>
+					<th>{% trans "Type" %}</th>
+					<th>{% trans "Fonctionnalité" %}</th>
+					<th>{% trans "Titre" %}</th>
+					<th>{% trans "Options" %}</th>
+					<th colspan="2">{% trans "Statut" %}</th>
 				</tr>
 			</thead>
 			<tbody>
 			{% if not releases %}
 				<tr>
-					<td align="center" colspan="6">Aucun &eacute;l&eacute;ment &agrave; afficher</td>
+					<td align="center" colspan="6">{% trans "Aucun élément à afficher" %}</td>
 				</tr>
 			{% else %}
 			{% for r in releases %}
@@ -67,14 +67,14 @@
 						<form enctype="multipart/form-data" onsubmit="return test(event, this)" action=".?statut={{ statut }}#{{ r.note.id }}" method="post" align="center">{% csrf_token %}
 							<input name="id" type="hidden" value="{{ r.note.id }}" />
 							<input name="commentaire" type="hidden" value="" />
-							<input name="livrer" type="submit" value="Livrer" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}disabled{% else %}{% ifequal r.statut "3" %}disabled{% endifequal %}{% endifequal %} />
-							<input name="refuser" type="submit" value="Refuser" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
-							<input name="valider" type="submit" value="Valider" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
-							<input name="terminer" type="submit" value="Terminer" onclick="use=false" style="width:60px" {% ifequal r.statut "3" %}{% else %}disabled{% endifequal %} />
+							<input name="livrer" type="submit" value="{% trans "Livrer" %}" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}disabled{% else %}{% ifequal r.statut "3" %}disabled{% endifequal %}{% endifequal %} />
+							<input name="refuser" type="submit" value="{% trans "Refuser" %}" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
+							<input name="valider" type="submit" value="{% trans "Valider" %}" onclick="use=true" style="width:60px" {% ifequal r.statut "1" %}{% else %}disabled{% endifequal %} />
+							<input name="terminer" type="submit" value="{% trans "Terminer" %}" onclick="use=false" style="width:60px" {% ifequal r.statut "3" %}{% else %}disabled{% endifequal %} />
 						</form>
 					{% endif %}
 					</td>
-					<td>[&nbsp;<a href="?{% if statut %}statut={{ statut }}&{% endif %}id={{ r.note.id }}#{{ r.note.id }}">Historique</a>&nbsp;]</td>
+					<td>[&nbsp;<a href="?{% if statut %}statut={{ statut }}&{% endif %}id={{ r.note.id }}#{{ r.note.id }}">{% trans "Historique" %}</a>&nbsp;]</td>
 					<td style="background-color:#eee; font-weight:bold"><img src="{{ home }}media/img/statut/i{{ r.statut }}.png" />&nbsp;{{ r.statut|var2txt:"s" }}</td>
 				</tr>
 				{% ifequal r.note.id note %}
@@ -82,7 +82,7 @@
 						<tr>
 							<td colspan="2">{{ d.date_creation|date:"l d F \à H:i" }}</td>
 							<td colspan="1"><strong>{{ d.utilisateur }}</strong></td>
-							<td colspan="2">{% if d.commentaire %}{{ d.commentaire }}{% else %}<em>Aucun commentaire</em>{% endif %}</td>
+							<td colspan="2">{% if d.commentaire %}{{ d.commentaire }}{% else %}<em>{% trans "Aucun commentaire" %}</em>{% endif %}</td>
 							<td colspan="1" style="font-weight:bold"><img src="{{ home }}media/img/statut/i{{ d.statut }}.png" />&nbsp;{{ d.statut|var2txt:"s" }}</td>
 						</tr>
 					{% endfor %}
@@ -95,7 +95,7 @@
 	<script language="javascript">
 		function test(event, form) {
 			if (use == false) return;
-			var commentaire = window.prompt("Commentaire (facultatif) :");
+			var commentaire = window.prompt("{% trans "Commentaire (facultatif) :" %}");
 			if (commentaire != null)
 				form.commentaire.value = commentaire;
 			else event.returnValue = false;

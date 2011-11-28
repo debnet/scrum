@@ -1,12 +1,12 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load i18n var2css var2txt %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/history/"><strong>Historiques</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/logs/"><strong>Logs</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/history/"><strong>{% trans "Historiques" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/logs/"><strong>{% trans "Logs" %}</strong></a>
 		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
 	</div>
 {% endblock %}
@@ -20,7 +20,7 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" name="all" onchange="toggle(this)" /></th>
-						<th>Nom de fichier</th>
+						<th>{% trans "Nom de fichier" %}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -33,7 +33,7 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<td colspan="2"><input type="submit" value="Supprimer" {% if not user.user.is_staff %}disabled{% endif %} /></td>
+						<td colspan="2"><input type="submit" value="{% trans "Supprimer" %}" {% if not user.user.is_staff %}disabled{% endif %} /></td>
 					</tr>
 				</tfoot>
 			</table>

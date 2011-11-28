@@ -11,11 +11,21 @@ DEFAULT_URL = 'localhost:8000'
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+# Administrators and managers
 ADMINS = (
     ('Marc DEBUREAUX', 'marc@debnet.fr'),
 )
-
 MANAGERS = ADMINS
+
+# Sending emails configuration
+EMAIL_ENABLED = True
+EMAIL_SUBJECT_PREFIX = ''
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'Scrum <scrum@debnet.fr>'
 
 # Beware of default collation in tables : must be utf8_general_ci and not utf8_bin !
 DATABASES = {
@@ -47,11 +57,24 @@ TIME_ZONE = 'Europe/Paris'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr-FR'
 
+# Languages
+ugettext = lambda s: s
+LANGUAGES = (
+  ('fr', ugettext('French')),
+  ('en', ugettext('English')),
+  ('es', ugettext('Spanish')),
+  ('de', ugettext('German')),
+)
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
+
+# If you set this to False, Django will not format dates, numbers and
+# calendars according to the current locale
+USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -65,7 +88,24 @@ MEDIA_URL = DEFAULT_HOME + 'media/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = 'http://' + DEFAULT_URL + DEFAULT_HOME + 'media/'
+ADMIN_MEDIA_PREFIX = DEFAULT_HOME + 'adminmedia/'
+
+"""
+# Additional locations of static files
+STATICFILES_DIRS = (
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+)
+
+# List of finder classes that know how to find static files in
+# various locations.
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#   'django.contrib.staticfiles.finders.DefaultStorageFinder',
+)
+"""
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
@@ -74,13 +114,14 @@ SECRET_KEY = ''
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
+#   'django.template.loaders.eggs.load_template_source',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.csrf.CsrfResponseMiddleware',
     'django.middleware.common.CommonMiddleware',
+#   'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'scrum.middleware.UrlRedirectMiddleware',
@@ -125,6 +166,29 @@ LOGOUT_URL = DEFAULT_HOME + 'accounts/logout/'
 
 # Custom User model for authentification
 AUTH_PROFILE_MODULE = 'projects.UserProfile'
+
+# A sample logging configuration. The only tangible logging
+# performed by this configuration is to send an email to
+# the site admins on every HTTP 500 error.
+# See http://docs.djangoproject.com/en/dev/topics/logging for
+# more details on how to customize your logging configuration.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
 
 # Number of days before archiving logs and history
 ARCHIVE_DAYS = 5

@@ -1,10 +1,10 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt dict %}
+{% load i18n var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<strong>Projets</strong>
+		<strong>{% trans "Projets" %}</strong>
 	</div>
 {% endblock %}
 
@@ -16,7 +16,9 @@
 		<table class="menus">
 			<tr>
 				<td>
-					<div onclick="document.location='new'" class="menu">Nouveau projet</div>
+					<div onclick="document.location='new'" class="menu">
+						{% trans "Nouveau projet" %}
+					</div>
 				</td>
 			</tr>
 		</table>
@@ -31,13 +33,13 @@
 						<div class="bloc projet">{{ projet.description|safe }}</div>
 						<div class="bloc membres">{{ membres|values:projet.id|join:" &nbsp; " }}</div>
 					</div>
-					<div onclick="document.location='{{ projet.id }}/scrumwall/'" class="sousmenu blocking">Scrum Wall</div>
-					<div onclick="document.location='{{ projet.id }}/velocity/'" class="sousmenu minor">Velocit&eacute; &amp; Progression</div>
-					<div onclick="document.location='{{ projet.id }}/summary/{% if projet.running %}?sprint={{ projet.sprint }}{% endif %}'" class="sousmenu major">Synth&egrave;se</div>
+					<div onclick="document.location='{{ projet.id }}/scrumwall/'" class="sousmenu blocking">{% trans "Scrum Wall" %}</div>
+					<div onclick="document.location='{{ projet.id }}/velocity/'" class="sousmenu minor">{% trans "Velocité et progression" %}</div>
+					<div onclick="document.location='{{ projet.id }}/summary/{% if projet.running %}?sprint={{ projet.sprint }}{% endif %}'" class="sousmenu major">{% trans "Synthèse" %}</div>
 					{% if projet.running %}
-					<div onclick="document.location='{{ projet.id }}/sprints/{{ projet.sprint }}'" class="sousmenu critical">Sprint en cours</div>
+					<div onclick="document.location='{{ projet.id }}/sprints/{{ projet.sprint }}'" class="sousmenu critical">{% trans "Sprint en cours" %}</div>
 					{% else %}
-					<div class="sousmenu none">Aucun sprint en cours</div>
+					<div class="sousmenu none">{% trans "Aucun sprint en cours" %}</div>
 					{% endif %}
 				</td>
 			{% endfor %}

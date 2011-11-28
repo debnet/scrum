@@ -33,7 +33,7 @@
     
     {% load i18n %}
     <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
-        <script type="text/javascript" src="{{ theme }}js/perso/wz_tooltip.js"></script>
+        <script type="text/javascript" src="{{ theme }}js/tooltip.js"></script>
         <!-- Container -->
         <div id="container">
             {% if not is_popup %}
@@ -45,7 +45,7 @@
                 {% if user.user.is_authenticated %}
                 <div id="user-tools">
                     <span style="color:yellow">{% trans 'Welcome,' %} <strong>{% firstof user.user.first_name user.user.username %}</strong>.</span> 
-                    {% block userlinks %}{% url django-admindocs-docroot as docsroot %}{% if docsroot %}<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %}<a href="{{ home }}accounts/password_change/">{% trans 'Change password' %}</a> / <a href="{{ home }}accounts/logout/">{% trans 'Log out' %}</a> / <a style="color:yellow" href="{{ home }}admin/">Administration</a>{% endblock %}</div>
+                    {% block userlinks %}{% url django-admindocs-docroot as docsroot %}{% if docsroot %}<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %}<a href="{{ home }}accounts/password_change/">{% trans 'Change password' %}</a> / <a href="{{ home }}accounts/logout/">{% trans 'Log out' %}</a> / <a style="color:yellow" target="_blank" href="{{ home }}admin/">{% trans "Administration" %}</a>{% endblock %}</div>
                 {% endif %}
                 {% block nav-global %}{% endblock %}
             </div>

@@ -1,18 +1,18 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load i18n var2css var2txt %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <strong>Fonctionnalit&eacute;s</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <strong>{% trans "Fonctionnalités" %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -25,18 +25,18 @@
 			<tr>
 				<td>
 					<div onclick="document.location='new'" class="menu">
-						Nouvelle fonctionnalit&eacute;
+						{% trans "Nouvelle fonctionnalité" %}
 					</div>
 				</td>
 			</tr>
 		</table>
 		<br />
 		Trier :&nbsp;
-		<a href="?sort=-priorite,termine">par priorit&eacute; et &eacute;tat</a>
-		&nbsp;-&nbsp;Filtrer :&nbsp;
-		<a href="?todo&sort=-priorite">&agrave; faire</a>
+		<a href="?sort=-priorite,termine">{% trans "par priorité et état" %}</a>
+		&nbsp;-&nbsp;{% trans "Filtrer :" %}&nbsp;
+		<a href="?todo&sort=-priorite">{% trans "à faire" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?done&sort=-priorite">termin&eacute;s</a>
+		<a href="?done&sort=-priorite">{% trans "terminés" %}</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in features %}
@@ -46,28 +46,28 @@
 					<div id="{{ feature.id }}" onclick="document.location='{{ feature.id }}/notes/'" class="note {{ feature.priorite|var2css:"p" }}{% if feature.termine %} done{% endif %}{% if feature.target %} cible{% endif %}">
 						<div class="bloc titre">{{ feature.titre }}</div>
 						<div class="element gauche">{{ feature.priorite|var2txt:"p" }}</div>
-						<div class="element droite">{% if feature.termine %}Termin&eacute;e{% else %}&Agrave; faire{% endif %}</div>
+						<div class="element droite">{% if feature.termine %}Terminée{% else %}À faire{% endif %}</div>
 						<div class="bloc description">{{ feature.description|safe }}</div>
 						<div class="element gauche">{{ feature.temps_realise }} / {{ feature.temps_estime }} ({{ feature.notes }})</div>
 						<div class="element droite">
-							<a class="image" href="?d={{ feature.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ feature.confiance_dev }}.png" /></a>
-							<a class="image" href="?s={{ feature.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ feature.confiance_sm }}.png" /></a>
-							<a class="image" href="?p={{ feature.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ feature.confiance_po }}.png" /></a>
+							<a class="image" href="?d={{ feature.id }}"><img title="{% trans "Confiance développeur(s)" %}" src="{{ home }}media/img/confiance/d{{ feature.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ feature.id }}"><img title="{% trans "Confiance Scrum Master" %}" src="{{ home }}media/img/confiance/s{{ feature.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ feature.id }}"><img title="{% trans "Confiance Product Owner" %}" src="{{ home }}media/img/confiance/p{{ feature.confiance_po }}.png" /></a>
 						</div>
 					</div>
 					{% if user.user.is_staff %}
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action=".#{{ feature.id }}" method="post" align="center">{% csrf_token %}
 							<select name="priorite" onchange="submit()">
-								<option value="0" {% ifequal feature.priorite '0' %}selected{% endifequal %}>Aucune</option>
-								<option value="1" {% ifequal feature.priorite '1' %}selected{% endifequal %}>Annul&eacute;</option>
-								<option value="2" {% ifequal feature.priorite '2' %}selected{% endifequal %}>Possible</option>
-								<option value="3" {% ifequal feature.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
-								<option value="4" {% ifequal feature.priorite '4' %}selected{% endifequal %}>Indispensable</option>
-								<option value="5" {% ifequal feature.priorite '5' %}selected{% endifequal %}>&Agrave; sp&eacute;cifier</option>
+								<option value="0" {% ifequal feature.priorite '0' %}selected{% endifequal %}>{% trans "Aucune" %}</option>
+								<option value="1" {% ifequal feature.priorite '1' %}selected{% endifequal %}>{% trans "Annulé" %}</option>
+								<option value="2" {% ifequal feature.priorite '2' %}selected{% endifequal %}>{% trans "Possible" %}</option>
+								<option value="3" {% ifequal feature.priorite '3' %}selected{% endifequal %}>{% trans "Souhaitable" %}</option>
+								<option value="4" {% ifequal feature.priorite '4' %}selected{% endifequal %}>{% trans "Indispensable" %}</option>
+								<option value="5" {% ifequal feature.priorite '5' %}selected{% endifequal %}>{% trans "À spécifier" %}</option>
 							</select>
 							<input type="checkbox" name="termine" {% if feature.termine %}checked{% else %}{% endif %} onchange="submit()" />
-							<label>Termin&eacute;</label>
+							<label>{% trans "Terminé" %}</label>
 							<input type="hidden" name="id" value="{{ feature.id }}" />
 						</form>
 					</div>

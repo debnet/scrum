@@ -1,29 +1,29 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt dict %}
+{% load i18n var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
 			&nbsp;(&nbsp;
 				<!--
 				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
 				&nbsp;-&nbsp; 
 				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes</a> 
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">Burndown Chart</a>
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
-				&nbsp;-&nbsp; M&eacute;t&eacute;o
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">{% trans "Notes" %}</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">{% trans "Tâches" %}</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">{% trans "Burndown Chart" %}</a>
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">{% trans "Livraisons" %}</a>
+				&nbsp;-&nbsp; Météo
 			&nbsp;)
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -37,12 +37,12 @@
 		<table class="table">
 			<thead>
 				<tr>
-					<th>Date</th>
-					<th>Utilisateur</th>
-					<th width="50">Projet</th>
-					<th width="50">&Eacute;quipe</th>
-					<th width="50" title="Avancement">Avance.</th>
-					<th>Commentaire</th>
+					<th>{% trans "Date" %}</th>
+					<th>{% trans "Utilisateur" %}</th>
+					<th style="width: 50px">{% trans "Projet" %}</th>
+					<th style="width: 50px">{% trans "Équipe" %}</th>
+					<th style="width: 50px" title="{% trans "Avancement" %}">{% trans "Avance." %}</th>
+					<th>{% trans "Commentaire" %}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -58,7 +58,7 @@
 							{% if perso.commentaire %}
 							<td title="{{ perso.commentaire }}">{{ perso.short }}&hellip;</td>
 							{% else %}
-							<td><em>Aucun commentaire</em></td>
+							<td><em>{% trans "Aucun commentaire" %}</em></td>
 							{% endif %}
 						</tr>
 						{% endfor %}
@@ -91,7 +91,7 @@
 								<td>
 									<input type="text" name="commentaire" maxlength="200" size="30" />
 									<input type="hidden" name="date" value="{{ jour|values:"date" }}" />
-									<input type="submit" value="Ok" />
+									<input type="submit" value="{% trans "OK" %}" />
 								</td>
 							</form>
 						</tr>
@@ -105,7 +105,7 @@
 							{% if autre.commentaire %}
 							<td title="{{ autre.commentaire }}">{{ autre.short }}&hellip;</td>
 							{% else %}
-							<td><em>Aucun commentaire</em></td>
+							<td><em>{% trans "Aucun commentaire" %}</em></td>
 							{% endif %}						
 						</tr>
 					{% endfor %}

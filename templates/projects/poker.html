@@ -1,18 +1,18 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt dict %}
+{% load i18n var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <strong>Planning Poker</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <strong>{% trans "Planning Poker" %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -22,39 +22,39 @@
 	<div id="content-main" align="center">
 		{% if not sprint and not opt %}
 		<br />
-		<span style="color:red">Attention ! Aucun &eacute;l&eacute;ment n'est affich&eacute; par d&eacute;faut, veuillez pr&eacute;ciser votre recherche avec les filtres.</span>
+		<span style="color:red">{% trans "Attention ! Aucun élément n'est affiché par défaut, veuillez préciser votre recherche avec les filtres." %}</span>
 		<br />
 		{% endif %}
 		<br />
-		Afficher :&nbsp;
-		<a href=".">Tout</a>
+		{% trans "Afficher :" %}&nbsp;
+		<a href=".">{% trans "Tout" %}</a>
 		{% for sprint in sprints %}
 		&nbsp;|&nbsp;
 		<a href="?sprint={{ sprint.id }}">{{ sprint.titre }}</a>
 		{% endfor %}
 		<br /><br />
-		Filter :&nbsp;
-		<a href=".?opt=all{% if sprint %}&sprint={{ sprint }}{% endif %}">Tous</a>
+		{% trans "Filter :" %}&nbsp;
+		<a href=".?opt=all{% if sprint %}&sprint={{ sprint }}{% endif %}">{% trans "Tous" %}</a>
 		&nbsp;|&nbsp;
-		<a href=".?opt=todo{% if sprint %}&sprint={{ sprint }}{% endif %}">&Agrave; d&eacute;finir</a>
+		<a href=".?opt=todo{% if sprint %}&sprint={{ sprint }}{% endif %}">{% trans "À définir" %}</a>
 		&nbsp;|&nbsp;
-		<a href=".?opt=done{% if sprint %}&sprint={{ sprint }}{% endif %}">&Agrave; valider</a>
+		<a href=".?opt=done{% if sprint %}&sprint={{ sprint }}{% endif %}">{% trans "À valider" %}</a>
 		<br /><br /><br />
 		<table class="table">
 			<thead>
 				<tr>
-					<th>Fonctionnalit&eacute;</th>
-					<th>Note</th>
-					<th>Effort</th>
+					<th>{% trans "Fonctionnalité" %}</th>
+					<th>{% trans "Note" %}</th>
+					<th>{% trans "Effort" %}</th>
 					<th>{{ user.user.first_name }}</th>
-					<th>Moyenne</th>
-					<th colspan="2">Temps estim&eacute;</th>
+					<th>{% trans "Moyenne" %}</th>
+					<th colspan="2">{% trans "Temps estimé" %}</th>
 				</tr>
 			</thead>
 			<tbody>
 				{% if not liste %}
 					<tr>
-						<td align="center" colspan="7">Aucun &eacute;l&eacute;ment &agrave; afficher</td>
+						<td align="center" colspan="7">{% trans "Aucun élément à afficher" %}</td>
 					</tr>
 				{% else %}
 				{% for l in liste %}
@@ -74,7 +74,7 @@
 					</td>
 					{% if l|values:"poker" %}
 					<form enctype="multipart/form-data" action=".?submit{% if opt %}&opt={{ opt }}{% endif %}{% if sprint %}&sprint={{ sprint }}{% endif %}#{{ l|values:"nid" }}" method="post" onsubmit="return test(event, this)">{% csrf_token %}
-						<td align="center" onmouseout="UnTip()" onmouseover="Tip('{% for a in l|values:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, 'Estimations', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
+						<td align="center" onmouseout="UnTip()" onmouseover="Tip('{% for a in l|values:"poker" %}{{ a.utilisateur }} ( <strong>{{ a.effort }}</strong> )<br />{% endfor %}', TITLE, '{% trans "Estimations" %}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
 							<select name="avg" class="noborder" style="color:red">
 							{% for e in efforts %}
 								<option value="{{ e|values:0 }}" {% ifequal e|values:0 l|values:"avg" %}selected{% endifequal %}>{{ e|values:1 }}</option>
@@ -86,7 +86,7 @@
 						</td>
 						<td align="center">
 							<input type="hidden" name="id" value="{{ l|values:"nid" }}" />
-							<input type="submit" value="Valider" />
+							<input type="submit" value="{% trans "Valider" %}" />
 						</td>
 					</form>
 					{% else %}
@@ -101,7 +101,7 @@
 	<script language="javascript">
 		function test(event, form) {
 			return true;
-			if (window.confirm("Sauvegarder la charge moyenne et le temps estimé ?"))
+			if (window.confirm("{% trans "Sauvegarder la charge moyenne et le temps estimé ?" %}"))
 				return true;
 			else event.returnValue = false;
 			return false;

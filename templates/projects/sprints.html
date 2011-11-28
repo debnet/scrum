@@ -1,18 +1,18 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load i18n var2css var2txt %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <strong>Sprints</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <strong>{% trans "Sprints" %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -25,18 +25,18 @@
 			<tr>
 				<td>
 					<div onclick="document.location='new'" class="menu">
-						Nouveau sprint
+						{% trans "Nouveau sprint" %}
 					</div>
 				</td>
 			</tr>
 		</table>
 		<br />
-		Trier :&nbsp;
-		<a href="?sort=-date_debut">par date</a>
-		&nbsp;-&nbsp;Filtrer :&nbsp;
-		<a href="?todo&sort=-date_debut">&agrave; faire</a>
+		{% trans "Trier :" %}&nbsp;
+		<a href="?sort=-date_debut">{% trans "par date" %}</a>
+		&nbsp;-&nbsp;{% trans "Filtrer :" %}&nbsp;
+		<a href="?todo&sort=-date_debut">{% trans "à faire" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?done&sort=-date_debut">termin&eacute;s</a>
+		<a href="?done&sort=-date_debut">{% trans "terminés" %}</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in sprints %}
@@ -50,19 +50,19 @@
 						<div class="bloc description">{{ sprint.objectif|safe }}</div>
 						<div class="element gauche">{{ sprint.temps_realise }} / {{ sprint.temps_estime }}<!-- ({{ sprint.notes }}) --></div>
 						<div class="element droite">
-							<a class="image" href="?d={{ sprint.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" /></a>
-							<a class="image" href="?s={{ sprint.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" /></a>
-							<a class="image" href="?p={{ sprint.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" /></a>
+							<a class="image" href="?d={{ sprint.id }}"><img title="{% trans "Confiance développeur(s)" %}" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ sprint.id }}"><img title="{% trans "Confiance Scrum Master" %}" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ sprint.id }}"><img title="{% trans "Confiance Product Owner" %}" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" /></a>
 						</div>
 					</div>
 					{% if user.is_superuser %}
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action=".#{{ sprint.id }}" method="post" align="center">{% csrf_token %}
-							<label>Dates du sprint :</label><br />
+							<label>{% trans "Dates du sprint :" %}</label><br />
 							<input name="date_debut" type="text" size="10" value="{{ sprint.date_debut|date:"Y-m-d" }}" />
 							<input name="date_fin" type="text" size="10" value="{{ sprint.date_fin|date:"Y-m-d" }}" />
 							<input type="hidden" name="id" value="{{ sprint.id }}" />
-							<input type="submit" value="OK" />
+							<input type="submit" value="{% trans "OK" %}" />
 						</form>
 					</div>
 					{% endif %}

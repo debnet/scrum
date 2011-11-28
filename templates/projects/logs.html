@@ -1,13 +1,13 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load i18n var2css var2txt %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/history/"><strong>Historiques</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/history/"><strong>{% trans "Historiques" %}</strong></a>
 		&nbsp;|&nbsp; <strong>{% if title %}{{ title }}{% endif %}</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/archives/"><strong>Archives</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/archives/"><strong>{% trans "Archives" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -16,41 +16,47 @@
 {% block content %}
 	<div id="content-main" align="center">
 		<form id="logs" enctype="multipart/form-data" action=".#logs" method="post" align="center">{% csrf_token %}
-			<label>Logs de :</label>
+			<label>{% trans "Logs de :" %}</label>
 			<select name="luser">
-				<option value="0">( Tous )</option>
+				<option value="0">{% trans "( Tous )" %}</option>
 			{% for user in users %}
 				<option value="{{ user.id }}" {% ifequal luser user.id %}selected{% endifequal %}>{{ user }} ({{ user.lcount }})</option>
 			{% endfor %}
 			</select>
-			<input name="lselect" type="submit" value="Afficher" />
-			<input name="ldelete" type="submit" value="Supprimer" {% if not user.user.is_staff %}disabled{% endif %} />
+			<input name="lselect" type="submit" value="{% trans "Afficher" %}" />
+			<input name="ldelete" type="submit" value="{% trans "Supprimer" %}" {% if not user.user.is_staff %}disabled{% endif %} />
 		</form>
 		<br /><br />
 		<table>
 			<thead>
-				<th>ID</th>
-				<th>Objet</th>
-				<th>Type</th>
-				<th>Action</th>
-				<th>Utilisateur</th>
-				<th>Message</th>
-				<th>Date</th>
+				<th>{% trans "ID" %}</th>
+				<th>{% trans "Objet" %}</th>
+				<th>{% trans "Type" %}</th>
+				<th>{% trans "Action" %}</th>
+				<th>{% trans "Utilisateur" %}</th>
+				<th>{% trans "Message" %}</th>
+				<th>{% trans "Date" %}</th>
 				<th>&nbsp;</th>
 			</thead>
 			<tbody>
+			{% if not logs %}
+				<tr>
+					<td align="center" colspan="8">{% trans "Aucun élément à afficher" %}</td>
+				</tr>
+			{% else %}
 			{% for l in logs %}
 				<tr class="{% cycle 'row1' 'row2' %}">
 					<td>{{ l.object_id }}</a></td>
 					<td>{{ l.object_repr }}</td>
 					<td>{{ l.content_type }}</td>
-					<td>{% ifequal l.action_flag 1 %}Ajout{% else %}{% ifequal l.action_flag 2 %}Modification{% else %}Suppression{% endifequal %}{% endifequal %}</td>
+					<td>{% ifequal l.action_flag 1 %}{% trans "Ajout" %}{% else %}{% ifequal l.action_flag 2 %}{% trans "Modification" %}{% else %}{% trans "Suppression" %}{% endifequal %}{% endifequal %}</td>
 					<td>{{ l.user.first_name }} {{ l.user.last_name }} ({{ l.user.username }})</td>
 					<td>{{ l.change_message }}</td>
 					<td>{{ l.action_time|date:"l d F Y H:i:s" }}</td>
 					<td>[ <a href="{{ home }}admin/{{ l.content_type.app_label }}/{{ l.content_type.model }}/{{ l.object_id }}/">Modifier</a> ]</td>
 				</tr>
 			{% endfor %}
+			{% endif %}
 			</tbody>
 		</table>
 	</div>

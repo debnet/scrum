@@ -1,10 +1,10 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load i18n var2css var2txt %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -15,7 +15,7 @@
 			<table>
 			{{ form }}
 			</table>
-			<input type="submit" value="Enregistrer" {% if not user.user.is_staff %}disabled{% endif %} />
+			<input type="submit" value="{% trans "Enregistrer" %}" {% if not user.user.is_staff %}disabled{% endif %} />
 		</form>
 	</div>
 {% endblock %}

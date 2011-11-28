@@ -8,7 +8,7 @@ from xml.dom.minidom import parse
 
 import logging
 logging.basicConfig (
-    level = logging.DEBUG, 
+    level = logging.INFO, 
     format = '(%(asctime)s) [%(levelname)s] :\n%(message)s\n', 
 )
 
@@ -20,14 +20,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.models import LogEntry, ContentType
 from django.contrib.auth.models import User
 from django.template import RequestContext, Context, loader
+from django.utils.translation import ugettext as _
+
+try: # Asynchronous send_mail
+    from scrum.projects import send_mail
+except: # Build-in send_mail
+    from django.core.mail import send_mail 
 
 from scrum import settings
 from scrum.projects.models import UserProfile, Project, Feature, Note, Sprint, Task, Problem, Release, Meteo, Poker, Document, NoteTime, TaskTime, History
 from scrum.projects.models import ETATS, PRIORITES, TYPES, STATUTS, EFFORTS, CONFIANCE, METEO
 from scrum.projects.forms import UserForm, ProjectForm, FeatureForm, NoteForm, SprintForm, TaskForm, ProblemForm, DocumentForm
 
-ERREUR_TITRE = u"Accès refusé !"
-ERREUR_TEXTE = u"L'utilisateur n'est pas membre du projet ou ne dispose pas d'autorisations suffisantes pour visualiser cet élément."
+ERREUR_TITRE = _(u"Accès refusé !")
+ERREUR_TEXTE = _(u"L'utilisateur n'est pas membre du projet ou ne dispose pas d'autorisations suffisantes pour visualiser cet élément.")
 NOTES_PAR_LIGNE = 5
 
 ROOT = settings.DEFAULT_DIR
@@ -164,18 +170,19 @@ def write_logs():
             file.close()
         if not os.path.exists(path1):
             file = codecs.open(path1, mode='w', encoding='utf-8')
-            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de navigation (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de navigation (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ));
-            file.write(u'<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th>URL</th></tr></thead><tbody>')
+            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>%s (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>%s (%s)</h1><br />' % 
+                (_(u'Historiques de navigation'), current.strftime(_('%d/%m/%Y')), _(u'Historiques de navigation'), current.strftime(_('%d/%m/%Y')), ));
+            file.write(u'<table><thead><tr><th width="100">%s</th><th width="400">%s</th><th>%s</th></tr></thead><tbody>' % (_(u'Heure'), _(u'Utilisateur'), _(u'URL'), ))
         else:
             file = codecs.open(path1, mode='a', encoding='utf-8')
         file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td><a href="http://%s">%s</a></td></tr>' 
                    % (h.date_creation.strftime('%H:%m:%S'), h.utilisateur.user.first_name, h.utilisateur.user.last_name, h.utilisateur.user.username, settings.DEFAULT_URL + h.url, h.url, ))
         file.close()
         h.delete()
-        date = current
+        date = current 
     file = False
     date = datetime.date.today()
-    actions = ['', 'Ajout', 'Modification', 'Suppression']
+    actions = [u'', _(u'Ajout'), _(u'Modification'), _(u'Suppression')]
     logs = LogEntry.objects.filter(action_time__lt = datetime.date.today() - datetime.timedelta(7)).order_by('action_time')
     for l in logs:
         current = l.action_time.date()
@@ -187,7 +194,8 @@ def write_logs():
             file.close()
         if not os.path.exists(path1):
             file = codecs.open(path1, mode='w', encoding='utf-8')
-            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>Historiques de gestion (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>Historiques de gestion (%s)</h1><br />' % (current.strftime('%d/%m/%Y'), current.strftime('%d/%m/%Y'), ))
+            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>%s (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>%s (%s)</h1><br />' % 
+                (_(u'Historiques de gestion'), current.strftime(_('%d/%m/%Y')), _(u'Historiques de gestion'), current.strftime(_('%d/%m/%Y')), ))
             file.write(u'<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th><th width="500">Message</th></tr></thead><tbody>')
         else :
             file = codecs.open(path1, mode='a', encoding='utf-8')
@@ -350,7 +358,7 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
             t.etat = 'done'
             t.urgence = 'none'
 
-        value1 = '1' if t.etat == 'done' else str(float(t.temps_realise) / t.temps_estime) if t.temps_estime > 0 else '0'
+        value1 = 1 if t.etat == 'done' else 1.0 * t.temps_realise / t.temps_estime if t.temps_estime > 0 else 0
 
         holidays = get_holidays(t.date_debut.year, t.date_fin.year)
 
@@ -369,22 +377,18 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
             d += datetime.timedelta(1)
 
         value2 = ((datetime.date.today() - t.date_debut).days -nbd1 +1) / float((t.date_fin - t.date_debut).days -nbd2 +1)
-        if value2 > 1:
-            value2 = str(1)
-        else:
-            value2 = str(value2)
 
-        url  = "http://chart.apis.google.com/chart"
-        url += "?cht=bhg"
-        url += "&chs=200x100"
-        url += "&chds=0,1"
-        url += "&chl=0%|100%"
-        url += "&chdl=Réalisé|Théorique"
-        url += "&chdlp=b"
-        url += "&chm=N*p0*,000000,-1,-1,11"
-        url += "&chd=t:" + value1 + "," + value2
-        url += "&chco=4d89f9|c6d9fd"
-        url += "&chbh=20"
+        url  = u'http://chart.apis.google.com/chart'
+        url += u'?cht=bhg'
+        url += u'&chs=200x100'
+        url += u'&chds=0,1'
+        url += u'&chl=0%|100%'
+        url += u'&chdl=%s|%s' % (_(u'Réalisé'), _(u'Théorique'), )
+        url += u'&chdlp=b'
+        url += u'&chm=N*p0*,000000,-1,-1,11'
+        url += u'&chd=t:%f,%f' % (value1, value2, )
+        url += u'&chco=4d89f9|c6d9fd'
+        url += u'&chbh=20'
         t.url = url
 
         if i > nb_notes :
@@ -525,7 +529,7 @@ def projects(request):
     page = 'projects'
     
     user = request.user.get_profile()
-    title = u'Projets'
+    title = _(u'Projets')
     messages = list()
 
     if request.session.__contains__('messages'):
@@ -563,7 +567,7 @@ def project(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Projet - "' + unicode(project.titre) + '"'
+    title = _(u'Projet "%s"') % (project.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id
 
@@ -613,7 +617,7 @@ def features(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Fonctionnalités - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Fonctionnalités - Projet "%s"') % (project.titre, )
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -665,7 +669,7 @@ def features(request, project_id):
             feature.utilisateur = user
             feature.save()
             add_log(user, 'feature', feature, 2, ', '.join(changes))
-            messages.append(u'Fonctionnalité modifiée avec succès !')
+            messages.append(_(u'Fonctionnalité modifiée avec succès !'))
 
     sort = ['-priorite', 'termine']
     all = True
@@ -704,7 +708,7 @@ def feature(request, project_id, feature_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Fonctionnalité - "' + unicode(feature.titre) + '"'
+    title = _(u'Fonctionnalité "%s"') % (feature.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id
 
@@ -736,7 +740,7 @@ def notes(request, project_id, feature_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Notes de backlog - Fonctionnalité "' + unicode(feature.titre) + '"'
+    title = _(u'Notes de backlog - Fonctionnalité "%s"') % (feature.titre, )
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -785,7 +789,7 @@ def notes(request, project_id, feature_id):
                     note.sprint = None
                     times = NoteTime.objects.filter(note__id__exact = note.id)
                     times.delete()
-                    changes.append(u'sprint = <Aucun>')
+                    changes.append(u'sprint = %s' % (_(u'<Aucun>'), ))
                 else:
                     sprint = Sprint.objects.get(pk = int(request.POST['sprint']))
                     if not note.sprint == sprint:
@@ -802,7 +806,7 @@ def notes(request, project_id, feature_id):
             note.save()
             recalc_effort(project)
             add_log(user, 'note', note, 2, ', '.join(changes))
-            messages.append(u'Note de backlog modifiée avec succès !')
+            messages.append(_(u'Note de backlog modifiée avec succès !'))
 
     sort = ['-priorite', 'etat']
     all = True
@@ -850,7 +854,7 @@ def note(request, project_id, feature_id, note_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Note de backlog - "' + unicode(note.titre) + '"'
+    title = _(u'Note de backlog "%s"') % (note.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id
 
@@ -875,7 +879,7 @@ def sprints(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Sprints - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Sprints - Projet "%s"') % (project.titre, )
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -918,7 +922,7 @@ def sprints(request, project_id):
         date_debut = datetime.date(tmp[0], tmp[1], tmp[2])
         tmp = time.strptime(request.POST['date_fin'], '%Y-%m-%d')
         date_fin = datetime.date(tmp[0], tmp[1], tmp[2])
-        # ------------------------------------------------------------
+        
         holidays = get_holidays(date_debut.year, date_fin.year)
         d = date_debut
         while d <= date_fin:
@@ -942,7 +946,7 @@ def sprints(request, project_id):
                         time.temps = 0
                         time.save()
             d += datetime.timedelta(1)
-        # ------------------------------------------------------------
+        
         notes = NoteTime.objects.filter(sprint__id__exact = id, jour__lt = date_debut)
         for note in notes:
             note.delete()
@@ -955,11 +959,11 @@ def sprints(request, project_id):
         tasks = TaskTime.objects.filter(sprint__id__exact = id, jour__gt = date_fin)
         for task in tasks:
             task.delete()
-        # ------------------------------------------------------------
+        
         sprint.date_debut = date_debut
         sprint.date_fin = date_fin
         sprint.save()
-        messages.append(u'Sprint modifié avec succès !')
+        messages.append(_(u'Sprint modifié avec succès !'))
         add_log(user, 'sprint', sprint, 2, u'date début = %s, date fin = %s' % (date_debut, date_fin))
 
     sort = ['-date_debut']
@@ -999,7 +1003,7 @@ def sprint(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Sprint - "' + unicode(sprint.titre) + '"'
+    title = _(u'Sprint "%s"') % (sprint.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id
 
@@ -1034,7 +1038,7 @@ def snotes(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Notes de sprint - Sprint "' + unicode(sprint.titre) + '"'
+    title = _(u'Notes de sprint - Sprint "%s"') % (sprint.titre, )
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1097,7 +1101,7 @@ def snotes(request, project_id, sprint_id):
                         release.note = note
                         release.utilisateur = user
                         release.statut = '1'
-                        release.commentaire = u'( Livraison automatique )'
+                        release.commentaire = _(u'( Livraison automatique )')
                         release.save()
                 else:
                     nts = NoteTime.objects.select_related().filter(note__in = (note, ))
@@ -1112,14 +1116,14 @@ def snotes(request, project_id, sprint_id):
                             release.note = note
                             release.utilisateur = user
                             release.statut = '2'
-                            release.commentaire = u'( Refus automatique )'
+                            release.commentaire = _(u'( Refus automatique )')
                             release.save()
                 changes.append(u'état = ' + ETATS[int(note.etat)][1])
             note.utilisateur = user
             note.save()
             recalc_effort(project)
             add_log(user, 'note', note, 2, ', '.join(changes))
-            messages.append(u'Note de sprint modifiée avec succès !')
+            messages.append(_(u'Note de sprint modifiée avec succès !'))
 
     sort = ['-priorite', 'etat']
     all = True
@@ -1166,7 +1170,7 @@ def snote(request, project_id, sprint_id, note_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Note de sprint - "' + unicode(note.titre) + '"'
+    title = _(u'Note de sprint "%s"') % (note.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes/' + note_id
 
@@ -1192,7 +1196,7 @@ def tasks(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Tâches - Sprint "' + unicode(sprint.titre) + '"'
+    title = _(u'Tâches - Sprint "%s"') % (sprint.titre, )
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1255,7 +1259,7 @@ def tasks(request, project_id, sprint_id):
             task.utilisateur = user
             task.save()
             add_log(user, 'task', task, 2, ', '.join(changes))
-            messages.append(u'Tâche modifiée avec succès !')
+            messages.append(_(u'Tâche modifiée avec succès !'))
 
     sort = ['-priorite', 'etat']
     all = True
@@ -1300,7 +1304,7 @@ def task(request, project_id, sprint_id, task_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Tâche - Sprint "' + unicode(task.titre) + '"'
+    title = _(u'Tâche - Sprint "%s"') % (task.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/' + task_id
 
@@ -1326,7 +1330,7 @@ def releases(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Livraisons - Sprint "' + unicode(sprint.titre) + '"'
+    title = _(u'Livraisons - Sprint "%s"') % (sprint.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
 
@@ -1336,7 +1340,7 @@ def releases(request, project_id, sprint_id):
     if request.GET.__contains__('id'):
         note = int(request.GET['id'])
         details = Release.objects.filter(note__id__exact = note)
-        details = details.order_by('date_creation')
+        details = details.order_by('-date_creation')
     if request.GET.__contains__('statut'):
         statut = request.GET['statut']    
     
@@ -1348,13 +1352,15 @@ def releases(request, project_id, sprint_id):
             nts = NoteTime.objects.select_related().filter(note__in = (note, ))
             nts = nts.order_by('-jour')
             
+            old = Release.objects.select_related().filter(note__id__exact = id).order_by('-date_creation')
+            old = old[0] if old.count() > 0 else None            
+            
             release = Release()
             release.note = note
             release.utilisateur = user
             release.commentaire = request.POST['commentaire']
             
             if request.POST.__contains__('livrer'):
-            #if request.POST['fonction'] == 'livrer':
                 for nt in nts:
                     if nt.temps > 0:
                         fin = nt.note.temps_estime - nt.note.temps_realise
@@ -1362,31 +1368,39 @@ def releases(request, project_id, sprint_id):
                         nt.save()
                         break
                 release.statut = 1
-                #statut = release.statut
                 release.save()
                 note.etat = '3'
                 note.save()
                 changes.append(u'statut = ' + STATUTS[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison effectuée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
-                    % (release.statut, release.id))
+                messages.append(u'%s ( <a href=".?statut=%d#%d">%s</a> )' 
+                    % (_(u'Livraison effectuée avec succès !'), release.statut, release.id, _(u'voir l\'élément'), ))
             elif request.POST.__contains__('refuser'):
-            #elif request.POST['fonction'] == 'refuser':
+                if old and settings.EMAIL_ENABLED:
+                    send_mail(_(u'%(head)sLivraison de "%(note)s" REFUSÉE par %(user)s') % (settings.EMAIL_SUBJECT_PREFIX, note.titre, user, ),
+                        _(u'La livraison de "%(note)s" (%(feature)s) a été REFUSÉE par %(user)s. Raison du refus : "%(desc)s"') % 
+                        (note.titre, note.feature.titre, user, release.commentaire if release.commentaire else _(u'Aucun commentaire'), ),
+                        None, [ old.utilisateur.user.email ])
+                
                 for nt in nts:
                     if nt.temps_fin != 0:
                         nt.temps_fin = 0
                         nt.save()
                 release.statut = 2
-                #statut = release.statut
                 release.save()
                 note.etat = '2'
                 note.save()
                 changes.append(u'statut = ' + STATUTS[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison refusée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )' 
-                    % (release.statut, release.id))
+                messages.append(u'%s ( <a href=".?statut=%d#%d">%s</a> )' % 
+                    (_(u'Livraison refusée avec succès !'), release.statut, release.id, _(u'voir l\'élément'), ))
             elif request.POST.__contains__('valider'):
-            #elif request.POST['fonction'] == 'valider':
+                if old and settings.EMAIL_ENABLED:
+                    send_mail(_(u'%(head)sLivraison de "%(note)s" VALIDÉE par %(user)s') % (settings.EMAIL_SUBJECT_PREFIX, note.titre, user, ),
+                        _(u'La livraison de "%(note)s" (%(feature)s) a été VALIDÉE par %(user)s. Commentaire de validation : "%(desc)s"') % 
+                        (note.titre, note.feature.titre, user, release.commentaire if release.commentaire else _(u'Aucun commentaire'), ),
+                        None, [ old.utilisateur.user.email ])           
+                
                 for nt in nts:
                     if nt.temps_fin != 0:
                         nt.temps_fin = 0
@@ -1398,14 +1412,12 @@ def releases(request, project_id, sprint_id):
                         nt.save()
                         break
                 release.statut = 3
-                #statut = release.statut
                 release.save()
                 changes.append(u'statut = ' + STATUTS[release.statut][1])
                 add_log(user, 'release', release, 2, ', '.join(changes))
-                messages.append(u'Livraison validée avec succès ! ( <a href=".?statut=%d#%d">voir l\'élément</a> )'
-                    % (release.statut, release.id))
+                messages.append(u'%s ( <a href=".?statut=%d#%d">%s</a> )' % 
+                    (_(u'Livraison validée avec succès !'), release.statut, release.id, _(u'voir l\'élément'), ))
             elif request.POST.__contains__('terminer'):
-            #if request.POST['fonction'] == 'terminer':
                 for nt in nts:
                     if nt.temps > 0:
                         fin = nt.note.temps_estime - nt.note.temps_realise
@@ -1416,7 +1428,7 @@ def releases(request, project_id, sprint_id):
                 note.save()
                 changes.append(u'etat = ' + ETATS[int(note.etat)][1])
                 add_log(user, 'note', note, 2, ', '.join(changes))
-                messages.append(u'Note de backlog terminée avec succès !')
+                messages.append(_(u'Note de backlog terminée avec succès !'))
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -1443,7 +1455,7 @@ def release(request, project_id, sprint_id, release_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Livraison - "' + unicode(release.note.titre) + '"'
+    title = _(u'Livraison - "%s"') % (release.note.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases/' + release_id
 
@@ -1468,7 +1480,7 @@ def problems(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Problèmes - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Problèmes - Projet "%s"') % (project.titre, )
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1520,7 +1532,7 @@ def problems(request, project_id):
             problem.utilisateur = user
             problem.save()
             add_log(user, 'problem', problem, 2, ', '.join(changes))
-            messages.append(u'Problème modifié avec succès !')
+            messages.append(_(u'Problème modifié avec succès !'))
 
     sort = ['-priorite', 'resolu']
     all = True
@@ -1559,7 +1571,7 @@ def problem(request, project_id, problem_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Problème - "' + unicode(problem.titre) + '"'
+    title = _(u'Problème "%s"') % (problem.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/problems/' + problem_id
 
@@ -1585,9 +1597,9 @@ def burndown(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    lock = sprint.date_modification.strftime('%d/%m/%Y %H:%M:%S')
+    lock = sprint.date_modification.strftime(_('%d/%m/%Y %H:%M:%S'))
     
-    title = u'Burndown Chart - Sprint "' + unicode(sprint.titre) + '"'
+    title = _(u'Burndown Chart - Sprint "%s"') % (sprint.titre, )
     messages = list()
     erreurs = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/burndown'
@@ -1684,11 +1696,11 @@ def burndown(request, project_id, sprint_id):
                     add_log(user, 'task', task, 2, ', '.join(changes))
                 now = datetime.datetime.now()
                 sprint.date_modification = now
-                lock = now.strftime('%d/%m/%Y %H:%M:%S')
+                lock = now.strftime(_('%d/%m/%Y %H:%M:%S'))
                 sprint.save()
-            messages.append(u'Saisie de temps enregistrée avec succès !')
+            messages.append(_(u'Saisie de temps enregistrée avec succès !'))
         else:
-            erreurs.append(u'Saisie annulée : les données ont été modifiées avant l\'enregistrement !')
+            erreurs.append(_(u'Saisie annulée : les données ont été modifiées avant l\'enregistrement !'))
     
     holidays = get_holidays(datetime.date.today().year, datetime.date.today().year + 1)
 
@@ -1776,25 +1788,25 @@ def burndown(request, project_id, sprint_id):
     days = list(set(days))
     days.sort()
     
-    headers = [ '', 'Fonctionnalité', 'Titre', 'Priorité', 'Type', 'État', ]
+    headers = [ u'', _(u'Fonctionnalité'), _(u'Titre'), _(u'Priorité'), _(u'Type'), _(u'État'), ]
     
-    min = 0
+    mini = 0
     data1 = list()
     tmp = total
     data1.append(tmp)
     for day in days:
-        headers.append(day.strftime('%d/%m'))
+        headers.append(day.strftime(_('%d/%m')))
         nts = NoteTime.objects.filter(sprint__id__exact = sprint.id, jour__exact = day)
         tts = TaskTime.objects.filter(sprint__id__exact = sprint.id, jour__exact = day)
         for t in nts:
             tmp -= (t.temps + t.temps_fin)
         for t in tts:
             tmp -= (t.temps + t.temps_fin)
-        if tmp < 0 and tmp < min:
-            min = tmp
+        if tmp < 0 and tmp < mini:
+            mini = tmp
         data1.append(tmp)
     
-    headers.extend([ 'Temps réalisé', 'Temps estimé', ]) 
+    headers.extend([ _(u'Temps réalisé'), _(u'Temps estimé'), ]) 
 
     data2 = list()
     tmp = total
@@ -1805,23 +1817,23 @@ def burndown(request, project_id, sprint_id):
             tmp = 0
         data2.append(tmp)
 
-    url  = 'http://chart.apis.google.com/chart'
-    url += '?chs=800x350'
-    url += '&cht=lxy'
-    url += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
-    url += '&chdl=Temps restant|Temps estimé'
-    url += '&chdlp=b'
-    url += '&chxt=x,y'
-    url += '&chxl=0:||' + '|'.join('%s' % (d.strftime('%d/%m')) for d in days)
-    url += '&chxr=1,' + str(min) + ',' + str(total)
-    url += '&chds=0,0,' + str(min) + ',' + str(total)
-    url += '&chco=0000ff,ff0000,00aaaa'
-    url += '&chls=2,4,2|2,0,0|2,0,0'
-    url += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|s,00aa00,2,-1,5'
-    url += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-    url += '&chd=t:-1|' + ','.join('%s' % (x) for x in data1)
-    url += '|-1|' + ','.join('%s' % (y) for y in data2)
-
+    url  = u'http://chart.apis.google.com/chart'
+    url += u'?chs=800x350'
+    url += u'&cht=lxy'
+    url += u'&chg=%f,0' % (100.0 / len(days) if len(days) > 0 else 100, )
+    url += u'&chdl=%s|%s' % (_(u'Temps restant'), _(u'Temps estimé'), )
+    url += u'&chdlp=b'
+    url += u'&chxt=x,y'
+    url += u'&chxl=0:||%s' % ('|'.join('%s' % (d.strftime(_('%d/%m'))) for d in days), )
+    url += u'&chxr=1,%f,%f' % (mini, total, )
+    url += u'&chds=0,0,%f,%f' % (mini, total, )
+    url += u'&chco=0000ff,ff0000,00aaaa'
+    url += u'&chls=2,4,2|2,0,0|2,0,0'
+    url += u'&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|s,00aa00,2,-1,5'
+    url += u'&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url += u'&chd=t:-1|%s' % (','.join('%f' % (x) for x in data1), )
+    url += u'|-1|%s' % (','.join('%f' % (y) for y in data2), )
+    
     if not csv:
         return render_to_response('projects/burndown.html',
             {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -1850,7 +1862,7 @@ def velocity(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Velocité - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Velocité - Projet "%s"') % (project.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/velocity'
 
@@ -1863,7 +1875,7 @@ def velocity(request, project_id):
     labels = list()
     for sprint in sprints:
         i += 1
-        labels.append("Sprint %d" % (i))
+        labels.append(_(u'Sprint %d') % (i))
 
     data = [list(), list(), list(), list()]
     for i in range(4):
@@ -1884,20 +1896,20 @@ def velocity(request, project_id):
         if n > max1:
             max1 = n
 
-    url1  = 'http://chart.apis.google.com/chart'
-    url1 += '?chs=800x350'
-    url1 += '&cht=bvs'
-    url1 += '&chbh=a'
-    url1 += '&chdl=User-story|Feature|Bug|Spike'
-    url1 += '&chdlp=t|l'
-    url1 += '&chxt=x,y'
-    url1 += '&chxl=0:|' + '|'.join(labels)
-    url1 += '&chxr=1,0,' + str(max1)
-    url1 += '&chds=0,' + str(max1)
-    url1 += '&chco=ccffcc,ffffcc,ffcc99,cecaff'
-    url1 += '&chm=N,ff0000,-1,,12,,e::11|N,000000,0,,11,,c|N,000000,1,,11,,c|N,000000,2,,10,,c|N,000000,3,,11,,c'
-    url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-    url1 += '&chd=t:' + '|'.join('%s' % (','.join('%s' % (v) for v in values)) for values in data)
+    url1  = u'http://chart.apis.google.com/chart'
+    url1 += u'?chs=800x350'
+    url1 += u'&cht=bvs'
+    url1 += u'&chbh=a'
+    url1 += u'&chdl=%s|%s|%s|%s' % (_(u'User-story'), _(u'Feature'), _(u'Bug'), _(u'Spike'), )
+    url1 += u'&chdlp=t|l'
+    url1 += u'&chxt=x,y'
+    url1 += u'&chxl=0:|%s' % ('|'.join(labels), )
+    url1 += u'&chxr=1,0,%f' % (max1, )
+    url1 += u'&chds=0,%f' % (max1, )
+    url1 += u'&chco=ccffcc,ffffcc,ffcc99,cecaff'
+    url1 += u'&chm=N,ff0000,-1,,12,,e::11|N,000000,0,,11,,c|N,000000,1,,11,,c|N,000000,2,,10,,c|N,000000,3,,11,,c'
+    url1 += u'&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url1 += u'&chd=t:%s' % ('|'.join('%s' % (','.join('%f' % (v) for v in values)) for values in data), )
 
     i = 0
     first = True
@@ -1908,7 +1920,7 @@ def velocity(request, project_id):
     labels = list()
     for sprint in sprints:
         i += 1
-        labels.append("Sprint %d" % (i))
+        labels.append(_(u'Sprint %d') % (i))
         notes = Note.objects.filter(sprint__id__exact = sprint.id, etat__exact = '4')
         n = 0
         for note in notes:
@@ -1931,7 +1943,7 @@ def velocity(request, project_id):
         while tmp < max2 and avg != 0:
             tmp += avg
             avgs.append(tmp)
-            labels.append("Sprint %d" % (len(labels) + 1))
+            labels.append(_(u'Sprint %d') % (len(labels) + 1))
             charge1.append(cumul)
             charge2.append(sprint.effort)
             l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0, max(avgs) if len(avgs) > 0 else 0]
@@ -1939,48 +1951,22 @@ def velocity(request, project_id):
         l = [max(charge1) if len(charge1) > 0 else 0, max(charge2) if len(charge2) > 0 else 0]
     max2 = max(l) if l else sprint.effort
 
-    url2  = 'http://chart.apis.google.com/chart'
-    url2 += '?chs=800x350'
-    url2 += '&cht=lxy'
-    url2 += '&chg=' + str(100.0 / len(charge1) if len(charge1) > 0 else 0) + ',0'
-    url2 += '&chdl=Charge réalisée puis estimée|Charge totale'
-    url2 += '&chdlp=t|l'
-    url2 += '&chxt=x,y'
-    url2 += '&chxl=0:||' + '|'.join(labels)
-    url2 += '&chxr=1,0,' + str(max2)
-    url2 += '&chds=0,' + str(max2)
-    url2 += '&chco=0000ff,ff0000'
-    url2 += '&chls=2,4,2|2,0,0'
-    url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
-    url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-    url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in avgs)
-    url2 += '|-1|' + ','.join('%s' % (y) for y in charge2)
-    
-    """
-    i = 0
-    max3 = 0
-    labels = list()
-    data = list()
-    for sprint in sprints:
-        i += 1
-        labels.append("Sprint %d" % (i))
-    
-    url3  = 'http://chart.apis.google.com/chart'
-    url3 += '?chs=800x350'
-    url3 += '&cht=lxy'
-    url3 += '&chg=' + str(100.0 / len(labels) if len(labels) > 0 else 0) + ',0'
-    url3 += '&chdl=A spécifier|A faire|En cours|Livré|Terminé'
-    url3 += '&chdlp=t|l'
-    url3 += '&chxt=x,y'
-    url3 += '&chxl=0:||' + '|'.join(labels)
-    url3 += '&chxr=1,0,' + str(max3)
-    url3 += '&chds=0,' + str(max3)
-    url3 += '&chco=ccffff,ffcc99,ffffcc,ccffcc,eeeeee'
-    url3 += '&chls=1,1,1,1,1'
-    url3 += '&chm=B,ccffff,0,0,0|b,ffcc99,0,1,0|b,ffffcc,1,2,0|b,ccffcc,2,3,0|b,eeeeee,3,4,0'
-    url3 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-    url3 += '&chd=t:'
-    """
+    url2  = u'http://chart.apis.google.com/chart'
+    url2 += u'?chs=800x350'
+    url2 += u'&cht=lxy'
+    url2 += u'&chg=%f,0' % (100.0 / len(charge1) if len(charge1) > 0 else 0, )
+    url2 += u'&chdl=%s|%s' % (_(u'Charge réalisée puis estimée'), _(u'Charge totale'), )
+    url2 += u'&chdlp=t|l'
+    url2 += u'&chxt=x,y'
+    url2 += u'&chxl=0:||%s' % ('|'.join(labels), )
+    url2 += u'&chxr=1,0,%f' % (max2, )
+    url2 += u'&chds=0,%f' % (max2, )
+    url2 += u'&chco=0000ff,ff0000'
+    url2 += u'&chls=2,4,2|2,0,0'
+    url2 += u'&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
+    url2 += u'&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url2 += u'&chd=t:-1|0,%s' % (','.join('%f' % (x) for x in avgs), )
+    url2 += u'|-1|%s' % (','.join('%f' % (y) for y in charge2), )
 
     return render_to_response('projects/velocity.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2000,15 +1986,15 @@ def pareto(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Pareto - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Pareto - Projet "%s"') % (project.titre, )
     request.session['url'] = HOME + 'projects/' + project_id + '/poker'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
     
-    data = dict() # Données
-    rows = dict() # Total en bout de ligne
-    taux = dict() # Taux de réalisation et cumul
+    data = dict()
+    rows = dict()
+    taux = dict()
     features = Feature.objects.filter(projet__id__exact = project_id)
     for feature in features:
         data[feature.titre] = list()
@@ -2016,13 +2002,13 @@ def pareto(request, project_id):
         taux[feature.titre] = [0, 0]
     
     i = 0
-    cols = list() # Total en bout de colonne
-    labels = list() # Labels des sprints
+    cols = list()
+    labels = list()
     sprints = Sprint.objects.filter(projet__id__exact = project_id)
     for sprint in sprints:
         cols.append(0)
         i += 1
-        labels.append("Sprint %d" % (i))
+        labels.append(_(u'Sprint %d') % (i))
         for feature in features:
             data[feature.titre].append(0)
         notes = Note.objects.select_related().filter(sprint__id__exact = sprint.id)
@@ -2063,23 +2049,21 @@ def pareto(request, project_id):
     chart2 = [round(t[1]) for t in taux.values()]
     chart2.sort()
     
-    maxi = str(max(chart1)) if len(chart1) > 0 else '0'
-    url  = 'http://chart.apis.google.com/chart'
-    url += '?chs=800x350'
-    url += '&cht=bvg'
-    url += '&chg=0,10'
-    url += '&chbh=a'
-    #url += '&chdl=Temps passé|Taux cumulés'
-    #url += '&chdlp=t'
-    url += '&chxt=x,y,r'
-    url += '&chxl=0:|' + '|'.join('%s' % (n) for n in nbs)
-    url += '&chxr=1,0,' + maxi + '|2,0,100'
-    url += '&chds=0,' + maxi + ',0,100'
-    url += '&chco=' + '|'.join('%s' % (colors[k]) for (k, v) in data) + ',ff0000'
-    url += '&chm=N,000000,0,,11,,t:0:15|D,ff0000,1,0,2|N** %,ff0000,1,,9,,t:0:-15'
-    url += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-    url += '&chd=t1:' + ','.join('%s' % (x) for x in chart1)
-    url += '|' + ','.join('%s' % (y) for y in chart2)
+    maxi = max(chart1) if len(chart1) > 0 else 0
+    url  = u'http://chart.apis.google.com/chart'
+    url += u'?chs=800x350'
+    url += u'&cht=bvg'
+    url += u'&chg=0,10'
+    url += u'&chbh=a'
+    url += u'&chxt=x,y,r'
+    url += u'&chxl=0:|%s' % ('|'.join('%d' % (n) for n in nbs), )
+    url += u'&chxr=1,0,%f|2,0,100' % (maxi, )
+    url += u'&chds=0,%f,0,100' % (maxi, )
+    url += u'&chco=%s,ff0000' % ('|'.join('%s' % (colors[k]) for (k, v) in data), )
+    url += u'&chm=N,000000,0,,11,,t:0:15|D,ff0000,1,0,2|N** %,ff0000,1,,9,,t:0:-15'
+    url += u'&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url += u'&chd=t1:%s' % (','.join('%f' % (x) for x in chart1), )
+    url += u'|%s' % (','.join('%f' % (y) for y in chart2), )
     
     return render_to_response('projects/pareto.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'project': project, 'nb_notes': nb_notes, 'url': url, 
@@ -2099,7 +2083,7 @@ def summary(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Synthèse - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Synthèse - Projet "%s"') % (project.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/summary'
 
@@ -2125,7 +2109,7 @@ def summary(request, project_id):
             times_todo = list()
             times_done = list()
             for time in done:
-                time['day'] = time['jour'].strftime('%d/%m')
+                time['day'] = time['jour'].strftime(_('%d/%m'))
                 time_done = time['done'] + time['more']
                 item['total_done'] += time_done
                 time['todo'] = times_todo[-1] - time_done if len(times_todo) > 0 else item['total_todo'] - time_done if item['total_todo'] > 0 else 0
@@ -2156,22 +2140,22 @@ def summary(request, project_id):
             l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0]
             max1 = max(l)
             
-            url1  = 'http://chart.apis.google.com/chart'
-            url1 += '?chs=800x350'
-            url1 += '&cht=lxy'
-            url1 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
-            url1 += '&chdl=Temps réalisé|Temps moyen estimé'
-            url1 += '&chdlp=t'
-            url1 += '&chxt=x,y'
-            url1 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
-            url1 += '&chxr=1,0,' + str(max1)
-            url1 += '&chds=0,' + str(max1)
-            url1 += '&chco=0000ff,ff0000'
-            url1 += '&chls=2,4,2|2,0,0|2,0,0'
-            url1 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
-            url1 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-            url1 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
-            url1 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
+            url1  = u'http://chart.apis.google.com/chart'
+            url1 += u'?chs=800x350'
+            url1 += u'&cht=lxy'
+            url1 += u'&chg=%f,0' % (100.0 / len(days) if len(days) > 0 else 100, )
+            url1 += u'&chdl=%s|%s' % (_(u'Temps réalisé'), _(u'Temps moyen estimé'), )
+            url1 += u'&chdlp=t'
+            url1 += u'&chxt=x,y'
+            url1 += u'&chxl=0:||%s' % ('|'.join('%s' % (str(day)) for day in days), )
+            url1 += u'&chxr=1,0,%f' % (max1, )
+            url1 += u'&chds=0,%f' % (max1, )
+            url1 += u'&chco=0000ff,ff0000'
+            url1 += u'&chls=2,4,2|2,0,0|2,0,0'
+            url1 += u'&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
+            url1 += u'&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+            url1 += u'&chd=t:-1|0,%s' % (','.join('%f' % (x) for x in chart1), )
+            url1 += u'|-1|0,%s' % (','.join('%f' % (y) for y in chart2), )
             item['url1'] = url1
             
             days = list()
@@ -2191,23 +2175,23 @@ def summary(request, project_id):
             l = [max(chart1) if len(chart1) > 0 else 0, max(chart2) if len(chart2) > 0 else 0, item['total_todo']]
             max2 = max(l)
             
-            url2  = 'http://chart.apis.google.com/chart'
-            url2 += '?chs=800x350'
-            url2 += '&cht=lxy'
-            url2 += '&chg=' + str(100.0 / len(days) if len(days) > 0 else 100) + ',0'
-            url2 += '&chdl=Progression réelle|Progression estimée'
-            url2 += '&chdlp=t'
-            url2 += '&chxt=x,y'
-            url2 += '&chxl=0:||' + '|'.join('%s' % (str(day)) for day in days)
-            url2 += '&chxr=1,0,' + str(max2)
-            url2 += '&chds=0,' + str(max2)
-            url2 += '&chco=0000ff,ff0000,000000'
-            url2 += '&chls=2,4,2|2,0,0|2,0,0'
-            url2 += '&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
-            url2 += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-            url2 += '&chd=t:-1|0,' + ','.join('%s' % (x) for x in chart1)
-            url2 += '|-1|0,' + ','.join('%s' % (y) for y in chart2)
-            url2 += '|-1|' + ','.join('%s' % (z) for z in chart3)
+            url2  = u'http://chart.apis.google.com/chart'
+            url2 += u'?chs=800x350'
+            url2 += u'&cht=lxy'
+            url2 += u'&chg=%f,0' % (100.0 / len(days) if len(days) > 0 else 100, )
+            url2 += u'&chdl=%s|%s' % (_(u'Progression réelle'), _(u'Progression estimée'), )
+            url2 += u'&chdlp=t'
+            url2 += u'&chxt=x,y'
+            url2 += u'&chxl=0:||%s' % ('|'.join('%s' % (str(day)) for day in days), )
+            url2 += u'&chxr=1,0,%f' % (max2, )
+            url2 += u'&chds=0,%f' % (max2, )
+            url2 += u'&chco=0000ff,ff0000,000000'
+            url2 += u'&chls=2,4,2|2,0,0|2,0,0'
+            url2 += u'&chm=s,ff0000,0,-1,5|N*f0*,000000,0,-1,11|s,0000ff,1,-1,5|N*f0*,ff0000,1,-1,11'
+            url2 += u'&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+            url2 += u'&chd=t:-1|0,%s' % (','.join('%f' % (x) for x in chart1), )
+            url2 += u'|-1|0,%s' % (','.join('%f' % (y) for y in chart2), )
+            url2 += u'|-1|%s' % (','.join('%f' % (z) for z in chart3), )
             item['url2'] = url2
             
             items.append(item)
@@ -2231,7 +2215,7 @@ def meteo(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Météo - Sprint "' + unicode(sprint.titre) + '"'
+    title = _(u'Météo - Sprint "%s"') % (sprint.titre, )
     messages = list()
     erreurs = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/meteo'
@@ -2253,9 +2237,9 @@ def meteo(request, project_id, sprint_id):
             meteo.commentaire = request.POST['commentaire']
             meteo.save()
             add_log(user, 'meteo', meteo, 1)
-            messages.append(u'Météorologie enregistrée avec succès pour la journée du %s !' % (request.POST['date']))
+            messages.append(_(u'Météorologie enregistrée avec succès pour la journée du %s !') % (request.POST['date']))
         else:
-            erreurs.append(u'Vous avez déjà enregistré une météorologie pour la journée du %s !' % (request.POST['date']))
+            erreurs.append(_(u'Vous avez déjà enregistré une météorologie pour la journée du %s !') % (request.POST['date']))
     
     labels = list()
     data = [list(), list(), list()]
@@ -2276,12 +2260,12 @@ def meteo(request, project_id, sprint_id):
                 a.short = a.commentaire[:50]
             row = (row + 1) % 2
             jour['row'] = row + 1
-            jour['date'] = d.strftime('%d/%m/%Y')
+            jour['date'] = d.strftime(_('%d/%m/%Y'))
             jour['perso'] = perso
             jour['autre'] = autre
             jour['nb'] = autre.count() + 1
             jours.append(jour)
-            labels.append(d.strftime('%d/%m'))
+            labels.append(d.strftime(_('%d/%m')))
             mp = 0
             me = 0
             ma = 0
@@ -2307,20 +2291,20 @@ def meteo(request, project_id, sprint_id):
             maxi = tmp
         tmp = 0
     
-    url  = 'http://chart.apis.google.com/chart'
-    url += '?chs=800x350'
-    url += '&cht=bvs'
-    url += '&chbh=a'
-    url += '&chdl=Projet|Equipe|Avancement'
-    url += '&chdlp=t'
-    url += '&chxt=x,y'
-    url += '&chxl=0:|' + '|'.join(labels)
-    url += '&chxr=1,0,' + str(maxi)
-    url += '&chds=0,' + str(maxi)
-    url += '&chco=ccffcc,ffffcc,ffcc99'
-    url += '&chm=N,000000,0,,11,,c|N,000000,1,,11,,c|N,000000,2,,10,,c'
-    url += '&chf=c,lg,45,ffffff,0,76a4fb,0.75'
-    url += '&chd=t:' + '|'.join('%s' % (','.join('%s' % (v) for v in values)) for values in data)
+    url  = u'http://chart.apis.google.com/chart'
+    url += u'?chs=800x350'
+    url += u'&cht=bvs'
+    url += u'&chbh=a'
+    url += u'&chdl=%s|%s|%s' % (_(u'Projet'), _(u'Equipe'), _(u'Avancement'), )
+    url += u'&chdlp=t'
+    url += u'&chxt=x,y'
+    url += u'&chxl=0:|%s' % ('|'.join(labels), )
+    url += u'&chxr=1,0,%f' % (maxi, )
+    url += u'&chds=0,%f' % (maxi, )
+    url += u'&chco=ccffcc,ffffcc,ffcc99'
+    url += u'&chm=N,000000,0,,11,,c|N,000000,1,,11,,c|N,000000,2,,10,,c'
+    url += u'&chf=c,lg,45,ffffff,0,76a4fb,0.75'
+    url += u'&chd=t:%s' % ('|'.join('%s' % (','.join('%f' % (v) for v in values)) for values in data), )
     
     return render_to_response('projects/meteo.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'erreurs': erreurs,  
@@ -2340,7 +2324,7 @@ def documents(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Documents'
+    title = _(u'Documents')
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/documents'
 
@@ -2352,7 +2336,7 @@ def documents(request, project_id):
         if form.is_valid():
             d = form.save()
             add_log(user, 'document', d, 1)
-            messages.append(u'Document ajouté avec succès !')
+            messages.append(_(u'Document ajouté avec succès !'))
     else:
         form = DocumentForm(initial = {'utilisateur': user.id, 'projet': project.id, })
 
@@ -2388,7 +2372,7 @@ def scrumwall(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Scrum Wall - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Scrum Wall - Projet "%s"') % (project.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/scrumwall'
 
@@ -2409,37 +2393,37 @@ def scrumwall(request, project_id):
         items['id'] = f.id
         items['name'] = f.titre
         items['item'] = f
-        # Backlog
+        
         spec = Note.objects.filter(feature__id__exact = f.id, etat__exact = '0')
         if sprint != 0:
             spec = spec.filter(sprint__id__exact = sprint)
         spec = spec.order_by('-priorite')
         items['spec'] = spec
-        # À faire
+        
         todo = Note.objects.filter(feature__id__exact = f.id, etat__exact = '1')
         if sprint != 0:
             todo = todo.filter(sprint__id__exact = sprint)
         todo = todo.order_by('-priorite')
         items['todo'] = todo
-        # En cours
+        
         run  = Note.objects.filter(feature__id__exact = f.id, etat__exact = '2')
         if sprint != 0:
             run = run.filter(sprint__id__exact = sprint)
         run  = run.order_by('-priorite')
         items['run'] = run
-        # Livré
+        
         gone = Note.objects.filter(feature__id__exact = f.id, etat__exact = '3')
         if sprint != 0:
             gone = gone.filter(sprint__id__exact = sprint)
         gone = gone.order_by('-priorite')
         items['gone'] = gone
-        # Terminé
+        
         done = Note.objects.filter(feature__id__exact = f.id, etat__exact = '4')
         if sprint != 0:
             done = done.filter(sprint__id__exact = sprint)
         done = done.order_by('-priorite')
         items['done'] = done
-        # ---
+        
         if spec.count() > 0:
             backlog = True
         if spec.count() + todo.count() + run.count() + gone.count() + done.count() > 0:
@@ -2465,7 +2449,7 @@ def poker(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Planning Poker - Projet "' + unicode(project.titre) + '"'
+    title = _(u'Planning Poker - Projet "%s"') % (project.titre, )
     messages = list()
     erreurs = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/poker'
@@ -2484,7 +2468,6 @@ def poker(request, project_id):
                 poker.effort = effort
                 poker.utilisateur = user
                 poker.save()
-                #add_log(user, 'poker', poker, 1)
             else:
                 poker = poker[0]
                 poker.effort = effort
@@ -2492,8 +2475,7 @@ def poker(request, project_id):
                     poker.save()
                 else:
                     poker.delete()
-                #add_log(user, 'poker', test, 2, u'effort = %d' % (effort, ))
-            messages.append(u'Estimation d\'effort sauvegardée avec succès !')
+            messages.append(_(u'Estimation d\'effort sauvegardée avec succès !'))
         elif request.POST.__contains__('avg'):
             note = Note.objects.get(pk = int(request.POST['id']))
             avg = int(request.POST['avg']) if request.POST['avg'].isdigit() else 0
@@ -2501,11 +2483,9 @@ def poker(request, project_id):
             note.effort = avg
             note.temps_estime = temps
             note.save()
-            #poker = Poker.objects.filter(note__id__exact = note.id)
-            #poker.delete()
             recalc_effort(project)
             add_log(user, 'note', note, 2, u'effort = %d, temps = %d' % (avg, temps, ))
-            messages.append(u'Nouvelles valeurs de l\'effort et du temps estimé sauvegardées avec succès !')
+            messages.append(_(u'Nouvelles valeurs de l\'effort et du temps estimé sauvegardées avec succès !'))
 
     sprint = 0
     opt = None
@@ -2546,7 +2526,7 @@ def poker(request, project_id):
                             break
                         old = e[0]
                 data['avg'] = avg
-                if (opt == 'all') or (opt == 'todo' and not perso) or (opt == 'done' and avg != 0 and n.effort != avg):
+                if (opt == 'all') or (opt == 'todo' and not perso) or (opt == 'done' and avg != 0 and n.effort == 0):
                     liste.append(data)
     
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
@@ -2560,10 +2540,10 @@ def poker(request, project_id):
 @login_required
 @csrf_protect
 def new_project(request):
-    page = 'new!project'    
+    page = 'new_project'    
     
     user = request.user.get_profile()
-    title = u'Nouveau projet'
+    title = _(u'Nouveau projet')
     messages = list()
     request.session['url'] = HOME + 'projects/new'
 
@@ -2574,11 +2554,11 @@ def new_project(request):
         if form.is_valid():
             p = form.save()
             add_log(user, 'project', p, 1)
-            messages.append(u'Projet ajouté avec succès !')
+            messages.append(_(u'Projet ajouté avec succès !'))
             request.session['messages'] = messages
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
-        form = ProjectForm(initial={'membres': (1, user.id, ) })
+        form = ProjectForm(initial = { 'membres': (1, user.id, ) })
 
     return render_to_response('projects/project_new.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 'form': form, },
@@ -2597,7 +2577,7 @@ def new_feature(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Nouvelle fonctionnalité'
+    title = _(u'Nouvelle fonctionnalité')
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/new'
 
@@ -2608,11 +2588,11 @@ def new_feature(request, project_id):
         if form.is_valid():
             f = form.save()
             add_log(user, 'feature', f, 1)
-            messages.append(u'Fonctionnalité ajoutée avec succès !')
+            messages.append(_(u'Fonctionnalité ajoutée avec succès !'))
             request.session['messages'] = messages
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
-        form = FeatureForm(initial={'utilisateur': user.id, 'projet': project.id, })
+        form = FeatureForm(initial = { 'utilisateur': user.id, 'projet': project.id, })
 
     return render_to_response('projects/feature_new.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2633,7 +2613,7 @@ def new_note(request, project_id, feature_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Nouvelle note de backlog - "' + unicode(feature.titre) + '"'
+    title = _(u'Nouvelle note de backlog "%s"') % (feature.titre, )
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/new'   
 
@@ -2652,12 +2632,12 @@ def new_note(request, project_id, feature_id):
                 release.utilisateur = n.utilisateur
                 release.save()
             add_log(user, 'note', n, 1)
-            messages.append(u'Note de backlog ajoutée avec succès !')
+            messages.append(_(u'Note de backlog ajoutée avec succès !'))
             request.session['messages'] = messages
             recalc_effort(project)
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
-        form = NoteForm(initial={'utilisateur': user.id, 'projet': project.id, 'feature': feature.id, 'etat': '1', })
+        form = NoteForm(initial = { 'utilisateur': user.id, 'projet': project.id, 'feature': feature.id, 'etat': '1', })
 
     return render_to_response('projects/note_new.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2677,7 +2657,7 @@ def new_sprint(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Nouveau sprint'
+    title = _(u'Nouveau sprint')
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/new'
 
@@ -2688,7 +2668,7 @@ def new_sprint(request, project_id):
         if form.is_valid():
             s = form.save()
             add_log(user, 'sprint', s, 1)
-            messages.append(u'Sprint ajouté avec succès !')
+            messages.append(_(u'Sprint ajouté avec succès !'))
             request.session['messages'] = messages
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
@@ -2697,8 +2677,8 @@ def new_sprint(request, project_id):
         for note in notes:
             effort += note.effort
         sprints = Sprint.objects.filter(projet__id__exact = project.id)
-        titre = "Sprint %d" % (sprints.count() + 1)
-        form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
+        titre = _(u'Sprint %d') % (sprints.count() + 1)
+        form = SprintForm(initial = { 'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2719,7 +2699,7 @@ def new_task(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Nouvelle tâche'
+    title = _(u'Nouvelle tâche')
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/new'
 
@@ -2731,11 +2711,11 @@ def new_task(request, project_id, sprint_id):
             t = form.save()
             create_task_days(sprint, t)
             add_log(user, 'task', t, 1)
-            messages.append(u'Tâche ajoutée avec succès !')
+            messages.append(_(u'Tâche ajoutée avec succès !'))
             request.session['messages'] = messages
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
-        form = TaskForm(initial={'utilisateur': user.id, 'projet': project.id, 'sprint': sprint.id, 'etat': '1', })
+        form = TaskForm(initial = { 'utilisateur': user.id, 'projet': project.id, 'sprint': sprint.id, 'etat': '1', })
 
     return render_to_response('projects/task_new.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2755,7 +2735,7 @@ def new_problem(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Nouveau problème'
+    title = _(u'Nouveau problème')
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/problems/new'   
 
@@ -2766,11 +2746,11 @@ def new_problem(request, project_id):
         if form.is_valid():
             p = form.save()
             add_log(user, 'problem', p, 1)
-            messages.append(u'Problème ajouté avec succès !')
+            messages.append(_(u'Problème ajouté avec succès !'))
             request.session['messages'] = messages
             return HttpResponseRedirect(request.session['url'][0:-3])
     else:
-        form = ProblemForm(initial={'utilisateur': user.id, 'projet': project.id, })
+        form = ProblemForm(initial = { 'utilisateur': user.id, 'projet': project.id, })
 
     return render_to_response('projects/problem_new.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2822,7 +2802,7 @@ def add_sprint(request, project_id, feature_id, note_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = u'Nouveau sprint'
+    title = _(u'Nouveau sprint')
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id + '/sprint'
 
@@ -2840,7 +2820,7 @@ def add_sprint(request, project_id, feature_id, note_id):
             create_note_days(s, note)
             add_log(user, 'sprint', s, 1)
             add_log(user, 'note', note, 2)
-            messages.append(u'Sprint ajouté et associé avec succès !')
+            messages.append(_(u'Sprint ajouté et associé avec succès !'))
             request.session['messages'] = messages
             return HttpResponseRedirect(HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/')
     else:
@@ -2849,8 +2829,8 @@ def add_sprint(request, project_id, feature_id, note_id):
         for note in notes:
             effort += note.effort
         sprints = Sprint.objects.filter(projet__id__exact = project.id)
-        titre = "Sprint %d" % (sprints.count() + 1)
-        form = SprintForm(initial={'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
+        titre = _(u'Sprint %d') % (sprints.count() + 1)
+        form = SprintForm(initial = { 'utilisateur': user.id, 'projet': project.id, 'effort': effort, 'titre': titre, })
 
     return render_to_response('projects/sprint_new.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2864,7 +2844,7 @@ def logs(request):
     page = 'logs'
     
     user = request.user.get_profile()
-    title = u'Logs'
+    title = _(u'Logs')
     messages = list()
     request.session['url'] = HOME + 'projects/logs'
 
@@ -2897,13 +2877,13 @@ def logs(request):
             if request.POST['luser'] == '0':
                 for l in logs:
                     l.delete()
-                messages.append('Logs supprimés avec succès !')
+                messages.append(_(u'Logs supprimés avec succès !'))
             else:
                 luser = int(request.POST['luser'])
                 logs = LogEntry.objects.filter(user__id__exact = luser)
                 for l in logs:
                     l.delete()
-                messages.append('Logs de "%s" supprimés avec succès !' % (UserProfile.objects.get(pk = int(request.POST['luser'])), ))
+                messages.append(_(u'Logs de "%s" supprimés avec succès !') % (UserProfile.objects.get(pk = int(request.POST['luser'])), ))
             logs = LogEntry.objects.all()
             logs = logs.order_by('-action_time')
 
@@ -2919,7 +2899,7 @@ def history(request):
     page = 'history'
     
     user = request.user.get_profile()
-    title = u'Historiques'
+    title = _(u'Historiques')
     messages = list()
     request.session['url'] = HOME + 'projects/history'
 
@@ -2952,13 +2932,13 @@ def history(request):
             if request.POST['huser'] == '0':
                 for h in history:
                     h.delete()
-                messages.append('Historiques supprimés avec succès !')
+                messages.append(_(u'Historiques supprimés avec succès !'))
             else:
                 huser = int(request.POST['huser'])
                 history = History.objects.filter(utilisateur__id__exact = huser)
                 for h in history:
                     h.delete()
-                messages.append('Historiques de "%s" supprimés avec succès !' % (UserProfile.objects.get(pk = int(request.POST['huser'])), ))
+                messages.append(_(u'Historiques de "%s" supprimés avec succès !') % (UserProfile.objects.get(pk = int(request.POST['huser'])), ))
             history = History.objects.all()
             history = history.order_by('-date_creation')
 
@@ -2974,7 +2954,7 @@ def archives(request):
     page = 'archives'
     
     user = request.user.get_profile()
-    title = u'Archives'
+    title = _(u'Archives')
     messages = list()
     request.session['url'] = HOME + 'projects/archives'
 

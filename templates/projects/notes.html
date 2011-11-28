@@ -1,24 +1,24 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load i18n var2css var2txt %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
 			<!--
 			&nbsp;(&nbsp;
 				"{{ feature.titre }}"
-				&nbsp;-&nbsp; Notes de backlog
+				&nbsp;-&nbsp; {% trans "Notes de backlog" %}
 			&nbsp;)
 			-->
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -31,47 +31,47 @@
 			<tr>
 				<td>
 					<div onclick="document.location='new'" class="menu">
-						Nouvelle note
+						{% trans "Nouvelle note" %}
 					</div>
 				</td>
 			</tr>
 		</table>
 		<br />
 		Trier :&nbsp;
-		<a href="?sort=-priorite">par priorit&eacute;</a>
+		<a href="?sort=-priorite">{% trans "par priorité" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?sort=etat">par &eacute;tat</a>
+		<a href="?sort=etat">{% trans "par état" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?sort=-priorite,etat">par les deux</a>
+		<a href="?sort=-priorite,etat">{% trans "par les deux" %}</a>
 		&nbsp;-&nbsp;Filtrer :&nbsp;
-		<a href="?todo&sort=-priorite">&agrave; faire</a>
+		<a href="?todo&sort=-priorite">{% trans "à faire" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?toset&sort=-priorite">&agrave; d&eacute;finir</a>
+		<a href="?toset&sort=-priorite">{% trans "à définir" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?done&sort=-priorite">termin&eacute;s</a>
+		<a href="?done&sort=-priorite">{% trans "terminés" %}</a>
 		<br /><br />
 		<table class="notes">
 		{% for list in notes %}
 			<tr>
 			{% for note in list %}
 				<td>
-					<div id="{{ note.id }}" onclick="document.location='{{ home }}admin/projects/note/{{ note.id }}/'" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
+					<div id="{{ note.id }}" onclick="window.open('{{ home }}admin/projects/note/{{ note.id }}/', '_blank')" class="note {{ note.priorite|var2css:"p" }} {{ note.etat|var2css:"e" }}{% if note.target %} cible{% endif %}">
 						<div class="bloc titre">{{ note.titre }}</div>
 						<div class="element gauche">{{ note.type|var2txt:"t" }}</div>
 						<div class="element droite">{{ note.etat|var2txt:"e" }}</div>
 						<div class="bloc description">{{ note.description|safe }}</div>
 						<div class="element gauche">{{ note.temps_realise }} / {{ note.temps_estime }} ({{ note.effort }})</div>
 						<div class="element droite">
-							<a class="image" href="?d={{ note.id }}"><img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" /></a>
-							<a class="image" href="?s={{ note.id }}"><img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ note.confiance_sm }}.png" /></a>
-							<a class="image" href="?p={{ note.id }}"><img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" /></a>
+							<a class="image" href="?d={{ note.id }}"><img title="{% trans "Confiance développeur(s)" %}" src="{{ home }}media/img/confiance/d{{ note.confiance_dev }}.png" /></a>
+							<a class="image" href="?s={{ note.id }}"><img title="{% trans "Confiance Scrum Master" %}" src="{{ home }}media/img/confiance/s{{ note.confiance_sm }}.png" /></a>
+							<a class="image" href="?p={{ note.id }}"><img title="{% trans "Confiance Product Owner" %}" src="{{ home }}media/img/confiance/p{{ note.confiance_po }}.png" /></a>
 						</div>
 					</div>
 					{% if user.user.is_staff %}
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action=".#{{ note.id }}" method="post" align="center">{% csrf_token %}
 							<select name="sprint" onchange="submit()">
-								<option value="">{% if note.sprint.id %}( Dissocier du sprint ){% else %}( Associer &agrave; un sprint ){% endif %}</option>
+								<option value="">{% if note.sprint.id %}{% trans "( Dissocier du sprint )" %}{% else %}{% trans "( Associer à un sprint )" %}{% endif %}</option>
 							{% for s in sprints %}
 								<option value="{{ s.id }}" {% ifequal s.id note.sprint.id %}selected{% endifequal %}>{{ s.titre }}</option>
 							{% endfor %}
@@ -79,17 +79,17 @@
 							<a href="{{ note.id }}/sprint/"><img src="{{ home }}media/img/admin/icon_addlink.gif" /></a>
 							<br />
 							<select name="priorite" onchange="submit()">
-								<option value="0" {% ifequal note.priorite '0' %}selected{% endifequal %}>Aucune</option>
-								<option value="1" {% ifequal note.priorite '1' %}selected{% endifequal %}>Annul&eacute;</option>
-								<option value="2" {% ifequal note.priorite '2' %}selected{% endifequal %}>Possible</option>
-								<option value="3" {% ifequal note.priorite '3' %}selected{% endifequal %}>Souhaitable</option>
-								<option value="4" {% ifequal note.priorite '4' %}selected{% endifequal %}>Indispensable</option>
-								<option value="5" {% ifequal note.priorite '5' %}selected{% endifequal %}>&Agrave; sp&eacute;cifier</option>
+								<option value="0" {% ifequal note.priorite '0' %}selected{% endifequal %}>{% trans "Aucune" %}</option>
+								<option value="1" {% ifequal note.priorite '1' %}selected{% endifequal %}>{% trans "Annulé" %}</option>
+								<option value="2" {% ifequal note.priorite '2' %}selected{% endifequal %}>{% trans "Possible" %}</option>
+								<option value="3" {% ifequal note.priorite '3' %}selected{% endifequal %}>{% trans "Souhaitable" %}</option>
+								<option value="4" {% ifequal note.priorite '4' %}selected{% endifequal %}>{% trans "Indispensable" %}</option>
+								<option value="5" {% ifequal note.priorite '5' %}selected{% endifequal %}>{% trans "À spécifier" %}</option>
 							</select>
 							<br />
-							<label>Temps : </label><input type="text" name="temps" value="{{ note.temps_estime }}" size="2" />
+							<label>{% trans "Temps :" %} </label><input type="text" name="temps" value="{{ note.temps_estime }}" size="2" />
 							<input type="hidden" name="id" value="{{ note.id }}" />
-							<input type="submit" value="OK" />
+							<input type="submit" value="{% trans "OK" %}" />
 						</form>
 						{% endif %}
 					</div>

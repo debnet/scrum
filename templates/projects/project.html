@@ -1,24 +1,24 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt %}
+{% load i18n var2css var2txt %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <strong>Projet "{{ project.titre }}"</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <strong>{% trans "Projet" %} "{{ project.titre }}"</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
 {% block content_title %}{% endblock %}
 
-{% block pretitle %}<strong>Membres du projet :</strong> {% for m in project.membres.all %}{{ m }}&nbsp;/&nbsp;{% endfor %}<br /><br />{% endblock %}
+{% block pretitle %}<strong>{% trans "Membres du projet :" %}</strong> {% for m in project.membres.all %}{{ m }}&nbsp;/&nbsp;{% endfor %}<br /><br />{% endblock %}
 
 {% block content %}
 	<div id="content-main" align="center">
@@ -27,21 +27,21 @@
 			<tr>
 				<td>
 					<div onclick="document.location='features'" class="button">
-						Fonctionnalit&eacute;s
+						{% trans "Fonctionnalités" %}
 						<br /><br />
 						<span class="info">{{ nbf }}</span>
 					</div>
 				</td>
 				<td>
 					<div onclick="document.location='sprints'" class="button">
-						Sprints
+						{% trans "Sprints" %}
 						<br /><br />
 						<span class="info">{{ nbs }}</span>
 					</div>
 				</td>
 				<td>
 					<div onclick="document.location='problems'" class="button">
-						Probl&egrave;mes
+						{% trans "Problèmes" %}
 						<br /><br />
 						<span class="info">{{ nbp }}</span>
 					</div>
@@ -49,7 +49,7 @@
 			</tr>
 		</table>
 		<br /><br />
-		<h1>Fonctionnalit&eacute;s urgentes</h1>
+		<h1>{% trans "Fonctionnalités urgentes" %}</h1>
 		<br />
 		<table class="notes">
 		{% for list in features %}
@@ -59,13 +59,13 @@
 					<div onclick="document.location='features/{{ feature.id }}/'" class="note {{ feature.priorite|var2css:"p" }}{% if feature.termine %} done{% endif %}">
 						<div class="bloc titre">{{ feature.titre }}</div>
 						<div class="element gauche">{{ feature.priorite|var2txt:"p" }}</div>
-						<div class="element droite">{% if feature.termine %}Termin&eacute;e{% else %}&Agrave; faire{% endif %}</div>
+						<div class="element droite">{% if feature.termine %}{% trans "Terminée" %}{% else %}{% trans "À faire" %}{% endif %}</div>
 						<div class="bloc description">{{ feature.description|safe }}</div>
 						<div class="element gauche">{{ feature.temps_realise }} / {{ feature.temps_estime }} ({{ feature.notes }})</div>
 						<div class="element droite">
-							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ feature.confiance_dev }}.png" />
-							<img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ feature.confiance_sm }}.png" />
-							<img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ feature.confiance_po }}.png" />
+							<img title="{% trans "Confiance développeur(s)" %}" src="{{ home }}media/img/confiance/d{{ feature.confiance_dev }}.png" />
+							<img title="{% trans "Confiance Scrum Master" %}" src="{{ home }}media/img/confiance/s{{ feature.confiance_sm }}.png" />
+							<img title="{% trans "Confiance Product Owner" %}" src="{{ home }}media/img/confiance/p{{ feature.confiance_po }}.png" />
 						</div>
 					</div>
 				</td>
@@ -74,7 +74,7 @@
 		{% endfor %}
 		</table>
 		<br /><br />
-		<h1>Sprints r&eacute;cents</h1>
+		<h1>{% trans "Sprints récents" %}</h1>
 		<br />
 		<table class="notes">
 		{% for list in sprints %}
@@ -88,9 +88,9 @@
 						<div class="bloc description">{{ sprint.objectif|safe }}</div>
 						<div class="element gauche">{{ sprint.temps_realise }} / {{ sprint.temps_estime }}<!-- ({{ sprint.notes }}) --></div>
 						<div class="element droite">
-							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" />
-							<img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" />
-							<img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" />
+							<img title="{% trans "Confiance développeur(s)" %}" src="{{ home }}media/img/confiance/d{{ sprint.confiance_dev }}.png" />
+							<img title="{% trans "Confiance Scrum Master" %}" src="{{ home }}media/img/confiance/s{{ sprint.confiance_sm }}.png" />
+							<img title="{% trans "Confiance Product Owner" %}" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" />
 						</div>
 					</div>
 				</td>
@@ -99,7 +99,7 @@
 		{% endfor %}
 		</table>
 		<br /><br />
-		<h1>Probl&egrave;mes urgents</h1>
+		<h1>{% trans "Problèmes urgents" %}</h1>
 		<br />
 		<table class="notes">
 		{% for list in problems %}
@@ -109,13 +109,13 @@
 					<div class="note {{ probleme.priorite|var2css:"p" }}">
 						<div class="bloc titre">{{ probleme.titre }}</div>
 						<div class="element gauche">{{ probleme.priorite|var2txt:"p" }}</div>
-						<div class="element droite">{% if probleme.termine %}R&eacute;solu{% else %}&Agrave; faire{% endif %}</div>
+						<div class="element droite">{% if probleme.termine %}{% trans "Résolu" %}{% else %}{% trans "À faire" %}{% endif %}</div>
 						<div class="bloc description">{{ probleme.description|safe }}</div>
 						<div class="element gauche"></div>
 						<div class="element droite">
-							<img title="Confiance d&eacute;veloppeur(s)" src="{{ home }}media/img/confiance/d{{ probleme.confiance_dev }}.png" />
-							<img title="Confiance Scrum Master" src="{{ home }}media/img/confiance/s{{ probleme.confiance_sm }}.png" />
-							<img title="Confiance Product Owner" src="{{ home }}media/img/confiance/p{{ probleme.confiance_po }}.png" />
+							<img title="{% trans "Confiance développeur(s)" %}" src="{{ home }}media/img/confiance/d{{ probleme.confiance_dev }}.png" />
+							<img title="{% trans "Confiance Scrum Master" %}" src="{{ home }}media/img/confiance/s{{ probleme.confiance_sm }}.png" />
+							<img title="{% trans "Confiance Product Owner" %}" src="{{ home }}media/img/confiance/p{{ probleme.confiance_po }}.png" />
 						</div>
 					</div>
 				</td>

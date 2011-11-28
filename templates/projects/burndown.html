@@ -1,29 +1,29 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt dict %}
+{% load i18n var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>Indicateurs</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
 			&nbsp;(&nbsp;
 				<!--
 				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
 				&nbsp;-&nbsp; 
 				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">Notes</a> 
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">T&acirc;ches</a> 
-				&nbsp;-&nbsp; Burndown Chart
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">Livraisons</a>
-				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/meteo/">M&eacute;t&eacute;o</a>
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">{% trans "Notes" %}</a> 
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">{% trans "Tâches" %}</a> 
+				&nbsp;-&nbsp; {% trans "Burndown Chart" %}
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">{% trans "Livraisons" %}</a>
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/meteo/">{% trans "Météo" %}</a>
 			&nbsp;)
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -34,31 +34,31 @@
 		<br />
 		<img style="width: 800px; height: 350px;" src="{{ url }}" />
 		<br /><br /><br />
-		Afficher :&nbsp;
-		<a href=".">en cours</a>
+		{% trans "Afficher :" %}&nbsp;
+		<a href=".">{% trans "en cours" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?released">livr&eacute;s</a>
+		<a href="?released">{% trans "livrés" %}</a>
 		&nbsp;|&nbsp;
-		<a href="?done">termin&eacute;s</a>
+		<a href="?done">{% trans "terminés" %}</a>
 		<br /><br /><br />
 		<table class="burndown table">
 			<thead>
 				<tr>
-					<th>Type</th>
-					<th>Fonctionnalit&eacute;</th>
-					<th>Titre</th>
+					<th>{% trans "Type" %}</th>
+					<th>{% trans "Fonctionnalité" %}</th>
+					<th>{% trans "Titre" %}</th>
 					{% for d in days %}
 					<th {% ifequal d date %}style="color:red"{% endifequal %}>{{ d|date:"d/m" }}</th>
 					{% endfor %}
-					<th>Temps total</th>
-					<th>Termin&eacute;e ?</th>
+					<th>{% trans "Temps total" %}</th>
+					<th>{% trans "Terminée ?" %}</th>
 				</tr>
 			</thead>
 			<tbody>
 			{% if not times %}
 				<tr>
 					<td colspan="3">&nbsp;</td>
-					<td align="center" colspan="{{ days|length }}">Aucun &eacute;l&eacute;ment &agrave; afficher</td>
+					<td align="center" colspan="{{ days|length }}">{% trans "Aucun élément à afficher" %}</td>
 					<td colspan="2">&nbsp;</td>
 				</tr>
 			{% else %}
@@ -77,7 +77,7 @@
 							{% endifequal %}
 						</td>
 						{% for time in item|values:"time" %}
-						<td onmouseout="UnTip()" onmouseover="Tip('Temps r&eacute;alis&eacute; : <strong>{{ time.temps }}</strong><br />Par : <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
+						<td onmouseout="UnTip()" onmouseover="Tip('{% trans "Temps réalisé :" %} <strong>{{ time.temps }}</strong><br />{% trans "Par :" %} <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
 							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|values:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|values:"etat" == "0" or item|values:"etat" == "3" or item|values:"etat" == "4" %}disabled{% endif %} />
 						</td>
 						{% endfor %}
@@ -85,11 +85,11 @@
 							{{ item|values:"done" }} / {{ item|values:"todo" }}
 						</td>
 						<td>
-							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="non" {% if item|values:"etat" != "4" %}checked{% endif %} /> Non&nbsp;
-							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="oui" {% if item|values:"etat" == "4" %}checked{% endif %} /> Oui&nbsp;
+							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="non" {% if item|values:"etat" != "4" %}checked{% endif %} /> {% trans "Non" %}&nbsp;
+							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="oui" {% if item|values:"etat" == "4" %}checked{% endif %} /> {% trans "Oui" %}&nbsp;
 							&nbsp;
 							<input type="hidden" name="lock" value="{{ lock }}" />
-							<input type="submit" value="OK" {% if not user.user.is_staff %}disabled{% endif %}/>
+							<input type="submit" value="{% trans "OK" %}" {% if not user.user.is_staff %}disabled{% endif %}/>
 						</td>
 					</form>	
 				</tr>
@@ -97,6 +97,5 @@
 			{% endif %}
 			</tbody>
 		</table>
-		<br /><br />
 	</div>
 {% endblock %}

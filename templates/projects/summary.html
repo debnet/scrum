@@ -1,18 +1,18 @@
 {% extends "base_site.html" %}
 
-{% load var2css var2txt dict %}
+{% load i18n var2css var2txt dict %}
 
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
-		<a href="{{ home }}projects/"><strong>Projets</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>Scrum Wall</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>Planning Poker</strong></a>
-		&nbsp;|&nbsp; <strong>Indicateurs</strong>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>Fonctionnalit&eacute;s</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>Sprints</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>Probl&egrave;mes</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>Documents</strong></a>
+		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
+		&nbsp;|&nbsp; <strong>{% trans "Indicateurs" %}</strong>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
 	</div>
 {% endblock %}
 
@@ -21,16 +21,16 @@
 {% block content %}
 	<div id="content-main" align="center">
 		Indicateurs :&nbsp;
-		<a href="{{ home }}projects/{{ project.id }}/summary/">Synth&egrave;se des sprints</a>
+		<a href="{{ home }}projects/{{ project.id }}/summary/">{% trans "Synthèse des sprints" %}</a>
 		&nbsp;|&nbsp;
-		<a href="{{ home }}projects/{{ project.id }}/velocity/">V&eacute;locit&eacute; et progression</a>
+		<a href="{{ home }}projects/{{ project.id }}/velocity/">{% trans "Vélocité et progression" %}</a>
 		&nbsp;|&nbsp;
-		<a href="{{ home }}projects/{{ project.id }}/pareto/">Diagramme de Pareto</a>
+		<a href="{{ home }}projects/{{ project.id }}/pareto/">{% trans "Diagramme de Pareto" %}</a>
 		<br />
 		
 		<br />
-		Afficher :&nbsp;
-		<a href="?sprint=0">Aucun</a>
+		{% trans "Afficher :" %}&nbsp;
+		<a href="?sprint=0">{% trans "Aucun" %}</a>
 		{% for sprint in sprints %}
 		&nbsp;|&nbsp;
 		<a href="?sprint={{ sprint.id }}">{{ sprint.titre }}</a>
@@ -40,7 +40,7 @@
 		<br /><br />
 		{% for item in items %}
 		<h1 id="{{ item|values:"id" }}">{{ item|values:"sprint" }}</h1>
-		<h4>Progression g&eacute;n&eacute;rale : {{ item|values:"total_done" }} / {{ item|values:"total_todo" }}</h4>
+		<h4>{% trans "Progression générale :" %} {{ item|values:"total_done" }} / {{ item|values:"total_todo" }}</h4>
 		<br />
 		<table>
 			<thead>
@@ -53,37 +53,37 @@
 			</thead>
 			<tbody>
 				<tr class="row1">
-					<th>Temps r&eacute;alis&eacute;</th>
+					<th>{% trans "Temps réalisé" %}</th>
 					{% for t in item|values:"times" %}
 					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"done" }}</td>
 					{% endfor %}
 				</tr><tr class="row2">
-					<th>Temps restant</th>
+					<th>{% trans "Temps restant" %}</th>
 					{% for t in item|values:"times" %}
 					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"todo" }}</td>
 					{% endfor %}
 				</tr><tr class="row1">
-					<th>Tendance</th>
+					<th>{% trans "Tendance" %}</th>
 					{% for t in item|values:"times" %}
 					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|values:"trend1" }}.png" alt="{{ t|values:"trend1" }}" /></td>
 					{% endfor %}
 				</tr><tr class="row2">
-					<th>Progression</th>
+					<th>{% trans "Progression" %}</th>
 					{% for t in item|values:"times" %}
 					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"rate1" }} %</td>
 					{% endfor %}
 				</tr><tr class="row1">
-					<th>Total</th>
+					<th>{% trans "Total" %}</th>
 					{% for t in item|values:"times" %}
 					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"rate2" }} %</td>
 					{% endfor %}
 				</tr><tr class="row2">
-					<th>Moyenne</th>
+					<th>{% trans "Moyenne" %}</th>
 					{% for t in item|values:"times" %}
 					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}>{{ t|values:"avg" }}</td>
 					{% endfor %}
 				</tr><tr class="row1">
-					<th>Tendance</th>
+					<th>{% trans "Tendance" %}</th>
 					{% for t in item|values:"times" %}
 					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|values:"trend2" }}.png" alt="{{ t|values:"trend2" }}" /></td>
 					{% endfor %}
@@ -96,7 +96,7 @@
 		<br /><br />
 		<img style="width: 800px; height: 350px;" src="{{ item|values:"url2" }}" />
 		{% else %}
-		<a href="?sprint={{ item|values:"id" }}#{{ item|values:"id" }}">Afficher les graphiques</a>
+		<a href="?sprint={{ item|values:"id" }}#{{ item|values:"id" }}">{% trans "Afficher les graphiques" %}</a>
 		{% endifequal %}
 		<br /><br />
 		{% endfor %}
