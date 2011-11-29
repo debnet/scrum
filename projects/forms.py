@@ -78,7 +78,7 @@ class ProblemForm(forms.ModelForm):
     
     class Meta:
         model = Problem
-        exclude = ('date_creation', 'confiance_dev', 'confiance_sm', 'confiance_po', )
+        exclude = ('date_creation', 'confiance_dev', 'confiance_sm', 'confiance_po', 'resolu', )
 
 class DocumentForm(forms.ModelForm):
     utilisateur = forms.ModelChoiceField(UserProfile.objects.all(), widget=forms.HiddenInput)
