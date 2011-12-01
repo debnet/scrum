@@ -339,9 +339,14 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
 
         t.notes = notes.count() + tasks.count()
 
-        nbn = Note.objects.filter(sprint__id__exact = t.id, etat__in = ('0', '1', '2', )).count()
-        nbt = Task.objects.filter(sprint__id__exact = t.id, etat__in = ('0', '1', '2', )).count()
-        nb = nbn + nbt
+        nb = 0
+        nts = NoteTime.objects.select_related().filter(sprint__id__exact = t.id, note__etat__in = ('0', '1', '2', ))
+        for ntt in nts:
+            nb += ntt.temps + ntt.temps_fin
+        tts = TaskTime.objects.select_related().filter(sprint__id__exact = t.id, task__etat__in = ('0', '1', '2', ))
+        for ttt in tts:
+            nb += ttt.temps + ttt.temps_fin
+        
         if t.date_debut > datetime.date.today():
             t.etat = 'todo'
             t.urgence = 'minor'
@@ -1361,7 +1366,7 @@ def releases(request, project_id, sprint_id):
             release.commentaire = request.POST['commentaire']
             
             if request.POST.__contains__('livrer'):
-                if old and settings.EMAIL_ENABLED:
+                if old and old.statut == '2' and settings.EMAIL_ENABLED:
                     send_mail(_(u'%(head)sLivraison de "%(note)s" %(state)s par %(user)s') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'note': note.titre, 'state': _(u'RE-LIVRÉE'), 'user': user, },
                         _(u'La livraison de "%(note)s" (%(feature)s) a été %(state)s par %(user)s.\nCommentaire : "%(desc)s"') % 
                         {'note': note.titre, 'feature': note.feature.titre, 'state': _(u'RE-LIVRÉE'), 'user': user, 'desc': release.commentaire if release.commentaire else _(u'Aucun commentaire'), },
