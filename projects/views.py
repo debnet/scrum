@@ -2271,11 +2271,7 @@ def meteo(request, project_id, sprint_id):
             jour = dict()
             meteo = Meteo.objects.select_related().filter(sprint__id__exact = sprint_id, jour__exact = d).order_by("utilisateur")
             perso = meteo.filter(utilisateur__id__exact = user.user.id)
-            if perso:
-                perso[0].short = perso[0].commentaire[:50]
             autre = meteo.exclude(utilisateur__id__exact = user.user.id)
-            for a in autre:
-                a.short = a.commentaire[:50]
             row = (row + 1) % 2
             jour['row'] = row + 1
             jour['date'] = d.strftime(_('%d/%m/%Y'))
