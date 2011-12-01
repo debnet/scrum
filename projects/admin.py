@@ -55,7 +55,7 @@ class FeatureAdmin(admin.ModelAdmin):
     )
     list_display = ('titre', 'projet', 'priorite', 'termine', )
     list_filter = ('date_creation', 'priorite', 'termine', )
-    search_fields = ('projet', 'titre', 'description', 'utilisateur', )
+    search_fields = ('projet__titre', 'titre', 'description', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['projet', 'titre']
@@ -96,7 +96,7 @@ class NoteAdmin(admin.ModelAdmin):
     )
     list_display = ('titre', 'feature', 'sprint', 'priorite', 'etat', 'type', 'effort', 'temps_realise', 'temps_estime', )
     list_filter = ('date_creation', 'priorite', 'type', 'etat', 'effort', )
-    search_fields = ('feature', 'sprint', 'titre', 'description', 'utilisateur', )
+    search_fields = ('feature__titre', 'sprint', 'titre', 'description', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['feature', 'titre']
@@ -133,7 +133,7 @@ class SprintAdmin(admin.ModelAdmin):
     )
     list_display = ('titre', 'projet', 'date_debut', 'date_fin', )
     list_filter = ('date_creation', 'date_modification', 'date_debut', 'date_fin', )
-    search_fields = ('projet', 'titre', 'but', 'utilisateur', )
+    search_fields = ('projet__titre', 'titre', 'but', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['projet', 'titre']
@@ -174,7 +174,7 @@ class TaskAdmin(admin.ModelAdmin):
     )
     list_display = ('titre', 'sprint', 'priorite', 'etat', 'temps_realise', 'temps_estime', )
     list_filter = ('date_creation', 'priorite', 'etat', 'temps_realise', 'temps_estime', )
-    search_fields = ('sprint', 'titre', 'description', 'utilisateur', )
+    search_fields = ('sprint__titre', 'sprint__projet__titre', 'titre', 'description', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['sprint', 'titre']
@@ -215,7 +215,7 @@ class ProblemAdmin(admin.ModelAdmin):
     )
     list_display = ('titre', 'projet', 'priorite', 'resolu', )
     list_filter = ('date_creation', 'priorite', 'resolu', )
-    search_fields = ('projet', 'titre', 'description', 'utilisateur',  )
+    search_fields = ('projet__titre', 'titre', 'description', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['projet', 'titre']
@@ -243,8 +243,8 @@ class ReleaseAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('note', 'statut', 'date_creation', 'utilisateur', 'commentaire', )
-    list_filter = ('date_creation', 'statut', )
-    search_fields = ('note', 'commentaire', 'utilisateur', )
+    list_filter = ('date_creation', 'statut', 'utilisateur', )
+    search_fields = ('note__titre', 'note__feature__titre', 'commentaire', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['note']
@@ -277,7 +277,7 @@ class DocumentAdmin(admin.ModelAdmin):
     )
     list_display = ('fichier', 'titre', 'projet', 'date_creation', 'utilisateur', )
     list_filter = ('date_creation', )
-    search_fields = ('projet', 'titre', 'fichier', 'utilisateur', )
+    search_fields = ('projet__titre', 'titre', 'fichier', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['titre']
@@ -309,8 +309,8 @@ class NoteTimeAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('jour', 'temps', 'temps_fin', 'sprint', 'note', 'utilisateur', )
-    list_filter = ('date_modification', 'jour', )
-    search_fields = ('sprint', 'note', 'utilisateur', )
+    list_filter = ('date_modification', 'jour', 'utilisateur', )
+    search_fields = ('sprint__titre', 'sprint__projet__titre', 'note__titre', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['sprint', 'note', 'jour']
@@ -342,8 +342,8 @@ class TaskTimeAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('jour', 'temps', 'temps_fin', 'sprint', 'task', 'utilisateur', )
-    list_filter = ('date_modification', 'jour', )
-    search_fields = ('sprint', 'task', 'utilisateur', )
+    list_filter = ('date_modification', 'jour', 'utilisateur', )
+    search_fields = ('sprint__titre', 'sprint__projet__titre', 'task__titre', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['sprint', 'task', 'jour']
@@ -367,8 +367,8 @@ class MeteoAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('sprint', 'jour', 'utilisateur', 'meteo_projet', 'meteo_equipe', 'meteo_avance', 'commentaire', )
-    list_filter = ('jour', )
-    search_fields = ('sprint', 'utilisateur', 'commentaire', )
+    list_filter = ('jour', 'utilisateur', )
+    search_fields = ('sprint__titre', 'sprint__projet__titre', 'commentaire', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['sprint', 'utilisateur', 'jour']
@@ -392,8 +392,8 @@ class PokerAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('note', 'utilisateur', 'effort', )
-    list_filter = ('effort', )
-    search_fields = ('note', 'utilisateur' )
+    list_filter = ('effort', 'utilisateur', )
+    search_fields = ('note__titre', 'note__feature__titre', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['note', 'utilisateur']
@@ -421,8 +421,8 @@ class HistoryAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('url', 'date_creation', 'utilisateur', )
-    list_filter = ('date_creation', )
-    search_fields = ('url', 'utilisateur', )
+    list_filter = ('date_creation', 'utilisateur', )
+    search_fields = ('url', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['date_creation']

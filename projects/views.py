@@ -1361,6 +1361,11 @@ def releases(request, project_id, sprint_id):
             release.commentaire = request.POST['commentaire']
             
             if request.POST.__contains__('livrer'):
+                if old and settings.EMAIL_ENABLED:
+                    send_mail(_(u'%(head)sLivraison de "%(note)s" %(state)s par %(user)s') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'note': note.titre, 'state': _(u'RE-LIVRÉE'), 'user': user, },
+                        _(u'La livraison de "%(note)s" (%(feature)s) a été %(state)s par %(user)s.\nCommentaire : "%(desc)s"') % 
+                        {'note': note.titre, 'feature': note.feature.titre, 'state': _(u'RE-LIVRÉE'), 'user': user, 'desc': release.commentaire if release.commentaire else _(u'Aucun commentaire'), },
+                        None, [ old.utilisateur.user.email ])
                 for nt in nts:
                     if nt.temps > 0:
                         fin = nt.note.temps_estime - nt.note.temps_realise
@@ -1377,11 +1382,10 @@ def releases(request, project_id, sprint_id):
                     % (_(u'Livraison effectuée avec succès !'), release.statut, release.id, _(u'voir l\'élément'), ))
             elif request.POST.__contains__('refuser'):
                 if old and settings.EMAIL_ENABLED:
-                    send_mail(_(u'%(head)sLivraison de "%(note)s" REFUSÉE par %(user)s') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'note': note.titre, 'user': user, },
-                        _(u'La livraison de "%(note)s" (%(feature)s) a été REFUSÉE par %(user)s. Raison du refus : "%(desc)s"') % 
-                        {'note': note.titre, 'feature': note.feature.titre, 'user': user, 'desc': release.commentaire if release.commentaire else _(u'Aucun commentaire'), },
+                    send_mail(_(u'%(head)sLivraison de "%(note)s" %(state)s par %(user)s') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'note': note.titre, 'state': _(u'REFUSÉE'), 'user': user, },
+                        _(u'La livraison de "%(note)s" (%(feature)s) a été %(state)s par %(user)s.\nCommentaire : "%(desc)s"') % 
+                        {'note': note.titre, 'feature': note.feature.titre, 'state': _(u'REFUSÉE'), 'user': user, 'desc': release.commentaire if release.commentaire else _(u'Aucun commentaire'), },
                         None, [ old.utilisateur.user.email ])
-                
                 for nt in nts:
                     if nt.temps_fin != 0:
                         nt.temps_fin = 0
@@ -1396,11 +1400,10 @@ def releases(request, project_id, sprint_id):
                     (_(u'Livraison refusée avec succès !'), release.statut, release.id, _(u'voir l\'élément'), ))
             elif request.POST.__contains__('valider'):
                 if old and settings.EMAIL_ENABLED:
-                    send_mail(_(u'%(head)sLivraison de "%(note)s" VALIDÉE par %(user)s') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'note': note.titre, 'user': user, },
-                        _(u'La livraison de "%(note)s" (%(feature)s) a été VALIDÉE par %(user)s. Commentaire de validation : "%(desc)s"') % 
-                        {'note': note.titre, 'feature': note.feature.titre, 'user': user, 'desc': release.commentaire if release.commentaire else _(u'Aucun commentaire'), },
-                        None, [ old.utilisateur.user.email ])           
-                
+                    send_mail(_(u'%(head)sLivraison de "%(note)s" %(state)s par %(user)s') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'note': note.titre, 'state': _(u'VALIDÉE'), 'user': user, },
+                        _(u'La livraison de "%(note)s" (%(feature)s) a été %(state)s par %(user)s.\nCommentaire : "%(desc)s"') % 
+                        {'note': note.titre, 'feature': note.feature.titre, 'state': _(u'VALIDÉE'), 'user': user, 'desc': release.commentaire if release.commentaire else _(u'Aucun commentaire'), },
+                        None, [ old.utilisateur.user.email ])
                 for nt in nts:
                     if nt.temps_fin != 0:
                         nt.temps_fin = 0
@@ -1528,7 +1531,7 @@ def problems(request, project_id):
                 changes.append(u'résolu = Oui')
                 if settings.EMAIL_ENABLED:
                     send_mail(_(u'%(head)sProblème "%(problem)s" %(state)s dans le projet "%(project)s"') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'problem': p.titre, 'state': _(u'résolu'), 'project': project.titre, },
-                        _(u'Le problème "%(problem)s" dans le projet "%(project)s" a été %(state)s par %(user)s. Description du problème : "%(desc)s"') % 
+                        _(u'Le problème "%(problem)s" dans le projet "%(project)s" a été %(state)s par %(user)s.\nDescription du problème : "%(desc)s"') % 
                         {'problem': p.titre, 'project': project.titre, 'state': _(u'résolu'), 'user': user, 'desc': p.description if p.description else _(u'Aucune description'), },
                         None, ['%s' % (u.user.email) for u in project.membres.all()])                
             else:
@@ -1536,7 +1539,7 @@ def problems(request, project_id):
                 changes.append(u'résolu = Non')
                 if settings.EMAIL_ENABLED:
                     send_mail(_(u'%(head)sProblème "%(problem)s" %(state)s dans le projet "%(project)s"') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'problem': p.titre, 'state': _(u'ré-ouvert'), 'project': project.titre, },
-                        _(u'Le problème "%(problem)s" dans le projet "%(project)s" a été %(state)s par %(user)s. Description du problème : "%(desc)s"') % 
+                        _(u'Le problème "%(problem)s" dans le projet "%(project)s" a été %(state)s par %(user)s.\nDescription du problème : "%(desc)s"') % 
                         {'problem': p.titre, 'project': project.titre, 'state': _(u'ré-ouvert'), 'user': user, 'desc': p.description if p.description else _(u'Aucune description'), },
                         None, ['%s' % (u.user.email) for u in project.membres.all()])  
             problem.utilisateur = user
@@ -2757,7 +2760,7 @@ def new_problem(request, project_id):
             p = form.save()
             if settings.EMAIL_ENABLED:
                 send_mail(_(u'%(head)sProblème "%(problem)s" détecté dans le projet "%(project)s"') % {'head': settings.EMAIL_SUBJECT_PREFIX, 'problem': p.titre, 'project': project.titre, },
-                    _(u'Un nouveau problème "%(problem)s" dans le projet "%(project)s" a été identifié par %(user)s. Description du problème : "%(desc)s"') % 
+                    _(u'Un nouveau problème "%(problem)s" dans le projet "%(project)s" a été identifié par %(user)s.\nDescription du problème : "%(desc)s"') % 
                     {'problem': p.titre, 'project': project.titre, 'user': user, 'desc': p.description if p.description else _(u'Aucune description'), },
                     None, ['%s' % (u.user.email) for u in project.membres.all()])
             add_log(user, 'problem', p, 1)
