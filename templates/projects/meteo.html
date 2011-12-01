@@ -56,7 +56,7 @@
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_equipe }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ perso.meteo_avance }}.png" /></td>
 							{% if perso.commentaire %}
-							<td title="{{ perso.commentaire }}">{{ perso.commentaire|truncatewords:10 }}&hellip;</td>
+							<td title="{{ perso.commentaire }}">{{ perso.commentaire|truncatewords:10 }}</td>
 							{% else %}
 							<td><em>{% trans "Aucun commentaire" %}</em></td>
 							{% endif %}
@@ -103,7 +103,7 @@
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_equipe }}.png" /></td>
 							<td align="center"><img src="{{ home }}media/img/meteo/m{{ autre.meteo_avance }}.png" /></td>
 							{% if autre.commentaire %}
-							<td title="{{ autre.commentaire }}">{{ autre.commentaire|truncatewords:10 }}&hellip;</td>
+							<td title="{{ autre.commentaire }}">{{ autre.commentaire|truncatewords:10 }}</td>
 							{% else %}
 							<td><em>{% trans "Aucun commentaire" %}</em></td>
 							{% endif %}						

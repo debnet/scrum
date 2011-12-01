@@ -82,7 +82,7 @@
 						<tr>
 							<td colspan="2">{{ d.date_creation|date:"l d F \à H:i" }}</td>
 							<td colspan="1"><strong>{{ d.utilisateur }}</strong></td>
-							<td colspan="2">{% if d.commentaire %}<span title="{{ d.commentaire }}">{{ d.commentaire|truncatewords:10 }}</a>{% else %}<em>{% trans "Aucun commentaire" %}</em>{% endif %}</td>
+							<td colspan="2">{% if d.commentaire %}<span title="{{ d.commentaire }}">{{ d.commentaire|truncatewords:10 }}</span>{% else %}<em>{% trans "Aucun commentaire" %}</em>{% endif %}</td>
 							<td colspan="1" style="font-weight:bold"><img src="{{ home }}media/img/statut/i{{ d.statut }}.png" />&nbsp;{{ d.statut|var2txt:"s" }}</td>
 						</tr>
 					{% endfor %}
