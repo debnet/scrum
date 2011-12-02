@@ -340,10 +340,10 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
         t.notes = notes.count() + tasks.count()
 
         nb = 0
-        nts = NoteTime.objects.select_related().filter(sprint__id__exact = t.id, note__etat__in = ('0', '1', '2', ))
+        nts = NoteTime.objects.select_related().filter(sprint__id__exact = t.id).exclude(note__etat__exact = '4')
         for ntt in nts:
             nb += ntt.temps + ntt.temps_fin
-        tts = TaskTime.objects.select_related().filter(sprint__id__exact = t.id, task__etat__in = ('0', '1', '2', ))
+        tts = TaskTime.objects.select_related().filter(sprint__id__exact = t.id).exclude(task__etat__exact = '4')
         for ttt in tts:
             nb += ttt.temps + ttt.temps_fin
         

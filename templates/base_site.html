@@ -50,6 +50,31 @@
             document.forms.config.nb_notes.value = nb_notes;
             document.forms.config.submit()
         }
+        
+        if (location.search != '') {
+            var params = location.search.substring(1).split('&');
+            var links = document.getElementsByTagName('a');
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i];
+                if (link.href == location.href) {
+                    var span = document.createElement('span');
+                    span.style.color = 'silver';
+                    span.innerHTML = link.innerHTML;
+                    link.parentNode.replaceChild(span, link);
+                    continue;
+                }
+                for (var j = 0; j < params.length; j++) {
+                    var param = params[j];
+                    if (link.href.indexOf('?') != -1 && link.href.split('?')[1] == param) {
+                        var span = document.createElement('span');
+                        span.style.color = 'silver';
+                        span.innerHTML = link.innerHTML;
+                        link.parentNode.replaceChild(span, link);
+                        break;
+                    }
+                }
+            }
+        }
     </script>
 </div>
 {% endblock %}
