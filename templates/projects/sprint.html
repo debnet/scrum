@@ -12,15 +12,14 @@
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
 			&nbsp;(&nbsp;
-				<!--
 				"{{ sprint.titre }}"
-				&nbsp;-&nbsp; 
-				-->
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">{% trans "Notes" %}</a> 
+				<!--
+				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">{% trans "Notes" %}</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">{% trans "Tâches" %}</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">{% trans "Burndown Chart" %}</a>
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">{% trans "Livraisons" %}</a>
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/meteo/">{% trans "Météo" %}</a>
+				-->
 			&nbsp;)
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>
@@ -31,6 +30,25 @@
 
 {% block content %}
 	<div id="content-main" align="center">
+		<table class="menus">
+			<tr>
+				<td>
+					<div onclick="document.location='burndown'" class="menu">
+						{% trans "Burndown chart" %}
+					</div>
+				</td>
+				<td>
+					<div onclick="document.location='releases'" class="menu">
+						{% trans "Livraisons" %}
+					</div>
+				</td>
+				<td>
+					<div onclick="document.location='meteo'" class="menu">
+						{% trans "Météo" %}
+					</div>
+				</td>
+			</tr>
+		</table>
 		<br />
 		<table class="menus">
 			<tr>

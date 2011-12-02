@@ -118,7 +118,7 @@ div.system-message p.system-message-title { padding:4px 5px 4px 25px; margin:0; 
 .description { font-size:12px; padding:5px 0 0 12px; }
 
 /* BREADCRUMBS */
-div.breadcrumbs { background:white url(../img/admin/nav-bg-reverse.gif) 0 -10px repeat-x; padding:2px 8px 3px 8px; font-size:11px;  color:#999;  border-top:1px solid white; border-bottom:1px solid #ccc; text-align:left; }
+div.breadcrumbs { height:15px; overflow-x:hidden; background:white url(../img/admin/nav-bg-reverse.gif) 0 -10px repeat-x; padding:2px 8px 3px 8px; font-size:11px;  color:#999;  border-top:1px solid white; border-bottom:1px solid #ccc; text-align:left; }
 
 /* ACTION ICONS */
 .addlink { padding-left:12px; background:url(../img/admin/icon_addlink.gif) 0 .2em no-repeat; }
