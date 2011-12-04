@@ -58,11 +58,13 @@ class SprintForm(forms.ModelForm):
     class Meta:
         model = Sprint
         exclude = ('date_creation', 'date_modification', 'confiance_dev', 'confiance_sm', 'confiance_po', )
+        """
         widgets = {
             'titre': forms.TextInput(attrs = {
                 'readonly': True,
             }),
         }
+        """
 
 class TaskForm(forms.ModelForm):
     utilisateur = forms.ModelChoiceField(UserProfile.objects.all(), widget=forms.HiddenInput)

@@ -268,3 +268,8 @@ select.image {
 	height: 22px;
 	padding-left: 25px;
 }
+
+#branding span.titre {
+	padding-left:20px; 
+	font-size:12px;
+}

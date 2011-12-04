@@ -5,7 +5,7 @@
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
 		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>Projet "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
 		&nbsp;|&nbsp; <strong>{% trans "Indicateurs" %}</strong>

@@ -5,21 +5,19 @@
 {% block breadcrumbs %}
 	<div class="breadcrumbs">
 		<a href="{{ home }}projects/"><strong>{% trans "Projets" %}</strong></a>
-		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{% trans "Projet" %} "{{ project.titre }}"</strong></a>
+		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/"><strong>{{ project.titre }}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/scrumwall/"><strong>{% trans "Scrum Wall" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/poker/"><strong>{% trans "Planning Poker" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/summary/"><strong>{% trans "Indicateurs" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/features/"><strong>{% trans "Fonctionnalités" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/"><strong>{% trans "Sprints" %}</strong></a>
 			&nbsp;(&nbsp;
-				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">"{{ sprint.titre }}"</a> 
-				<!--
+				<a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/">{{ sprint.titre }}</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/notes/">{% trans "Notes" %}</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/tasks/">{% trans "Tâches" %}</a> 
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/burndown/">{% trans "Burndown Chart" %}</a>
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/releases/">{% trans "Livraisons" %}</a>
 				&nbsp;-&nbsp; <a href="{{ home }}projects/{{ project.id }}/sprints/{{ sprint.id }}/meteo/">{% trans "Météo" %}</a>
-				-->
 			&nbsp;)
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/problems/"><strong>{% trans "Problèmes" %}</strong></a>
 		&nbsp;|&nbsp; <a href="{{ home }}projects/{{ project.id }}/documents/"><strong>{% trans "Documents" %}</strong></a>

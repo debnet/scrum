@@ -244,10 +244,7 @@ def list_features(project_id, sort = ['-priorite'], all = False, todo = True, ma
     j = 0
     n = 0
     for t in tmp:
-        if target != None and target == t.id:
-            t.target = True
-        else:
-            t.target = False
+        t.target = True if target != None and target == t.id else False
 
         notes = Note.objects.filter(feature__id__exact = t.id)
         t.temps_realise = 0
@@ -284,10 +281,7 @@ def list_notes(feature_id, sort = ['-priorite'], all = False, todo = True, toset
     j = 0
     n = 0
     for t in tmp:
-        if target != None and target == t.id:
-            t.target = True
-        else:
-            t.target = False
+        t.target = True if target != None and target == t.id else False
 
         if i > nb_notes :
             notes.append(list())
@@ -307,45 +301,31 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
     tmp = tmp.order_by(*sort) if sort else tmp
     if not all:    
         tmp = tmp.exclude(date_fin__lt = datetime.date.today()) if todo else tmp.filter(date_fin__lt = datetime.date.today())
-
+    
     sprints = list()
     sprints.append(list())
     i = 1
     j = 0
     n = 0
     for t in tmp:
-        if target != None and target == t.id:
-            t.target = True
-        else:
-            t.target = False
-
-        notes = Note.objects.filter(sprint__id__exact = t.id)
-        tasks = Task.objects.filter(sprint__id__exact = t.id)
-
-        t.temps_realise = 0
-        t.temps_estime = 0
-        for note in notes:
-            if note.etat == '4' and note.temps_estime >= note.temps_realise:
-                t.temps_realise += note.temps_estime
-            else:
-                t.temps_realise += note.temps_realise
-            t.temps_estime += note.temps_estime
-        for task in tasks:
-            if task.etat == '4' and task.temps_estime >= task.temps_realise:
-                t.temps_realise += task.temps_estime
-            else:
-                t.temps_realise += task.temps_realise
-            t.temps_estime += task.temps_estime
-
-        t.notes = notes.count() + tasks.count()
+        t.target = True if target != None and target == t.id else False
 
         nb = 0
-        nts = NoteTime.objects.select_related().filter(sprint__id__exact = t.id).exclude(note__etat__exact = '4')
-        for ntt in nts:
-            nb += ntt.temps + ntt.temps_fin
-        tts = TaskTime.objects.select_related().filter(sprint__id__exact = t.id).exclude(task__etat__exact = '4')
-        for ttt in tts:
-            nb += ttt.temps + ttt.temps_fin
+        t.notes = 0
+        t.temps_realise = 0
+        t.temps_estime = 0
+        ns = Note.objects.select_related().filter(sprint__id__exact = t.id)
+        for nt in ns:
+            t.notes += 1
+            nb += 1 if nt.etat not in ('3', '4') else 0
+            t.temps_realise += min(nt.temps_realise, nt.temps_estime) if nt.etat not in ('3', '4') else nt.temps_estime
+            t.temps_estime += nt.temps_estime
+        ts = Task.objects.select_related().filter(sprint__id__exact = t.id)
+        for tt in ts:
+            t.notes += 1
+            nb += 1 if nt.etat not in ('3', '4') else 0
+            t.temps_realise += min(tt.temps_realise, tt.temps_estime) if tt.etat not in ('3', '4') else tt.temps_estime
+            t.temps_estime += tt.temps_estime
         
         if t.date_debut > datetime.date.today():
             t.etat = 'todo'
@@ -381,7 +361,7 @@ def list_sprints(project_id, sort = ['-date_debut'], all = False, todo = True, m
                 nbd2 += 1
             d += datetime.timedelta(1)
 
-        value2 = ((datetime.date.today() - t.date_debut).days -nbd1 +1) / float((t.date_fin - t.date_debut).days -nbd2 +1)
+        value2 = ((datetime.date.today() - t.date_debut).days - nbd1 + 1) / float((t.date_fin - t.date_debut).days - nbd2 + 1)
 
         url  = u'http://chart.apis.google.com/chart'
         url += u'?cht=bhg'
@@ -426,10 +406,7 @@ def list_snotes(sprint_id, sort = ['-priorite'], all = False, todo = True, work 
     j = 0
     n = 0
     for t in tmp:
-        if target != None and target == t.id:
-            t.target = True
-        else:
-            t.target = False
+        t.target = True if target != None and target == t.id else False
 
         if i > nb_notes :
             notes.append(list())
@@ -456,10 +433,7 @@ def list_tasks(sprint_id, sort = ['-priorite'], all = False, todo = True, work =
     j = 0
     n = 0
     for t in tmp:
-        if target != None and target == t.id:
-            t.target = True
-        else:
-            t.target = False
+        t.target = True if target != None and target == t.id else False
 
         if i > nb_notes :
             tasks.append(list())
@@ -486,10 +460,7 @@ def list_problems(project_id, sort = ['-priorite'], all = False, todo = True, ma
     j = 0
     n = 0
     for t in tmp:
-        if target != None and target == t.id:
-            t.target = True
-        else:
-            t.target = False
+        t.target = True if target != None and target == t.id else False
 
         if i > nb_notes :
             problems.append(list())
@@ -557,7 +528,8 @@ def projects(request):
 
     return render_to_response('projects/projects.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
-         'projects': projects, 'membres': membres, 'nb_notes': nb_notes, })
+         'projects': projects, 'membres': membres, 'nb_notes': nb_notes, },
+        context_instance = RequestContext(request))
 
 # ------------------------------------------------
 @login_required
@@ -572,7 +544,7 @@ def project(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s"') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id
 
@@ -622,7 +594,7 @@ def features(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Fonctionnalités - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Fonctionnalités') % {'project': project.titre, }
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -713,7 +685,7 @@ def feature(request, project_id, feature_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Fonctionnalité "%s"') % (feature.titre, )
+    title = _(u'Projet "%(project)s" - Fonctionnalité "%(feature)s"') % {'project': project.titre, 'feature' : feature.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id
 
@@ -745,7 +717,7 @@ def notes(request, project_id, feature_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Notes de backlog - Fonctionnalité "%s"') % (feature.titre, )
+    title = _(u'Projet "%(project)s" - Fonctionnalité "%(feature)s" - Notes de backlog') % {'project': project.titre, 'feature': feature.titre, }
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -859,7 +831,7 @@ def note(request, project_id, feature_id, note_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Note de backlog "%s"') % (note.titre, )
+    title = _(u'Projet "%(project)s" - Fonctionnalité "%(feature)s" - Note "%(note)s"') % {'project': project.titre, 'feature': feature.titre, 'note': note.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id
 
@@ -884,7 +856,7 @@ def sprints(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Sprints - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Sprints') % {'project': project.titre, }
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1008,7 +980,7 @@ def sprint(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Sprint "%s"') % (sprint.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s"') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id
 
@@ -1043,7 +1015,7 @@ def snotes(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Notes de sprint - Sprint "%s"') % (sprint.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Notes de sprint') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1175,7 +1147,7 @@ def snote(request, project_id, sprint_id, note_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Note de sprint "%s"') % (note.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Note "%(note)s"') % {'project': projet.titre, 'sprint': sprint.titre, 'note': note.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/notes/' + note_id
 
@@ -1201,7 +1173,7 @@ def tasks(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Tâches - Sprint "%s"') % (sprint.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Tâches') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1309,7 +1281,7 @@ def task(request, project_id, sprint_id, task_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Tâche - Sprint "%s"') % (task.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Tâche "%(task)s"') % {'project': project.titre, 'sprint': sprint.titre, 'task': task.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/' + task_id
 
@@ -1335,7 +1307,7 @@ def releases(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Livraisons - Sprint "%s"') % (sprint.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Livraisons') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases'
 
@@ -1463,7 +1435,7 @@ def release(request, project_id, sprint_id, release_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Livraison - "%s"') % (release.note.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Livraison de "%(note)s"') % {'project': project.titre, 'sprint': sprint.titre, 'note': release.note.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/releases/' + release_id
 
@@ -1488,7 +1460,7 @@ def problems(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Problèmes - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Problèmes') % {'project': project.titre, }
     messages = list()
     if request.session.__contains__('messages'):
         messages = request.session['messages']
@@ -1589,7 +1561,7 @@ def problem(request, project_id, problem_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Problème "%s"') % (problem.titre, )
+    title = _(u'Projet "%(project)s" - Problème "%(problem)s"') % {'project': project.titre, 'problem': problem.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/problems/' + problem_id
 
@@ -1615,9 +1587,9 @@ def burndown(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    lock = sprint.date_modification.strftime(_('%d/%m/%Y %H:%M:%S'))
+    lock = sprint.date_modification.strftime('%d/%m/%Y %H:%M:%S')
     
-    title = _(u'Burndown Chart - Sprint "%s"') % (sprint.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Burndown Chart') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
     erreurs = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/burndown'
@@ -1630,7 +1602,7 @@ def burndown(request, project_id, sprint_id):
 
     if request.method == 'POST':
         changes = list()
-        if request.POST['lock'] == lock:
+        if request.POST.__contains__('lock') and request.POST['lock'] == lock:
             for id in request.POST:
                 if id[0:4] == 'Note':
                     time = NoteTime.objects.get(pk = int(id[4:]))
@@ -1880,7 +1852,7 @@ def velocity(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Velocité - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Velocité et progression') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/velocity'
 
@@ -2004,7 +1976,7 @@ def pareto(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Pareto - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Diagramme de Pareto') % {'project': project.titre, }
     request.session['url'] = HOME + 'projects/' + project_id + '/poker'
 
     add_history(user, request.session['url'])
@@ -2101,7 +2073,7 @@ def summary(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Synthèse - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Synthèse') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/summary'
 
@@ -2233,7 +2205,7 @@ def meteo(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Météo - Sprint "%s"') % (sprint.titre, )
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Météo') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
     erreurs = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/meteo'
@@ -2338,7 +2310,7 @@ def documents(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Documents')
+    title = _(u'Projet "%(project)s" - Documents') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/documents'
 
@@ -2386,7 +2358,7 @@ def scrumwall(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Scrum Wall - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Scrum Wall') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/scrumwall'
 
@@ -2463,7 +2435,7 @@ def poker(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Planning Poker - Projet "%s"') % (project.titre, )
+    title = _(u'Projet "%(project)s" - Planning Poker') % {'project': project.titre, }
     messages = list()
     erreurs = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/poker'
@@ -2591,7 +2563,7 @@ def new_feature(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Nouvelle fonctionnalité')
+    title = _(u'Projet "%(project)s" - Nouvelle fonctionnalité') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/new'
 
@@ -2627,7 +2599,7 @@ def new_note(request, project_id, feature_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Nouvelle note de backlog "%s"') % (feature.titre, )
+    title = _(u'Projet "%(project)s" - Fonctionnalité "%(feature)s" - Nouvelle note') % {'project': project.titre, 'feature': feature.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/new'   
 
@@ -2671,7 +2643,7 @@ def new_sprint(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Nouveau sprint')
+    title = _(u'Projet "%(project)s" - Nouveau sprint') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/new'
 
@@ -2713,7 +2685,7 @@ def new_task(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Nouvelle tâche')
+    title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Nouvelle tâche') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/sprints/' + sprint_id + '/tasks/new'
 
@@ -2749,7 +2721,7 @@ def new_problem(request, project_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Nouveau problème')
+    title = _(u'Projet "%(project)s" - Nouveau problème') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/problems/new'   
 
@@ -2821,7 +2793,7 @@ def add_sprint(request, project_id, feature_id, note_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    title = _(u'Nouveau sprint')
+    title = _(u'Projet "%(project)s" - Nouveau sprint') % {'project': project.titre, }
     messages = list()
     request.session['url'] = HOME + 'projects/' + project_id + '/features/' + feature_id + '/notes/' + note_id + '/sprint'
 
