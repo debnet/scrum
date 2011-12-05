@@ -131,7 +131,7 @@ class Sprint(models.Model):
     titre = models.CharField(_(u'Titre'), max_length=128, help_text=_(u'Requis. Un titre pour identifier le sprint.'))
     objectif = models.TextField(_(u'Objectif'), blank=True, null=True)
     date_debut = fields.CustomDateField(_(u'Date de début'), default=datetime.date.today, help_text=_(u'Date à laquelle le sprint commence(ra).'), db_index=True)
-    date_fin = fields.CustomDateField(_(u'Date de fin'), help_text=_(u'Date à laquelle le sprint finira. Normalement fixe une fois pour toute.'), db_index=True)
+    date_fin = fields.CustomDateField(_(u'Date de fin'), help_text=_(u'Date à laquelle le sprint finira. Normalement fixe une fois pour toutes.'), db_index=True)
     effort = models.PositiveSmallIntegerField(_(u'Effort estimé'), default=0, help_text=_(u'Effort estimé de l\'ensemble des notes du backlog à la création du sprint.'))
     
     confiance_dev = models.CharField(_(u'Confiance Développeurs'), max_length=1, choices=CONFIANCE, default='0', help_text=_(u'Indique le niveau de confiance de la réalisabilité de la fonctionnalité par l\'équipe de développeurs.'))
