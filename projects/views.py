@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import time
 import codecs
 import datetime
 from xml.dom.minidom import parse
@@ -81,6 +80,7 @@ def get_nb_notes(request):
 
 # ------------------------------------------------
 def get_holidays(year1, year2 = None):
+    import time
     holidays = list()
     if (os.path.exists(ROOT + str(year1) + '.xml')):
         dom = parse(ROOT + str(year1) + '.xml')
@@ -893,6 +893,7 @@ def sprints(request, project_id):
     nb_notes = get_nb_notes(request)
     
     if request.method == 'POST' and request.POST.__contains__('id'):
+        import time
         id = int(request.POST['id'])
         sprint = Sprint.objects.get(pk = id)
         tmp = time.strptime(request.POST['date_debut'], '%Y-%m-%d')

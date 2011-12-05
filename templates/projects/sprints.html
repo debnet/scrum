@@ -55,7 +55,7 @@
 							<a class="image" href="?p={{ sprint.id }}"><img title="{% trans "Confiance Product Owner" %}" src="{{ home }}media/img/confiance/p{{ sprint.confiance_po }}.png" /></a>
 						</div>
 					</div>
-					{% if user.is_superuser %}
+					{% if user.user.is_superuser %}
 					<div class="formulaire">
 						<form enctype="multipart/form-data" action=".#{{ sprint.id }}" method="post" align="center">{% csrf_token %}
 							<label>{% trans "Dates du sprint :" %}</label><br />
