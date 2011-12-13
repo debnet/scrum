@@ -65,7 +65,7 @@
 				</tr><tr class="row1">
 					<th>{% trans "Tendance" %}</th>
 					{% for t in item|values:"times" %}
-					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|values:"trend1" }}.png" alt="{{ t|values:"trend1" }}" /></td>
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}img/chart/{{ t|values:"trend1" }}.png" alt="{{ t|values:"trend1" }}" /></td>
 					{% endfor %}
 				</tr><tr class="row2">
 					<th>{% trans "Progression" %}</th>
@@ -85,7 +85,7 @@
 				</tr><tr class="row1">
 					<th>{% trans "Tendance" %}</th>
 					{% for t in item|values:"times" %}
-					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}/img/chart/{{ t|values:"trend2" }}.png" alt="{{ t|values:"trend2" }}" /></td>
+					<td align="right" {% ifequal t|values:"day" date %}class="hl"{% endifequal %}><img width="12" height="12" src="{{ theme }}img/chart/{{ t|values:"trend2" }}.png" alt="{{ t|values:"trend2" }}" /></td>
 					{% endfor %}
 				</tr>
 			</tbody>
