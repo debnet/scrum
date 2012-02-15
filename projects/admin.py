@@ -96,7 +96,7 @@ class NoteAdmin(admin.ModelAdmin):
     )
     list_display = ('titre', 'feature', 'sprint', 'priorite', 'etat', 'type', 'effort', 'temps_realise', 'temps_estime', )
     list_filter = ('date_creation', 'priorite', 'type', 'etat', 'effort', )
-    search_fields = ('feature__titre', 'sprint', 'titre', 'description', )
+    search_fields = ('feature__titre', 'sprint__titre', 'titre', 'description', )
     actions_on_top = False
     actions_on_bottom = True
     ordering = ['feature', 'titre']
