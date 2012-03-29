@@ -1978,7 +1978,7 @@ def pareto(request, project_id):
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
     title = _(u'Projet "%(project)s" - Diagramme de Pareto') % {'project': project.titre, }
-    request.session['url'] = HOME + 'projects/' + project_id + '/poker'
+    request.session['url'] = HOME + 'projects/' + project_id + '/pareto'
 
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
@@ -2513,7 +2513,7 @@ def poker(request, project_id):
                             break
                         old = e[0]
                 data['avg'] = avg
-                if (opt == 'all') or (opt == 'todo' and not perso) or (opt == 'done' and avg != 0 and n.effort == 0):
+                if (opt == 'all') or (opt == 'todo' and not perso) or (opt == 'set' and perso) or (opt == 'done' and avg != 0 and (n.effort != avg or n.effort == 0)):
                     liste.append(data)
     
     sprints = Sprint.objects.filter(projet__id__exact = project_id).order_by('date_debut')
