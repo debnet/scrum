@@ -26,6 +26,8 @@
 			<input name="hselect" type="submit" value="{% trans "Afficher" %}" />
 			<input name="hdelete" type="submit" value="{% trans "Supprimer" %}" {% if not user.user.is_staff %}disabled{% endif %} />
 		</form>
+		<br />
+		<a href="?archive">{% trans "Archiver les historiques les plus anciens" %}</a>
 		<br /><br />
 		<table>
 			<thead>
@@ -41,7 +43,7 @@
 					<td align="center" colspan="5">{% trans "Aucun élément à afficher" %}</td>
 				</tr>
 			{% else %}
-			{% for h in history %}
+			{% for h in history.object_list %}
 				<tr class="{% cycle 'row1' 'row2' %}">
 					<td>{{ h.id }}</a></td>
 					<td>{{ h.utilisateur.user.first_name }} {{ h.utilisateur.user.last_name }} ({{ h.utilisateur.user.username }})</td>
@@ -53,6 +55,14 @@
 			{% endif %}
 			</tbody>
 		</table>
+		<br />
+		<div class="pagination">
+			<span class="step-links">
+				{% if history.has_previous %}<a href="?page={{ history.previous_page_number }}">{% trans "Page précédente" %}</a>&nbsp;-&nbsp;{% endif %}
+				<span class="current">Page {{ history.number }}/{{ history.paginator.num_pages }}</span>
+				{% if history.has_next %}&nbsp;-&nbsp;<a href="?page={{ history.next_page_number }}">{% trans "Page suivante" %}</a>{% endif %}
+			</span>
+		</div>
 	</div>
 {% endblock %}
 

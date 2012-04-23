@@ -26,6 +26,8 @@
 			<input name="lselect" type="submit" value="{% trans "Afficher" %}" />
 			<input name="ldelete" type="submit" value="{% trans "Supprimer" %}" {% if not user.user.is_staff %}disabled{% endif %} />
 		</form>
+		<br />
+		<a href="?archive">{% trans "Archiver les logs les plus anciens" %}</a>
 		<br /><br />
 		<table>
 			<thead>
@@ -44,7 +46,7 @@
 					<td align="center" colspan="8">{% trans "Aucun élément à afficher" %}</td>
 				</tr>
 			{% else %}
-			{% for l in logs %}
+			{% for l in logs.object_list %}
 				<tr class="{% cycle 'row1' 'row2' %}">
 					<td>{{ l.object_id }}</a></td>
 					<td>{{ l.object_repr }}</td>
@@ -59,6 +61,14 @@
 			{% endif %}
 			</tbody>
 		</table>
+		<br />
+		<div class="pagination">
+			<span class="step-links">
+				{% if logs.has_previous %}<a href="?page={{ logs.previous_page_number }}">{% trans "Page précédente" %}</a>&nbsp;-&nbsp;{% endif %}
+				<span class="current">Page {{ logs.number }}/{{ logs.paginator.num_pages }}</span>
+				{% if logs.has_next %}&nbsp;-&nbsp;<a href="?page={{ logs.next_page_number }}">{% trans "Page suivante" %}</a>{% endif %}
+			</span>
+		</div>
 	</div>
 {% endblock %}
 

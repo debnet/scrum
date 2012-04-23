@@ -15,6 +15,7 @@ from django.db.models import Count, Sum, Avg
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.models import LogEntry, ContentType
 from django.contrib.auth.models import User
@@ -164,54 +165,56 @@ def add_history(user, url):
         h.save()
 
 # ------------------------------------------------
-def write_logs():
+def write_logs(archive_history = False, archive_logs = False):
     file = False
     date = datetime.date.today()
-    history = History.objects.filter(date_creation__lt = datetime.date.today() - datetime.timedelta(settings.ARCHIVE_DAYS)).order_by('date_creation');
-    for h in history:
-        current = h.date_creation.date()
-        path1 = ROOT + 'logs' + os.sep + 'urls-' + current.strftime('%Y%m%d') + '.html'
-        path2 = ROOT + 'logs' + os.sep + 'urls-' + date.strftime('%Y%m%d') + '.html'
-        if date != current and os.path.exists(path2):
-            file = codecs.open(path2, mode='a', encoding='utf-8')
-            file.write(u'</tbody></table></body></html>')
+    if archive_history:
+        history = History.objects.filter(date_creation__lt = datetime.date.today() - datetime.timedelta(settings.ARCHIVE_DAYS)).order_by('date_creation');
+        for h in history:
+            current = h.date_creation.date()
+            path1 = ROOT + 'logs' + os.sep + 'urls-' + current.strftime('%Y%m%d') + '.html'
+            path2 = ROOT + 'logs' + os.sep + 'urls-' + date.strftime('%Y%m%d') + '.html'
+            if date != current and os.path.exists(path2):
+                file = codecs.open(path2, mode='a', encoding='utf-8')
+                file.write(u'</tbody></table></body></html>')
+                file.close()
+            if not os.path.exists(path1):
+                file = codecs.open(path1, mode='w', encoding='utf-8')
+                file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>%s (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>%s (%s)</h1><br />' % 
+                    (_(u'Historiques de navigation'), current.strftime(_('%d/%m/%Y')), _(u'Historiques de navigation'), current.strftime(_('%d/%m/%Y')), ));
+                file.write(u'<table><thead><tr><th width="100">%s</th><th width="400">%s</th><th>%s</th></tr></thead><tbody>' % (_(u'Heure'), _(u'Utilisateur'), _(u'URL'), ))
+            else:
+                file = codecs.open(path1, mode='a', encoding='utf-8')
+            file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td><a href="http://%s">%s</a></td></tr>' 
+                       % (h.date_creation.strftime('%H:%m:%S'), h.utilisateur.user.first_name, h.utilisateur.user.last_name, h.utilisateur.user.username, settings.DEFAULT_URL + h.url, h.url, ))
             file.close()
-        if not os.path.exists(path1):
-            file = codecs.open(path1, mode='w', encoding='utf-8')
-            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>%s (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>%s (%s)</h1><br />' % 
-                (_(u'Historiques de navigation'), current.strftime(_('%d/%m/%Y')), _(u'Historiques de navigation'), current.strftime(_('%d/%m/%Y')), ));
-            file.write(u'<table><thead><tr><th width="100">%s</th><th width="400">%s</th><th>%s</th></tr></thead><tbody>' % (_(u'Heure'), _(u'Utilisateur'), _(u'URL'), ))
-        else:
-            file = codecs.open(path1, mode='a', encoding='utf-8')
-        file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td><a href="http://%s">%s</a></td></tr>' 
-                   % (h.date_creation.strftime('%H:%m:%S'), h.utilisateur.user.first_name, h.utilisateur.user.last_name, h.utilisateur.user.username, settings.DEFAULT_URL + h.url, h.url, ))
-        file.close()
-        h.delete()
-        date = current 
-    file = False
+            h.delete()
+            date = current 
+        file = False
     date = datetime.date.today()
     actions = [u'', _(u'Ajout'), _(u'Modification'), _(u'Suppression')]
-    logs = LogEntry.objects.filter(action_time__lt = datetime.date.today() - datetime.timedelta(7)).order_by('action_time')
-    for l in logs:
-        current = l.action_time.date()
-        path1 = ROOT + 'logs' + os.sep + 'logs-' + l.action_time.strftime('%Y%m%d') + '.html'
-        path2 = ROOT + 'logs' + os.sep + 'logs-' + date.strftime('%Y%m%d') + '.html'
-        if date != current and os.path.exists(path2):
-            file = codecs.open(path2, mode='a', encoding='utf-8')
-            file.write(u'</tbody></table></body></html>')
+    if archive_logs:
+        logs = LogEntry.objects.filter(action_time__lt = datetime.date.today() - datetime.timedelta(7)).order_by('action_time')
+        for l in logs:
+            current = l.action_time.date()
+            path1 = ROOT + 'logs' + os.sep + 'logs-' + l.action_time.strftime('%Y%m%d') + '.html'
+            path2 = ROOT + 'logs' + os.sep + 'logs-' + date.strftime('%Y%m%d') + '.html'
+            if date != current and os.path.exists(path2):
+                file = codecs.open(path2, mode='a', encoding='utf-8')
+                file.write(u'</tbody></table></body></html>')
+                file.close()
+            if not os.path.exists(path1):
+                file = codecs.open(path1, mode='w', encoding='utf-8')
+                file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>%s (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>%s (%s)</h1><br />' % 
+                    (_(u'Historiques de gestion'), current.strftime(_('%d/%m/%Y')), _(u'Historiques de gestion'), current.strftime(_('%d/%m/%Y')), ))
+                file.write(u'<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th><th width="500">Message</th></tr></thead><tbody>')
+            else :
+                file = codecs.open(path1, mode='a', encoding='utf-8')
+            file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
+                % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, l.object_repr, l.content_type, actions[l.action_flag], l.change_message, ))    
             file.close()
-        if not os.path.exists(path1):
-            file = codecs.open(path1, mode='w', encoding='utf-8')
-            file.write(u'<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8" /><title>%s (%s)</title><style>* { font-family: "Verdana"; } th { text-align: left; }</style></head><body><h1>%s (%s)</h1><br />' % 
-                (_(u'Historiques de gestion'), current.strftime(_('%d/%m/%Y')), _(u'Historiques de gestion'), current.strftime(_('%d/%m/%Y')), ))
-            file.write(u'<table><thead><tr><th width="100">Heure</th><th width="400">Utilisateur</th><th width="400">Objet</th><th width="150">Type</th><th width="150">Action</th><th width="500">Message</th></tr></thead><tbody>')
-        else :
-            file = codecs.open(path1, mode='a', encoding='utf-8')
-        file.write(u'<tr><td>%s</td><td>%s %s (%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' 
-            % (l.action_time.strftime('%H:%m:%S'), l.user.first_name, l.user.last_name, l.user.username, l.object_repr, l.content_type, actions[l.action_flag], l.change_message, ))    
-        file.close()
-        l.delete()
-        date = current
+            l.delete()
+            date = current
 
 # ------------------------------------------------
 def list_users(membres):
@@ -521,7 +524,7 @@ def projects(request):
         del request.session['messages']
     request.session['url'] = HOME + 'projects'
 
-    write_logs()
+    #write_logs()
     add_history(user, request.session['url'])
     nb_notes = get_nb_notes(request)
 
@@ -1617,7 +1620,7 @@ def burndown(request, project_id, sprint_id):
         derniere_modification = request.POST['lock']
         for id in request.POST:
             if id[0:4] == 'Note':
-                time = NoteTime.objects.get(pk = int(id[4:]))
+                time = NoteTime.objects.select_related().get(pk = int(id[4:]))
                 note = time.note
                 if (derniere_modification != note.date_modification.strftime(tag)):
                     ok = False
@@ -1637,7 +1640,7 @@ def burndown(request, project_id, sprint_id):
                 time.save()
                 item = note
             elif id[0:5] == 'Tache':
-                time = TaskTime.objects.get(pk = int(id[5:]))
+                time = TaskTime.objects.select_related().get(pk = int(id[5:]))
                 task = time.task
                 if (derniere_modification != task.date_modification.strftime(tag)):
                     ok = False
@@ -1657,7 +1660,7 @@ def burndown(request, project_id, sprint_id):
                 time.save()
                 item = task
             elif id[0:5] == '_Note':
-                note = Note.objects.get(pk = int(id[5:]))
+                note = Note.objects.select_related().get(pk = int(id[5:]))
                 if (derniere_modification != note.date_modification.strftime(tag)):
                     ok = False
                     continue
@@ -1685,7 +1688,7 @@ def burndown(request, project_id, sprint_id):
                 changes.append(u'état = ' + ETATS[int(note.etat)][1])
                 add_log(user, 'note', note, 2, ', '.join(changes))
             elif id[0:6] == '_Tache':
-                task = Task.objects.get(pk = int(id[6:]))
+                task = Task.objects.select_related().get(pk = int(id[6:]))
                 if (derniere_modification != task.date_modification.strftime(tag)):
                     ok = False
                     continue
@@ -1902,7 +1905,7 @@ def velocity(request, project_id):
     for i in range(4):
         s = 0
         for sprint in sprints:
-            notes = Note.objects.filter(sprint__id__exact = sprint.id, type__exact = i, etat__exact = '4')
+            notes = Note.objects.filter(sprint__id__exact = sprint.id, type__exact = i, etat__in = ('3', '4'))
             n = 0
             for note in notes:
                 n += note.effort
@@ -1942,7 +1945,7 @@ def velocity(request, project_id):
     for sprint in sprints:
         i += 1
         labels.append(_(u'Sprint %d') % (i))
-        notes = Note.objects.filter(sprint__id__exact = sprint.id, etat__exact = '4')
+        notes = Note.objects.filter(sprint__id__exact = sprint.id, etat__in = ('3', '4'))
         n = 0
         for note in notes:
             n += note.effort
@@ -2881,11 +2884,21 @@ def logs(request):
             if l['user'] == u.user.id:
                 u.lcount = l['count']
 
+    if request.method == 'GET':
+        if request.GET.__contains__('archive'):
+            write_logs(archive_history = False, archive_logs = True)
+            messages.append(_(u'Logs les plus anciens archivés avec succès !'))
+
     logs = LogEntry.objects.all()
     logs = logs.order_by('-action_time')
+    paginator = Paginator(logs, 25)
+    logs_list = paginator.page(1)
 
     luser = 0
-    huser = 0   
+    huser = 0
+    if request.method == 'GET':
+        if request.GET.__contains__('page'):
+            logs_list = paginator.page(request.GET['page'])
     if request.method == 'POST':
         if request.POST.__contains__('lselect'):
             if request.POST['luser'] != '0':
@@ -2911,7 +2924,7 @@ def logs(request):
 
     return render_to_response('projects/logs.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
-         'logs': logs, 'users': users, 'luser': luser, },
+         'logs': logs_list, 'users': users, 'luser': luser, },
         context_instance = RequestContext(request))
 
 # ------------------------------------------------
@@ -2936,11 +2949,21 @@ def history(request):
             if h['utilisateur'] == u.user.id:
                 u.hcount = h['count']
 
+    if request.method == 'GET':
+        if request.GET.__contains__('archive'):
+            write_logs(archive_history = True, archive_logs = False)
+            messages.append(_(u'Historiques les plus anciens archivés avec succès !'))
+
     history = History.objects.all()
     history = history.order_by('-date_creation')
+    paginator = Paginator(history, 25)
+    history_list = paginator.page(1)
 
     luser = 0
-    huser = 0   
+    huser = 0
+    if request.method == 'GET':
+        if request.GET.__contains__('page'):
+            history_list = paginator.page(request.GET['page'])
     if request.method == 'POST':
         if request.POST.__contains__('hselect'):
             if request.POST['huser'] != '0':
@@ -2966,7 +2989,7 @@ def history(request):
 
     return render_to_response('projects/history.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
-         'history': history, 'users': users, 'huser': huser, },
+         'history': history_list, 'users': users, 'huser': huser, },
         context_instance = RequestContext(request))  
 
 # ------------------------------------------------
