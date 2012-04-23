@@ -29,17 +29,6 @@
 {% block config %}
 <div class="config">
     <form name="config" enctype="multipart/form-data" action="." method="post">{% csrf_token %}
-        <!--
-        <select name="nb_notes" title="Nombre de notes par ligne" onchange="submit()">
-            <option value="3" {% if nb_notes == 3 %}selected{% endif %}>3</option>
-            <option value="4" {% if nb_notes == 4 %}selected{% endif %}>4</option>
-            <option value="5" {% if nb_notes == 5 %}selected{% endif %}>5</option>
-            <option value="6" {% if nb_notes == 6 %}selected{% endif %}>6</option>
-            <option value="7" {% if nb_notes == 7 %}selected{% endif %}>7</option>
-            <option value="8" {% if nb_notes == 8 %}selected{% endif %}>8</option>
-            <option value="9" {% if nb_notes == 9 %}selected{% endif %}>9</option>
-        </select>
-        -->
         <input type="hidden" name="nb_notes" value="{{ nb_notes }}" />
     </form>
     <script type="text/javascript">

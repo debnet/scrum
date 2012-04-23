@@ -28,7 +28,8 @@
 
 {% block content %}
 	<div id="content-main" align="center">
-		<br />
+		<a href="?csv">{% trans "Exporter en CSV" %}</a>
+		<br /><br />
 		<img style="width: 800px; height: 350px;" src="{{ url }}" />
 		<br /><br /><br />
 		{% trans "Afficher :" %}&nbsp;
@@ -45,7 +46,7 @@
 					<th>{% trans "Fonctionnalité" %}</th>
 					<th>{% trans "Titre" %}</th>
 					{% for d in days %}
-					<th {% ifequal d date %}style="color:red"{% endifequal %}>{{ d|date:"d/m" }}</th>
+					<th style="{% ifequal d date %}color:red;{% endifequal %}{% if d > date %}display:none{% endif %}">{{ d|date:"d/m" }}</th>
 					{% endfor %}
 					<th>{% trans "Temps total" %}</th>
 					<th>{% trans "Terminée ?" %}</th>
@@ -74,7 +75,7 @@
 							{% endifequal %}
 						</td>
 						{% for time in item|values:"time" %}
-						<td onmouseout="UnTip()" onmouseover="Tip('{% trans "Temps réalisé :" %} <strong>{{ time.temps }}</strong><br />{% trans "Par :" %} <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
+						<td {% if time.jour > date %}style="display:none"{% endif %} onmouseout="UnTip()" onmouseover="Tip('{% trans "Temps réalisé :" %} <strong>{{ time.temps }}</strong><br />{% trans "Par :" %} <strong>{{ time.utilisateur }}</strong>', TITLE, '{{ time.date_modification|date:"d F Y H:i" }}', ABOVE, true, SHADOW, true, JUMPHORZ, true, WIDTH, 200)">
 							<input {% ifequal time.jour date %}style="border: 1px solid red"{% endifequal %} type="text" name="{{ item|values:"type" }}{{ time.id }}" value="{{ time.temps }}" size="2" {% if item|values:"etat" == "0" or item|values:"etat" == "3" or item|values:"etat" == "4" %}disabled{% endif %} />
 						</td>
 						{% endfor %}
@@ -85,7 +86,7 @@
 							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="non" {% if item|values:"etat" != "4" %}checked{% endif %} /> {% trans "Non" %}&nbsp;
 							<input name="_{{ item|values:"type" }}{{ item|values:"id" }}" type="radio" value="oui" {% if item|values:"etat" == "4" %}checked{% endif %} /> {% trans "Oui" %}&nbsp;
 							&nbsp;
-							<input type="hidden" name="lock" value="{{ lock }}" />
+							<input type="hidden" name="lock" value="{{ item|values:"lock" }}" />
 							<input type="submit" value="{% trans "OK" %}" {% if not user.user.is_staff %}disabled{% endif %}/>
 						</td>
 					</form>	

@@ -40,6 +40,14 @@ HOME = settings.DEFAULT_HOME
 THEME = settings.MEDIA_URL
 
 # ------------------------------------------------
+import unicodedata
+def remove_accents(string):
+    if isinstance(string, str):
+        s = unicode(s, 'utf8', 'replace')
+    s = unicodedata.normalize('NFD', string)
+    return s.encode('ascii', 'ignore')
+
+# ------------------------------------------------
 def check_rights(user, project, *objects):
     previous = None
     valid = True
@@ -1588,7 +1596,8 @@ def burndown(request, project_id, sprint_id):
         return render_to_response('error.html', { 'page': page, 'home': HOME, 'theme': THEME, 
             'user': user, 'title': ERREUR_TITRE, 'erreur': ERREUR_TEXTE, })
     
-    lock = sprint.date_modification.strftime('%d/%m/%Y %H:%M:%S')
+    tag = _('%d/%m/%Y %H:%M:%S')
+    now = datetime.datetime.now()
     
     title = _(u'Projet "%(project)s" - Sprint "%(sprint)s" - Burndown Chart') % {'project': project.titre, 'sprint': sprint.titre, }
     messages = list()
@@ -1603,92 +1612,111 @@ def burndown(request, project_id, sprint_id):
 
     if request.method == 'POST':
         changes = list()
-        if request.POST.__contains__('lock') and request.POST['lock'] == lock:
-            for id in request.POST:
-                if id[0:4] == 'Note':
-                    time = NoteTime.objects.get(pk = int(id[4:]))
-                    note = time.note
-                    temps = int(request.POST[id]) if request.POST[id].isdigit() else 0
-                    if (temps == 0):
-                        time.date_modification = None
-                        time.utilisateur = None
-                    elif (time.temps != temps):
-                        note.etat = '2'
-                        time.date_modification = datetime.datetime.now()
-                        time.utilisateur = user
-                    note.temps_realise = note.temps_realise - time.temps
-                    time.temps = temps
-                    note.temps_realise = note.temps_realise + time.temps
-                    note.save()
-                    time.save()
-                elif id[0:5] == 'Tache':
-                    time = TaskTime.objects.get(pk = int(id[5:]))
-                    task = time.task
-                    temps = int(request.POST[id]) if request.POST[id].isdigit() else 0
-                    if (temps == 0):
-                        time.date_modification = None
-                        time.utilisateur = None
-                    elif (time.temps != temps):
-                        task.etat = '2'
-                        time.date_modification = datetime.datetime.now()
-                        time.utilisateur = user
-                    task.temps_realise = task.temps_realise - time.temps
-                    time.temps = temps
-                    task.temps_realise = task.temps_realise + time.temps
-                    task.save()
-                    time.save()
-                elif id[0:5] == '_Note':
-                    note = Note.objects.get(pk = int(id[5:]))
-                    etat = '4' if request.POST[id] == 'oui' else '2'
-                    if note.etat in ('1', '2') and etat == '4':
-                        nts = NoteTime.objects.filter(note__in = (note, ))
-                        nts = nts.order_by('-jour')
-                        for nt in nts:
-                            if nt.temps > 0:
-                                fin = nt.note.temps_estime - nt.note.temps_realise
-                                nt.temps_fin = fin
-                                nt.save()
-                                break
-                    elif note.etat == '4' and etat == '2':
-                        nts = NoteTime.objects.filter(note__in = (note, ))
-                        etat = '1'
-                        for nt in nts:
-                            if nt.temps > 0:
-                                etat = '2'
-                            nt.temps_fin = 0
+        ok = True
+        item = None
+        derniere_modification = request.POST['lock']
+        for id in request.POST:
+            if id[0:4] == 'Note':
+                time = NoteTime.objects.get(pk = int(id[4:]))
+                note = time.note
+                if (derniere_modification != note.date_modification.strftime(tag)):
+                    ok = False
+                    continue
+                temps = int(request.POST[id]) if request.POST[id].isdigit() else 0
+                if (temps == 0):
+                    time.date_modification = None
+                    time.utilisateur = None
+                elif (time.temps != temps):
+                    note.etat = '2'
+                    time.date_modification = datetime.datetime.now()
+                    time.utilisateur = user
+                note.temps_realise = note.temps_realise - time.temps
+                time.temps = temps
+                note.temps_realise = note.temps_realise + time.temps
+                note.save()
+                time.save()
+                item = note
+            elif id[0:5] == 'Tache':
+                time = TaskTime.objects.get(pk = int(id[5:]))
+                task = time.task
+                if (derniere_modification != task.date_modification.strftime(tag)):
+                    ok = False
+                    continue
+                temps = int(request.POST[id]) if request.POST[id].isdigit() else 0
+                if (temps == 0):
+                    time.date_modification = None
+                    time.utilisateur = None
+                elif (time.temps != temps):
+                    task.etat = '2'
+                    time.date_modification = datetime.datetime.now()
+                    time.utilisateur = user
+                task.temps_realise = task.temps_realise - time.temps
+                time.temps = temps
+                task.temps_realise = task.temps_realise + time.temps
+                task.save()
+                time.save()
+                item = task
+            elif id[0:5] == '_Note':
+                note = Note.objects.get(pk = int(id[5:]))
+                if (derniere_modification != note.date_modification.strftime(tag)):
+                    ok = False
+                    continue
+                etat = '4' if request.POST[id] == 'oui' else '2'
+                if note.etat in ('1', '2') and etat == '4':
+                    nts = NoteTime.objects.filter(note__in = (note, ))
+                    nts = nts.order_by('-jour')
+                    for nt in nts:
+                        if nt.temps > 0:
+                            fin = nt.note.temps_estime - nt.note.temps_realise
+                            nt.temps_fin = fin
                             nt.save()
-                    note.etat = etat
-                    note.save()
-                    changes.append(u'état = ' + ETATS[int(note.etat)][1])
-                    add_log(user, 'note', note, 2, ', '.join(changes))
-                elif id[0:6] == '_Tache':
-                    task = Task.objects.get(pk = int(id[6:]))
-                    etat = '4' if request.POST[id] == 'oui' else '2'
-                    if task.etat in ('1', '2') and etat == '4':
-                        tts = TaskTime.objects.filter(task__in = (task, ))
-                        tts = tts.order_by('-jour')
-                        for tt in tts:
-                            if tt.temps > 0:
-                                fin = tt.task.temps_estime - tt.task.temps_realise
-                                tt.temps_fin = fin
-                                tt.save()
-                                break
-                    elif task.etat == '4' and etat == '2':
-                        tts = TaskTime.objects.filter(task__in = (task, ))
-                        etat = '1'
-                        for tt in tts:
-                            if tt.temps > 0:
-                                etat = '2'
-                            tt.temps_fin = 0
+                            break
+                elif note.etat == '4' and etat == '2':
+                    nts = NoteTime.objects.filter(note__in = (note, ))
+                    etat = '1'
+                    for nt in nts:
+                        if nt.temps > 0:
+                            etat = '2'
+                        nt.temps_fin = 0
+                        nt.save()
+                note.etat = etat
+                note.save()
+                item = note
+                changes.append(u'état = ' + ETATS[int(note.etat)][1])
+                add_log(user, 'note', note, 2, ', '.join(changes))
+            elif id[0:6] == '_Tache':
+                task = Task.objects.get(pk = int(id[6:]))
+                if (derniere_modification != task.date_modification.strftime(tag)):
+                    ok = False
+                    continue
+                etat = '4' if request.POST[id] == 'oui' else '2'
+                if task.etat in ('1', '2') and etat == '4':
+                    tts = TaskTime.objects.filter(task__in = (task, ))
+                    tts = tts.order_by('-jour')
+                    for tt in tts:
+                        if tt.temps > 0:
+                            fin = tt.task.temps_estime - tt.task.temps_realise
+                            tt.temps_fin = fin
                             tt.save()
-                    task.etat = etat
-                    task.save()
-                    changes.append(u'état = ' + ETATS[int(task.etat)][1])
-                    add_log(user, 'task', task, 2, ', '.join(changes))
-                now = datetime.datetime.now()
-                sprint.date_modification = now
-                lock = now.strftime(_('%d/%m/%Y %H:%M:%S'))
-                sprint.save()
+                            break
+                elif task.etat == '4' and etat == '2':
+                    tts = TaskTime.objects.filter(task__in = (task, ))
+                    etat = '1'
+                    for tt in tts:
+                        if tt.temps > 0:
+                            etat = '2'
+                        tt.temps_fin = 0
+                        tt.save()
+                task.etat = etat
+                task.save()
+                item = task
+                changes.append(u'état = ' + ETATS[int(task.etat)][1])
+                add_log(user, 'task', task, 2, ', '.join(changes))
+        if ok:
+            item.date_modification = now
+            item.save()
+            sprint.date_modification = now
+            sprint.save()
             messages.append(_(u'Saisie de temps enregistrée avec succès !'))
         else:
             erreurs.append(_(u'Saisie annulée : les données ont été modifiées avant l\'enregistrement !'))
@@ -1721,6 +1749,7 @@ def burndown(request, project_id, sprint_id):
         d['etat'] = t.etat
         d['line'] = str(t.id)
         d['form'] = '?done' if done else '.'
+        d['lock'] = t.date_modification.strftime(tag)
         d['url'] = 'tasks'
         
         if csv:
@@ -1757,6 +1786,7 @@ def burndown(request, project_id, sprint_id):
         d['etat'] = n.etat
         d['line'] = str(n.feature.id) + '_' + str(n.id)
         d['form'] = '?done' if done else '?released' if released else '.'
+        d['lock'] = n.date_modification.strftime(tag)
         d['url'] = 'notes'
 
         if csv:
@@ -1828,12 +1858,12 @@ def burndown(request, project_id, sprint_id):
     if not csv:
         return render_to_response('projects/burndown.html',
             {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
-             'erreurs': erreurs, 'project': project, 'sprint': sprint, 'days': days, 'times': times, 'lock': lock,
+             'erreurs': erreurs, 'project': project, 'sprint': sprint, 'days': days, 'times': times, 
              'url': url, 'date': datetime.date.today(), 'nb_notes': nb_notes, },
             context_instance = RequestContext(request))
     else:
         csvreturn = HttpResponse(mimetype = 'text/csv')
-        csvreturn['Content-Disposition'] = 'attachement; filename=%s - %s.csv' % (project.titre, sprint.titre, )
+        csvreturn['Content-Disposition'] = 'attachement; filename=%s - %s.csv' % (remove_accents(project.titre), remove_accents(sprint.titre), )
         t = loader.get_template('projects/csvexport.txt')
         csvdata.insert(0, headers)
         c = Context({ 'data': csvdata, })

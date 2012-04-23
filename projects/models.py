@@ -168,6 +168,7 @@ class Note(models.Model):
     confiance_po = models.CharField(_(u'Confiance Product Owner'), max_length=1, choices=CONFIANCE, default='0', help_text=_(u'Indique le niveau de confiance de la réalisabilité de la fonctionnalité par le Product Owner'))    
     
     date_creation = models.DateTimeField(_(u'Date de création'), default=datetime.datetime.now)
+    date_modification = models.DateTimeField(_(u'Date de modification'), default=datetime.datetime.now)
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
     
     def __unicode__(self):
@@ -194,6 +195,7 @@ class Task(models.Model):
     confiance_po = models.CharField(_(u'Confiance Product Owner'), max_length=1, choices=CONFIANCE, default='0', help_text=_(u'Indique le niveau de confiance de la réalisabilité de la fonctionnalité par le Product Owner'))    
     
     date_creation = models.DateTimeField(_(u'Date de création'), default=datetime.datetime.now)
+    date_modification = models.DateTimeField(_(u'Date de modification'), default=datetime.datetime.now)
     utilisateur = models.ForeignKey(UserProfile, blank=True, null=True)
 
     def __unicode__(self):

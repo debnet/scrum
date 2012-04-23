@@ -90,12 +90,12 @@ class NoteAdmin(admin.ModelAdmin):
             'classes': ('wide', ),
         }),
         ('Administration', {
-            'fields': ('utilisateur', 'date_creation', ),
+            'fields': ('utilisateur', 'date_creation', 'date_modification', ),
             'classes': ('wide', 'collapse', ),
         }),
     )
     list_display = ('titre', 'feature', 'sprint', 'priorite', 'etat', 'type', 'effort', 'temps_realise', 'temps_estime', )
-    list_filter = ('date_creation', 'priorite', 'type', 'etat', 'effort', )
+    list_filter = ('date_creation', 'date_modification', 'priorite', 'type', 'etat', 'effort', )
     search_fields = ('feature__titre', 'sprint__titre', 'titre', 'description', )
     actions_on_top = False
     actions_on_bottom = True
@@ -168,12 +168,12 @@ class TaskAdmin(admin.ModelAdmin):
             'classes': ('wide', ),
         }),
         ('Administration', {
-            'fields': ('utilisateur', 'date_creation', ),
+            'fields': ('utilisateur', 'date_creation', 'date_modification', ),
             'classes': ('wide', 'collapse', ),
         }),
     )
     list_display = ('titre', 'sprint', 'priorite', 'etat', 'temps_realise', 'temps_estime', )
-    list_filter = ('date_creation', 'priorite', 'etat', 'temps_realise', 'temps_estime', )
+    list_filter = ('date_creation', 'date_modification', 'priorite', 'etat', 'temps_realise', 'temps_estime', )
     search_fields = ('sprint__titre', 'sprint__projet__titre', 'titre', 'description', )
     actions_on_top = False
     actions_on_bottom = True
