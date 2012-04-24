@@ -2876,7 +2876,6 @@ def logs(request):
     add_history(user, request.session['url'])
 
     lcount = LogEntry.objects.values('user').annotate(count = Count('id'))
-    
     users = UserProfile.objects.all()
     for u in users:
         u.lcount = 0
@@ -2890,24 +2889,21 @@ def logs(request):
             messages.append(_(u'Logs les plus anciens archivés avec succès !'))
 
     logs = LogEntry.objects.all()
-    logs = logs.order_by('-action_time')
-    paginator = Paginator(logs, 25)
-    logs_list = paginator.page(1)
 
+    numero = 1
     luser = 0
     huser = 0
     if request.method == 'GET':
         if request.GET.__contains__('page'):
-            logs_list = paginator.page(request.GET['page'])
+            numero = int(request.GET['page'])
+        if request.GET.__contains__('luser'):
+            luser = int(request.GET['luser'])
+            logs = logs.filter(user__id__exact = luser)
     if request.method == 'POST':
         if request.POST.__contains__('lselect'):
             if request.POST['luser'] != '0':
                 luser = int(request.POST['luser'])
                 logs = logs.filter(user__id__exact = luser)
-                logs = logs.order_by('-action_time')
-            else:
-                logs = LogEntry.objects.all()
-                logs = logs.order_by('-action_time')
         if request.POST.__contains__('ldelete'):
             if request.POST['luser'] == '0':
                 for l in logs:
@@ -2921,6 +2917,10 @@ def logs(request):
                 messages.append(_(u'Logs de "%s" supprimés avec succès !') % (UserProfile.objects.get(pk = int(request.POST['luser'])), ))
             logs = LogEntry.objects.all()
             logs = logs.order_by('-action_time')
+    
+    logs = logs.order_by('-action_time')
+    paginator = Paginator(logs, 20)
+    logs_list = paginator.page(numero)    
 
     return render_to_response('projects/logs.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 
@@ -2941,7 +2941,6 @@ def history(request):
     add_history(user, request.session['url'])
 
     hcount = History.objects.values('utilisateur').annotate(count = Count('id'))
-    
     users = UserProfile.objects.all()
     for u in users:
         u.hcount = 0
@@ -2955,24 +2954,21 @@ def history(request):
             messages.append(_(u'Historiques les plus anciens archivés avec succès !'))
 
     history = History.objects.all()
-    history = history.order_by('-date_creation')
-    paginator = Paginator(history, 25)
-    history_list = paginator.page(1)
 
+    numero = 1
     luser = 0
     huser = 0
     if request.method == 'GET':
         if request.GET.__contains__('page'):
-            history_list = paginator.page(request.GET['page'])
+            numero = int(request.GET['page'])
+        if request.GET.__contains__('huser'):
+            huser = int(request.GET['huser'])
+            history = history.filter(utilisateur__id__exact = huser)            
     if request.method == 'POST':
         if request.POST.__contains__('hselect'):
             if request.POST['huser'] != '0':
                 huser = int(request.POST['huser'])
-                history = History.objects.filter(utilisateur__id__exact = huser)
-                history = history.order_by('-date_creation')
-            else:
-                history = History.objects.all()
-                history = history.order_by('-date_creation')
+                history = history.filter(utilisateur__id__exact = huser)
         if request.POST.__contains__('hdelete'):
             if request.POST['huser'] == '0':
                 for h in history:
@@ -2986,6 +2982,10 @@ def history(request):
                 messages.append(_(u'Historiques de "%s" supprimés avec succès !') % (UserProfile.objects.get(pk = int(request.POST['huser'])), ))
             history = History.objects.all()
             history = history.order_by('-date_creation')
+    
+    history = history.order_by('-date_creation')
+    paginator = Paginator(history, 20)
+    history_list = paginator.page(numero)    
 
     return render_to_response('projects/history.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 'messages': messages, 

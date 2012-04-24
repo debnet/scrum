@@ -58,9 +58,9 @@
 		<br />
 		<div class="pagination">
 			<span class="step-links">
-				{% if history.has_previous %}<a href="?page={{ history.previous_page_number }}">{% trans "Page précédente" %}</a>&nbsp;-&nbsp;{% endif %}
+				{% if history.has_previous %}<a href="?page={{ history.previous_page_number }}{% if huser %}&huser={{ huser }}{% endif %}">{% trans "Page précédente" %}</a>&nbsp;-&nbsp;{% endif %}
 				<span class="current">Page {{ history.number }}/{{ history.paginator.num_pages }}</span>
-				{% if history.has_next %}&nbsp;-&nbsp;<a href="?page={{ history.next_page_number }}">{% trans "Page suivante" %}</a>{% endif %}
+				{% if history.has_next %}&nbsp;-&nbsp;<a href="?page={{ history.next_page_number }}{% if huser %}&huser={{ huser }}{% endif %}">{% trans "Page suivante" %}</a>{% endif %}
 			</span>
 		</div>
 	</div>
