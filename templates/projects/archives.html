@@ -24,7 +24,23 @@
 					</tr>
 				</thead>
 				<tbody>
-				{% for f in files %}
+				{% if lcount != 0 %}
+					<tr>
+						<th colspan="2">Logs</th>
+					</tr>
+				{% endif %}
+				{% for f in lfiles %}
+					<tr>
+						<td><input type="checkbox" name="files" value="{{ f }}" /></td>
+						<td><a href="{{ home }}archives/{{ f }}">{{ f }}</a></td>
+					</tr>
+				{% endfor %}
+				{% if hcount != 0 %}
+					<tr>
+						<th colspan="2">Historiques</th>
+					</tr>
+				{% endif %}
+				{% for f in hfiles %}
 					<tr>
 						<td><input type="checkbox" name="files" value="{{ f }}" /></td>
 						<td><a href="{{ home }}archives/{{ f }}">{{ f }}</a></td>

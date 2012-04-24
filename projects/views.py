@@ -15,7 +15,7 @@ from django.db.models import Count, Sum, Avg
 from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.models import LogEntry, ContentType
 from django.contrib.auth.models import User
@@ -3012,13 +3012,18 @@ def archives(request):
 
     path = os.path.join(ROOT, 'logs')
     os.chdir(path)
-    files = list()
+    lfiles = list()
+    hfiles = list()
     for f in os.listdir('.'):
         if f[-4:].lower() == 'html':
-            files.append(f)
-    files.sort()
+            if f[:4].lower() == 'logs':
+                lfiles.append(f)
+            elif f[:4].lower() == 'urls':
+                hfiles.append(f)
+    lfiles.sort()
+    hfiles.sort()
 
     return render_to_response('projects/archives.html',
         {'page': page, 'home': HOME, 'theme': THEME, 'user': user, 'title': title, 
-         'messages': messages, 'files': files, },
+         'messages': messages, 'lfiles': lfiles, 'hfiles': hfiles, 'lcount': len(lfiles), 'hcount': len(hfiles), },
         context_instance = RequestContext(request))
