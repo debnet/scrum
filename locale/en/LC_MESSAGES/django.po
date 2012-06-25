@@ -1,0 +1,1749 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-06-25 02:52+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: settings.py:63
+msgid "French"
+msgstr ""
+
+#: settings.py:64
+msgid "English"
+msgstr ""
+
+#: settings.py:65
+msgid "Spanish"
+msgstr ""
+
+#: settings.py:66
+msgid "German"
+msgstr ""
+
+#: projects/models.py:13 projects/models.py:37 templates/base_site.html:18
+#: templates/projects/features.html:62 templates/projects/notes.html:82
+#: templates/projects/problems.html:62 templates/projects/snotes.html:73
+#: templates/projects/tasks.html:77
+msgid "Aucune"
+msgstr ""
+
+#: projects/models.py:14 templates/base_site.html:19
+#: templates/projects/features.html:63 templates/projects/notes.html:83
+#: templates/projects/problems.html:63 templates/projects/snotes.html:74
+#: templates/projects/tasks.html:78
+msgid "Annulé"
+msgstr ""
+
+#: projects/models.py:15 templates/base_site.html:20
+#: templates/projects/features.html:64 templates/projects/notes.html:84
+#: templates/projects/problems.html:64 templates/projects/snotes.html:75
+#: templates/projects/tasks.html:79
+msgid "Possible"
+msgstr ""
+
+#: projects/models.py:16 templates/base_site.html:21
+#: templates/projects/features.html:65 templates/projects/notes.html:85
+#: templates/projects/problems.html:65 templates/projects/snotes.html:76
+#: templates/projects/tasks.html:80
+msgid "Souhaitable"
+msgstr ""
+
+#: projects/models.py:17 templates/base_site.html:22
+#: templates/projects/features.html:66 templates/projects/notes.html:86
+#: templates/projects/problems.html:66 templates/projects/snotes.html:77
+#: templates/projects/tasks.html:81
+msgid "Indispensable"
+msgstr ""
+
+#: projects/models.py:18 templates/base_site.html:23
+#: templates/projects/features.html:67 templates/projects/notes.html:87
+#: templates/projects/snotes.html:78 templates/projects/tasks.html:82
+msgid "À spécifier"
+msgstr ""
+
+#: projects/models.py:22 templates/projects/scrumwall.html:35
+#: templates/projects/snotes.html:66
+msgid "Backlog"
+msgstr ""
+
+#: projects/models.py:23 templates/projects/features.html:49
+#: templates/projects/project.html:62 templates/projects/project.html:112
+#: templates/projects/scrumwall.html:37 templates/projects/snotes.html:67
+#: templates/projects/tasks.html:72
+msgid "À faire"
+msgstr ""
+
+#: projects/models.py:24 templates/projects/scrumwall.html:38
+#: templates/projects/snotes.html:68 templates/projects/tasks.html:73
+msgid "En cours"
+msgstr ""
+
+#: projects/models.py:25 projects/models.py:45
+#: templates/projects/scrumwall.html:39 templates/projects/snotes.html:69
+msgid "Livré"
+msgstr ""
+
+#: projects/models.py:26 templates/projects/features.html:70
+#: templates/projects/snotes.html:70 templates/projects/tasks.html:74
+msgid "Terminé"
+msgstr ""
+
+#: projects/models.py:30 projects/views.py:1927
+msgid "User-story"
+msgstr ""
+
+#: projects/models.py:31 projects/views.py:1927
+msgid "Feature"
+msgstr ""
+
+#: projects/models.py:32 projects/views.py:1927
+msgid "Bug"
+msgstr ""
+
+#: projects/models.py:33 projects/views.py:1927
+msgid "Spike"
+msgstr ""
+
+#: projects/models.py:38
+msgid "Basse"
+msgstr ""
+
+#: projects/models.py:39 templates/projects/poker.html:52
+#: templates/projects/summary.html:81
+msgid "Moyenne"
+msgstr ""
+
+#: projects/models.py:40
+msgid "Haute"
+msgstr ""
+
+#: projects/models.py:44
+msgid "À livrer"
+msgstr ""
+
+#: projects/models.py:46
+msgid "Refusé"
+msgstr ""
+
+#: projects/models.py:47
+msgid "Validé"
+msgstr ""
+
+#: projects/models.py:65
+msgid "Mauvais"
+msgstr ""
+
+#: projects/models.py:66
+msgid "Mitigé"
+msgstr ""
+
+#: projects/models.py:67
+msgid "Bon"
+msgstr ""
+
+#: projects/models.py:88 projects/views.py:185
+#: templates/projects/history.html:35 templates/projects/logs.html:38
+#: templates/projects/meteo.html:38
+msgid "Utilisateur"
+msgstr ""
+
+#: projects/models.py:89
+msgid "Utilisateurs"
+msgstr ""
+
+#: projects/models.py:92 projects/models.py:108 projects/models.py:131
+#: projects/models.py:157 projects/models.py:185 projects/models.py:212
+#: projects/models.py:320 projects/views.py:1815
+#: templates/projects/burndown.html:47 templates/projects/releases.html:46
+msgid "Titre"
+msgstr ""
+
+#: projects/models.py:92
+msgid "Requis. Un titre représentant le projet."
+msgstr ""
+
+#: projects/models.py:93 projects/models.py:109 projects/models.py:158
+#: projects/models.py:186 projects/models.py:213
+#: templates/projects/documents.html:35
+msgid "Description"
+msgstr ""
+
+#: projects/models.py:96 projects/models.py:117 projects/models.py:141
+#: projects/models.py:170 projects/models.py:197 projects/models.py:222
+#: projects/models.py:239 projects/models.py:323 projects/models.py:336
+msgid "Date de création"
+msgstr ""
+
+#: projects/models.py:102 projects/views.py:2320
+#: templates/projects/meteo.html:39
+msgid "Projet"
+msgstr ""
+
+#: projects/models.py:103 projects/views.py:519 templates/error.html:6
+#: templates/projects/archives.html:7 templates/projects/burndown.html:7
+#: templates/projects/documents.html:7 templates/projects/feature.html:7
+#: templates/projects/feature_new.html:7 templates/projects/features.html:7
+#: templates/projects/history.html:7 templates/projects/logs.html:7
+#: templates/projects/meteo.html:7 templates/projects/note.html:7
+#: templates/projects/note_new.html:7 templates/projects/notes.html:7
+#: templates/projects/pareto.html:7 templates/projects/poker.html:7
+#: templates/projects/problem.html:7 templates/projects/problem_new.html:7
+#: templates/projects/problems.html:7 templates/projects/project.html:7
+#: templates/projects/project_new.html:7 templates/projects/projects.html:7
+#: templates/projects/release.html:7 templates/projects/releases.html:7
+#: templates/projects/scrumwall.html:7 templates/projects/snote.html:7
+#: templates/projects/snotes.html:7 templates/projects/sprint.html:7
+#: templates/projects/sprint_new.html:7 templates/projects/sprints.html:7
+#: templates/projects/summary.html:7 templates/projects/task.html:7
+#: templates/projects/task_new.html:7 templates/projects/tasks.html:7
+#: templates/projects/user_new.html:7 templates/projects/velocity.html:7
+msgid "Projets"
+msgstr ""
+
+#: projects/models.py:107
+msgid "Requis. La fonctionnalité doit appartenir à un projet."
+msgstr ""
+
+#: projects/models.py:108
+msgid "Requis. Un titre pour identifier la fonctionnalité."
+msgstr ""
+
+#: projects/models.py:110 projects/models.py:160 projects/models.py:187
+#: projects/models.py:214 projects/views.py:1815
+msgid "Priorité"
+msgstr ""
+
+#: projects/models.py:110
+msgid "Priorité de développement de la fonctionnalité."
+msgstr ""
+
+#: projects/models.py:111
+msgid "Terminé ?"
+msgstr ""
+
+#: projects/models.py:111
+msgid "Précise si la fonctionnalité a été complétement terminée"
+msgstr ""
+
+#: projects/models.py:113 projects/models.py:137 projects/models.py:166
+#: projects/models.py:193 projects/models.py:218
+msgid "Confiance Développeurs"
+msgstr ""
+
+#: projects/models.py:113 projects/models.py:137 projects/models.py:166
+#: projects/models.py:193 projects/models.py:218
+msgid ""
+"Indique le niveau de confiance de la réalisabilité de la fonctionnalité par "
+"l'équipe de développeurs."
+msgstr ""
+
+#: projects/models.py:114 projects/models.py:138 projects/models.py:167
+#: projects/models.py:194 projects/models.py:219
+#: templates/projects/feature.html:57 templates/projects/features.html:54
+#: templates/projects/notes.html:66 templates/projects/problems.html:54
+#: templates/projects/project.html:67 templates/projects/project.html.py:92
+#: templates/projects/project.html:117 templates/projects/snotes.html:58
+#: templates/projects/sprint.html:85 templates/projects/sprint.html.py:110
+#: templates/projects/sprints.html:54 templates/projects/tasks.html:64
+msgid "Confiance Scrum Master"
+msgstr ""
+
+#: projects/models.py:114 projects/models.py:138 projects/models.py:167
+#: projects/models.py:194 projects/models.py:219
+msgid ""
+"Indique le niveau de confiance de la réalisabilité de la fonctionnalité par "
+"le Scrum Master"
+msgstr ""
+
+#: projects/models.py:115 projects/models.py:139 projects/models.py:168
+#: projects/models.py:195 projects/models.py:220
+#: templates/projects/feature.html:58 templates/projects/features.html:55
+#: templates/projects/notes.html:67 templates/projects/problems.html:55
+#: templates/projects/project.html:68 templates/projects/project.html.py:93
+#: templates/projects/project.html:118 templates/projects/snotes.html:59
+#: templates/projects/sprint.html:86 templates/projects/sprint.html.py:111
+#: templates/projects/sprints.html:55 templates/projects/tasks.html:65
+msgid "Confiance Product Owner"
+msgstr ""
+
+#: projects/models.py:115 projects/models.py:139 projects/models.py:168
+#: projects/models.py:195 projects/models.py:220
+msgid ""
+"Indique le niveau de confiance de la réalisabilité de la fonctionnalité par "
+"le Product Owner"
+msgstr ""
+
+#: projects/models.py:124 projects/views.py:1815
+#: templates/projects/burndown.html:46 templates/projects/pareto.html:37
+#: templates/projects/poker.html:48 templates/projects/releases.html:45
+#: templates/projects/scrumwall.html:33
+msgid "Fonctionnalité"
+msgstr ""
+
+#: projects/models.py:125 templates/projects/burndown.html:12
+#: templates/projects/documents.html:12 templates/projects/feature.html:12
+#: templates/projects/feature_new.html:12 templates/projects/features.html:12
+#: templates/projects/meteo.html:12 templates/projects/note.html:12
+#: templates/projects/note_new.html:12 templates/projects/notes.html:12
+#: templates/projects/pareto.html:12 templates/projects/poker.html:12
+#: templates/projects/problem.html:12 templates/projects/problem_new.html:12
+#: templates/projects/problems.html:12 templates/projects/project.html:12
+#: templates/projects/project.html.py:30 templates/projects/release.html:12
+#: templates/projects/releases.html:12 templates/projects/scrumwall.html:12
+#: templates/projects/snote.html:12 templates/projects/snotes.html:12
+#: templates/projects/sprint.html:12 templates/projects/sprint_new.html:12
+#: templates/projects/sprints.html:12 templates/projects/summary.html:12
+#: templates/projects/task.html:12 templates/projects/task_new.html:12
+#: templates/projects/tasks.html:12 templates/projects/velocity.html:12
+msgid "Fonctionnalités"
+msgstr ""
+
+#: projects/models.py:130
+msgid "Requis. Le sprint doit appartenir à un projet."
+msgstr ""
+
+#: projects/models.py:131
+msgid "Requis. Un titre pour identifier le sprint."
+msgstr ""
+
+#: projects/models.py:132
+msgid "Objectif"
+msgstr ""
+
+#: projects/models.py:133
+msgid "Date de début"
+msgstr ""
+
+#: projects/models.py:133
+msgid "Date à laquelle le sprint commence(ra)."
+msgstr ""
+
+#: projects/models.py:134
+msgid "Date de fin"
+msgstr ""
+
+#: projects/models.py:134
+msgid ""
+"Date à laquelle le sprint finira. Normalement fixe une fois pour toutes."
+msgstr ""
+
+#: projects/models.py:135
+msgid "Effort estimé"
+msgstr ""
+
+#: projects/models.py:135
+msgid ""
+"Effort estimé de l'ensemble des notes du backlog à la création du sprint."
+msgstr ""
+
+#: projects/models.py:142 projects/models.py:171 projects/models.py:198
+#: projects/models.py:257 projects/models.py:276
+msgid "Date de modification"
+msgstr ""
+
+#: projects/models.py:149
+msgid "Sprint"
+msgstr ""
+
+#: projects/models.py:150 templates/projects/burndown.html:13
+#: templates/projects/documents.html:13 templates/projects/feature.html:19
+#: templates/projects/feature_new.html:13 templates/projects/features.html:13
+#: templates/projects/meteo.html:13 templates/projects/note.html:13
+#: templates/projects/note_new.html:19 templates/projects/notes.html:19
+#: templates/projects/pareto.html:13 templates/projects/poker.html:13
+#: templates/projects/problem.html:13 templates/projects/problem_new.html:13
+#: templates/projects/problems.html:13 templates/projects/project.html:13
+#: templates/projects/project.html.py:37 templates/projects/release.html:13
+#: templates/projects/releases.html:13 templates/projects/scrumwall.html:13
+#: templates/projects/snote.html:13 templates/projects/snotes.html:13
+#: templates/projects/sprint.html:13 templates/projects/sprint_new.html:13
+#: templates/projects/sprints.html:13 templates/projects/summary.html:13
+#: templates/projects/task.html:13 templates/projects/task_new.html:13
+#: templates/projects/tasks.html:13 templates/projects/velocity.html:13
+msgid "Sprints"
+msgstr ""
+
+#: projects/models.py:155
+msgid "Requis. Une note doit appartenir à une fonctionnalité du backlog."
+msgstr ""
+
+#: projects/models.py:156
+msgid "Définit le sprint dans laquelle la note est/sera traitée ou rien sinon."
+msgstr ""
+
+#: projects/models.py:157
+msgid "Requis. Un titre pour identifier la note."
+msgstr ""
+
+#: projects/models.py:158
+msgid ""
+"En tant que...\n"
+"je peux...\n"
+"afin de..."
+msgstr ""
+
+#: projects/models.py:158
+msgid "Une description de la réalisation, par défaut une user-story."
+msgstr ""
+
+#: projects/models.py:159 projects/views.py:1815
+#: templates/projects/burndown.html:45 templates/projects/logs.html:36
+#: templates/projects/releases.html:44
+msgid "Type"
+msgstr ""
+
+#: projects/models.py:159
+msgid ""
+"User-story : description du point de vue utilisateur, à préconiser.<br /"
+">Feature : une fonctionnalité décrite côté fonctionnel, à éviter si possible."
+"<br />Spike : Analyse sur une future réalisation dont le coût et "
+"l'évaluation sont/seront traités pendant le sprint."
+msgstr ""
+
+#: projects/models.py:160
+msgid "Définit la priorité de réalisation de la note."
+msgstr ""
+
+#: projects/models.py:161 projects/models.py:188 projects/views.py:1815
+msgid "État"
+msgstr ""
+
+#: projects/models.py:161 projects/models.py:188
+msgid "Définit l'état de progression de la note."
+msgstr ""
+
+#: projects/models.py:162 projects/models.py:189 projects/models.py:215
+#: templates/projects/poker.html:50
+msgid "Effort"
+msgstr ""
+
+#: projects/models.py:162 projects/models.py:189 projects/models.py:215
+msgid "Valeur de l'effort à déployer pour réaliser la tâche."
+msgstr ""
+
+#: projects/models.py:163 projects/models.py:190 projects/models.py:254
+#: projects/models.py:273 projects/views.py:1833 projects/views.py:2173
+#: templates/projects/summary.html:56
+msgid "Temps réalisé"
+msgstr ""
+
+#: projects/models.py:163 projects/models.py:190
+msgid ""
+"Quantité de temps déjà exécuté sur la réalisation. Evolutive avec le temps."
+msgstr ""
+
+#: projects/models.py:164 projects/models.py:191 projects/views.py:1833
+#: projects/views.py:1848 templates/projects/poker.html:53
+msgid "Temps estimé"
+msgstr ""
+
+#: projects/models.py:164
+msgid "Quantité de temps allouée à la réalisation. Normalement non modifiable."
+msgstr ""
+
+#: projects/models.py:178 templates/projects/poker.html:49
+msgid "Note"
+msgstr ""
+
+#: projects/models.py:179 templates/projects/burndown.html:16
+#: templates/projects/feature.html:34 templates/projects/meteo.html:16
+#: templates/projects/release.html:16 templates/projects/releases.html:16
+#: templates/projects/snote.html:16 templates/projects/snotes.html:16
+#: templates/projects/sprint.html:16 templates/projects/sprint.html.py:55
+#: templates/projects/task.html:16 templates/projects/task_new.html:17
+#: templates/projects/tasks.html:16
+msgid "Notes"
+msgstr ""
+
+#: projects/models.py:184
+msgid "Requis. Une tâche doit appartenir à un sprint."
+msgstr ""
+
+#: projects/models.py:185
+msgid "Requis. Un titre pour identifier la tâche."
+msgstr ""
+
+#: projects/models.py:187
+msgid "Définit la priorité de réalisation de la tâche."
+msgstr ""
+
+#: projects/models.py:191
+msgid "Quantité de temps allouée à la tâche. Normalement non modifiable."
+msgstr ""
+
+#: projects/models.py:205
+msgid "Tâche"
+msgstr ""
+
+#: projects/models.py:206 templates/projects/burndown.html:17
+#: templates/projects/meteo.html:17 templates/projects/release.html:17
+#: templates/projects/releases.html:17 templates/projects/snote.html:17
+#: templates/projects/snotes.html:17 templates/projects/sprint.html:17
+#: templates/projects/sprint.html.py:62 templates/projects/task.html:17
+#: templates/projects/task_new.html:18 templates/projects/tasks.html:17
+msgid "Tâches"
+msgstr ""
+
+#: projects/models.py:211
+msgid "Requis. Un problème doit appartenir à un projet."
+msgstr ""
+
+#: projects/models.py:212
+msgid "Requis. Un titre pour identifier le problème."
+msgstr ""
+
+#: projects/models.py:214
+msgid "Définit la priorité d'exécution du problème."
+msgstr ""
+
+#: projects/models.py:216
+msgid "Résolu ?"
+msgstr ""
+
+#: projects/models.py:216
+msgid "Définit si le problème a été résolu ou non."
+msgstr ""
+
+#: projects/models.py:229
+msgid "Problème"
+msgstr ""
+
+#: projects/models.py:230 templates/projects/burndown.html:22
+#: templates/projects/documents.html:14 templates/projects/feature.html:20
+#: templates/projects/feature_new.html:14 templates/projects/features.html:14
+#: templates/projects/meteo.html:22 templates/projects/note.html:14
+#: templates/projects/note_new.html:20 templates/projects/notes.html:20
+#: templates/projects/pareto.html:14 templates/projects/poker.html:14
+#: templates/projects/problem.html:14 templates/projects/problem_new.html:14
+#: templates/projects/problems.html:14 templates/projects/project.html:14
+#: templates/projects/project.html.py:44 templates/projects/release.html:22
+#: templates/projects/releases.html:22 templates/projects/scrumwall.html:14
+#: templates/projects/snote.html:22 templates/projects/snotes.html:22
+#: templates/projects/sprint.html:22 templates/projects/sprint_new.html:14
+#: templates/projects/sprints.html:14 templates/projects/summary.html:14
+#: templates/projects/task.html:22 templates/projects/task_new.html:24
+#: templates/projects/tasks.html:22 templates/projects/velocity.html:14
+msgid "Problèmes"
+msgstr ""
+
+#: projects/models.py:235
+msgid "Requis. Une livraison doit être lié à une note de backlog."
+msgstr ""
+
+#: projects/models.py:236 templates/projects/releases.html:48
+msgid "Statut"
+msgstr ""
+
+#: projects/models.py:236
+msgid "Définit le statut de livraison de la fonctionnalité."
+msgstr ""
+
+#: projects/models.py:237 templates/projects/meteo.html:42
+msgid "Commentaire"
+msgstr ""
+
+#: projects/models.py:237
+msgid ""
+"Facultatif. Précise les raisons du changement de statut de la livraison."
+msgstr ""
+
+#: projects/models.py:246
+msgid "Livraison"
+msgstr ""
+
+#: projects/models.py:247 templates/projects/burndown.html:19
+#: templates/projects/meteo.html:19 templates/projects/release.html:19
+#: templates/projects/releases.html:19 templates/projects/snote.html:19
+#: templates/projects/snotes.html:19 templates/projects/sprint.html:19
+#: templates/projects/sprint.html.py:40 templates/projects/task.html:19
+#: templates/projects/task_new.html:20 templates/projects/tasks.html:19
+msgid "Livraisons"
+msgstr ""
+
+#: projects/models.py:251 projects/models.py:270
+msgid "Requis. Un temps de réalisation est lié à un sprint."
+msgstr ""
+
+#: projects/models.py:252
+msgid "Requis. Un temps de réalisation doit appartenir à une note de sprint."
+msgstr ""
+
+#: projects/models.py:253 projects/models.py:272
+#: templates/projects/history.html:37 templates/projects/logs.html:40
+#: templates/projects/meteo.html:37
+msgid "Date"
+msgstr ""
+
+#: projects/models.py:253 projects/models.py:272
+msgid "La date à laquelle correspond la réalisation."
+msgstr ""
+
+#: projects/models.py:254 projects/models.py:273
+msgid "Quantité de temps exécuté sur la réalisation."
+msgstr ""
+
+#: projects/models.py:255 projects/models.py:274
+msgid "Temps en excès"
+msgstr ""
+
+#: projects/models.py:255 projects/models.py:274
+msgid "Quantité de temps en excès sur la réalisation."
+msgstr ""
+
+#: projects/models.py:264 projects/models.py:265
+msgid "Temps de note"
+msgstr ""
+
+#: projects/models.py:271
+msgid "Requis. Un temps de réalisation doit appartenir à une tâche de sprint."
+msgstr ""
+
+#: projects/models.py:283 projects/models.py:284
+msgid "Temps de tâche"
+msgstr ""
+
+#: projects/models.py:301 templates/projects/burndown.html:20
+#: templates/projects/meteo.html:20 templates/projects/release.html:20
+#: templates/projects/releases.html:20 templates/projects/snote.html:20
+#: templates/projects/snotes.html:20 templates/projects/sprint.html:20
+#: templates/projects/sprint.html.py:45 templates/projects/task.html:20
+#: templates/projects/task_new.html:21 templates/projects/tasks.html:20
+msgid "Météo"
+msgstr ""
+
+#: projects/models.py:302
+msgid "Météos"
+msgstr ""
+
+#: projects/models.py:306
+msgid "Requis. Une estimation d'effort est liée à une note."
+msgstr ""
+
+#: projects/models.py:307
+msgid "Requis. Une estimation d'effort est liée à un utilisateur."
+msgstr ""
+
+#: projects/models.py:308
+msgid "Valeur de l'estimation d'effort."
+msgstr ""
+
+#: projects/models.py:314
+msgid "Estimation"
+msgstr ""
+
+#: projects/models.py:315 templates/projects/poker.html:79
+msgid "Estimations"
+msgstr ""
+
+#: projects/models.py:319
+msgid "Requis. Un document est lié à un projet."
+msgstr ""
+
+#: projects/models.py:320
+msgid "Facultatif. Une description du document."
+msgstr ""
+
+#: projects/models.py:321 templates/projects/documents.html:34
+msgid "Fichier"
+msgstr ""
+
+#: projects/models.py:330
+msgid "Document"
+msgstr ""
+
+#: projects/models.py:331 templates/projects/burndown.html:23
+#: templates/projects/documents.html:15 templates/projects/feature.html:21
+#: templates/projects/feature_new.html:15 templates/projects/features.html:15
+#: templates/projects/meteo.html:23 templates/projects/note.html:15
+#: templates/projects/note_new.html:21 templates/projects/notes.html:21
+#: templates/projects/pareto.html:15 templates/projects/poker.html:15
+#: templates/projects/problem.html:15 templates/projects/problem_new.html:15
+#: templates/projects/problems.html:15 templates/projects/project.html:15
+#: templates/projects/release.html:23 templates/projects/releases.html:23
+#: templates/projects/scrumwall.html:15 templates/projects/snote.html:23
+#: templates/projects/snotes.html:23 templates/projects/sprint.html:23
+#: templates/projects/sprint_new.html:15 templates/projects/sprints.html:15
+#: templates/projects/summary.html:15 templates/projects/task.html:23
+#: templates/projects/task_new.html:25 templates/projects/tasks.html:23
+#: templates/projects/velocity.html:15
+msgid "Documents"
+msgstr ""
+
+#: projects/models.py:335 projects/views.py:185
+#: templates/projects/history.html:36
+msgid "URL"
+msgstr ""
+
+#: projects/models.py:340 templates/projects/releases.html:74
+msgid "Historique"
+msgstr ""
+
+#: projects/models.py:341 projects/views.py:2939
+#: templates/projects/archives.html:8 templates/projects/logs.html:8
+msgid "Historiques"
+msgstr ""
+
+#: projects/views.py:35
+msgid "Accès refusé !"
+msgstr ""
+
+#: projects/views.py:36
+msgid ""
+"L'utilisateur n'est pas membre du projet ou ne dispose pas d'autorisations "
+"suffisantes pour visualiser cet élément."
+msgstr ""
+
+#: projects/views.py:184
+msgid "Historiques de navigation"
+msgstr ""
+
+#: projects/views.py:184 projects/views.py:209 projects/views.py:2285
+msgid "%d/%m/%Y"
+msgstr ""
+
+#: projects/views.py:185
+msgid "Heure"
+msgstr ""
+
+#: projects/views.py:195 templates/projects/logs.html:54
+msgid "Ajout"
+msgstr ""
+
+#: projects/views.py:195 templates/projects/logs.html:54
+msgid "Modification"
+msgstr ""
+
+#: projects/views.py:195 templates/projects/logs.html:54
+msgid "Suppression"
+msgstr ""
+
+#: projects/views.py:209
+msgid "Historiques de gestion"
+msgstr ""
+
+#: projects/views.py:382
+msgid "Réalisé"
+msgstr ""
+
+#: projects/views.py:382
+msgid "Théorique"
+msgstr ""
+
+#: projects/views.py:558
+#, python-format
+msgid "Projet \"%(project)s\""
+msgstr ""
+
+#: projects/views.py:608
+#, python-format
+msgid "Projet \"%(project)s\" - Fonctionnalités"
+msgstr ""
+
+#: projects/views.py:660
+msgid "Fonctionnalité modifiée avec succès !"
+msgstr ""
+
+#: projects/views.py:699
+#, python-format
+msgid "Projet \"%(project)s\" - Fonctionnalité \"%(feature)s\""
+msgstr ""
+
+#: projects/views.py:731
+#, python-format
+msgid ""
+"Projet \"%(project)s\" - Fonctionnalité \"%(feature)s\" - Notes de backlog"
+msgstr ""
+
+#: projects/views.py:780
+msgid "<Aucun>"
+msgstr ""
+
+#: projects/views.py:797
+msgid "Note de backlog modifiée avec succès !"
+msgstr ""
+
+#: projects/views.py:845
+#, python-format
+msgid ""
+"Projet \"%(project)s\" - Fonctionnalité \"%(feature)s\" - Note \"%(note)s\""
+msgstr ""
+
+#: projects/views.py:870
+#, python-format
+msgid "Projet \"%(project)s\" - Sprints"
+msgstr ""
+
+#: projects/views.py:955
+msgid "Sprint modifié avec succès !"
+msgstr ""
+
+#: projects/views.py:995
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\""
+msgstr ""
+
+#: projects/views.py:1030
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Notes de sprint"
+msgstr ""
+
+#: projects/views.py:1093
+msgid "( Livraison automatique )"
+msgstr ""
+
+#: projects/views.py:1108
+msgid "( Refus automatique )"
+msgstr ""
+
+#: projects/views.py:1115
+msgid "Note de sprint modifiée avec succès !"
+msgstr ""
+
+#: projects/views.py:1162
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Note \"%(note)s\""
+msgstr ""
+
+#: projects/views.py:1188
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Tâches"
+msgstr ""
+
+#: projects/views.py:1251
+msgid "Tâche modifiée avec succès !"
+msgstr ""
+
+#: projects/views.py:1296
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Tâche \"%(task)s\""
+msgstr ""
+
+#: projects/views.py:1322
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Livraisons"
+msgstr ""
+
+#: projects/views.py:1354 projects/views.py:1374 projects/views.py:1392
+#, python-format
+msgid "%(head)sLivraison de \"%(note)s\" %(state)s par %(user)s"
+msgstr ""
+
+#: projects/views.py:1354 projects/views.py:1356
+msgid "RE-LIVRÉE"
+msgstr ""
+
+#: projects/views.py:1355 projects/views.py:1375 projects/views.py:1393
+#, python-format
+msgid ""
+"La livraison de \"%(note)s\" (%(feature)s) a été %(state)s par %(user)s.\n"
+"Commentaire : \"%(desc)s\""
+msgstr ""
+
+#: projects/views.py:1356 projects/views.py:1376 projects/views.py:1394
+#: templates/projects/meteo.html:58 templates/projects/meteo.html.py:105
+#: templates/projects/releases.html:82
+msgid "Aucun commentaire"
+msgstr ""
+
+#: projects/views.py:1371
+msgid "Livraison effectuée avec succès !"
+msgstr ""
+
+#: projects/views.py:1371 projects/views.py:1389 projects/views.py:1411
+msgid "voir l'élément"
+msgstr ""
+
+#: projects/views.py:1374 projects/views.py:1376
+msgid "REFUSÉE"
+msgstr ""
+
+#: projects/views.py:1389
+msgid "Livraison refusée avec succès !"
+msgstr ""
+
+#: projects/views.py:1392 projects/views.py:1394
+msgid "VALIDÉE"
+msgstr ""
+
+#: projects/views.py:1411
+msgid "Livraison validée avec succès !"
+msgstr ""
+
+#: projects/views.py:1423
+msgid "Note de backlog terminée avec succès !"
+msgstr ""
+
+#: projects/views.py:1450
+#, python-format
+msgid ""
+"Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Livraison de \"%(note)s\""
+msgstr ""
+
+#: projects/views.py:1475
+#, python-format
+msgid "Projet \"%(project)s\" - Problèmes"
+msgstr ""
+
+#: projects/views.py:1522 projects/views.py:1530
+#, python-format
+msgid ""
+"%(head)sProblème \"%(problem)s\" %(state)s dans le projet \"%(project)s\""
+msgstr ""
+
+#: projects/views.py:1522 projects/views.py:1524
+msgid "résolu"
+msgstr ""
+
+#: projects/views.py:1523 projects/views.py:1531
+#, python-format
+msgid ""
+"Le problème \"%(problem)s\" dans le projet \"%(project)s\" a été %(state)s "
+"par %(user)s.\n"
+"Description du problème : \"%(desc)s\""
+msgstr ""
+
+#: projects/views.py:1524 projects/views.py:1532 projects/views.py:2773
+msgid "Aucune description"
+msgstr ""
+
+#: projects/views.py:1530 projects/views.py:1532
+msgid "ré-ouvert"
+msgstr ""
+
+#: projects/views.py:1537
+msgid "Problème modifié avec succès !"
+msgstr ""
+
+#: projects/views.py:1576
+#, python-format
+msgid "Projet \"%(project)s\" - Problème \"%(problem)s\""
+msgstr ""
+
+#: projects/views.py:1602
+msgid "%d/%m/%Y %H:%M:%S"
+msgstr ""
+
+#: projects/views.py:1605
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Burndown Chart"
+msgstr ""
+
+#: projects/views.py:1723
+msgid "Saisie de temps enregistrée avec succès !"
+msgstr ""
+
+#: projects/views.py:1725
+msgid "Saisie annulée : les données ont été modifiées avant l'enregistrement !"
+msgstr ""
+
+#: projects/views.py:1822 projects/views.py:1851 projects/views.py:2138
+#: projects/views.py:2290
+msgid "%d/%m"
+msgstr ""
+
+#: projects/views.py:1848 templates/projects/summary.html:61
+msgid "Temps restant"
+msgstr ""
+
+#: projects/views.py:1889
+#, python-format
+msgid "Projet \"%(project)s\" - Velocité et progression"
+msgstr ""
+
+#: projects/views.py:1902 projects/views.py:1947 projects/views.py:1970
+#: projects/views.py:2035 projects/views.py:2702 projects/views.py:2859
+#, python-format
+msgid "Sprint %d"
+msgstr ""
+
+#: projects/views.py:1982
+msgid "Charge réalisée puis estimée"
+msgstr ""
+
+#: projects/views.py:1982
+msgid "Charge totale"
+msgstr ""
+
+#: projects/views.py:2013
+#, python-format
+msgid "Projet \"%(project)s\" - Diagramme de Pareto"
+msgstr ""
+
+#: projects/views.py:2110
+#, python-format
+msgid "Projet \"%(project)s\" - Synthèse"
+msgstr ""
+
+#: projects/views.py:2173
+msgid "Temps moyen estimé"
+msgstr ""
+
+#: projects/views.py:2208
+msgid "Progression réelle"
+msgstr ""
+
+#: projects/views.py:2208
+msgid "Progression estimée"
+msgstr ""
+
+#: projects/views.py:2244
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Météo"
+msgstr ""
+
+#: projects/views.py:2266
+#, python-format
+msgid "Météorologie enregistrée avec succès pour la journée du %s !"
+msgstr ""
+
+#: projects/views.py:2268
+#, python-format
+msgid "Vous avez déjà enregistré une météorologie pour la journée du %s !"
+msgstr ""
+
+#: projects/views.py:2320
+msgid "Equipe"
+msgstr ""
+
+#: projects/views.py:2320 templates/projects/meteo.html:41
+msgid "Avancement"
+msgstr ""
+
+#: projects/views.py:2349
+#, python-format
+msgid "Projet \"%(project)s\" - Documents"
+msgstr ""
+
+#: projects/views.py:2361
+msgid "Document ajouté avec succès !"
+msgstr ""
+
+#: projects/views.py:2397
+#, python-format
+msgid "Projet \"%(project)s\" - Scrum Wall"
+msgstr ""
+
+#: projects/views.py:2474
+#, python-format
+msgid "Projet \"%(project)s\" - Planning Poker"
+msgstr ""
+
+#: projects/views.py:2500
+msgid "Estimation d'effort sauvegardée avec succès !"
+msgstr ""
+
+#: projects/views.py:2510
+msgid ""
+"Nouvelles valeurs de l'effort et du temps estimé sauvegardées avec succès !"
+msgstr ""
+
+#: projects/views.py:2568 templates/projects/projects.html:20
+msgid "Nouveau projet"
+msgstr ""
+
+#: projects/views.py:2579
+msgid "Projet ajouté avec succès !"
+msgstr ""
+
+#: projects/views.py:2602
+#, python-format
+msgid "Projet \"%(project)s\" - Nouvelle fonctionnalité"
+msgstr ""
+
+#: projects/views.py:2613
+msgid "Fonctionnalité ajoutée avec succès !"
+msgstr ""
+
+#: projects/views.py:2638
+#, python-format
+msgid "Projet \"%(project)s\" - Fonctionnalité \"%(feature)s\" - Nouvelle note"
+msgstr ""
+
+#: projects/views.py:2657
+msgid "Note de backlog ajoutée avec succès !"
+msgstr ""
+
+#: projects/views.py:2682 projects/views.py:2832
+#, python-format
+msgid "Projet \"%(project)s\" - Nouveau sprint"
+msgstr ""
+
+#: projects/views.py:2693
+msgid "Sprint ajouté avec succès !"
+msgstr ""
+
+#: projects/views.py:2724
+#, python-format
+msgid "Projet \"%(project)s\" - Sprint \"%(sprint)s\" - Nouvelle tâche"
+msgstr ""
+
+#: projects/views.py:2736
+msgid "Tâche ajoutée avec succès !"
+msgstr ""
+
+#: projects/views.py:2760
+#, python-format
+msgid "Projet \"%(project)s\" - Nouveau problème"
+msgstr ""
+
+#: projects/views.py:2771
+#, python-format
+msgid "%(head)sProblème \"%(problem)s\" détecté dans le projet \"%(project)s\""
+msgstr ""
+
+#: projects/views.py:2772
+#, python-format
+msgid ""
+"Un nouveau problème \"%(problem)s\" dans le projet \"%(project)s\" a été "
+"identifié par %(user)s.\n"
+"Description du problème : \"%(desc)s\""
+msgstr ""
+
+#: projects/views.py:2776
+msgid "Problème ajouté avec succès !"
+msgstr ""
+
+#: projects/views.py:2793
+msgid "Nouvel utilisateur"
+msgstr ""
+
+#: projects/views.py:2806
+msgid "Utilisateur ajouté avec succès !"
+msgstr ""
+
+#: projects/views.py:2850
+msgid "Sprint ajouté et associé avec succès !"
+msgstr ""
+
+#: projects/views.py:2874 templates/projects/archives.html:9
+#: templates/projects/history.html:9
+msgid "Logs"
+msgstr ""
+
+#: projects/views.py:2891
+msgid "Logs les plus anciens archivés avec succès !"
+msgstr ""
+
+#: projects/views.py:2913
+msgid "Logs supprimés avec succès !"
+msgstr ""
+
+#: projects/views.py:2919
+#, python-format
+msgid "Logs de \"%s\" supprimés avec succès !"
+msgstr ""
+
+#: projects/views.py:2956
+msgid "Historiques les plus anciens archivés avec succès !"
+msgstr ""
+
+#: projects/views.py:2978
+msgid "Historiques supprimés avec succès !"
+msgstr ""
+
+#: projects/views.py:2984
+#, python-format
+msgid "Historiques de \"%s\" supprimés avec succès !"
+msgstr ""
+
+#: projects/views.py:3004 templates/projects/history.html:10
+#: templates/projects/logs.html:10
+msgid "Archives"
+msgstr ""
+
+#: templates/404.html:4 templates/404.html.py:7
+msgid "Page not found"
+msgstr ""
+
+#: templates/404.html:8
+msgid "We're sorry, but the requested page could not be found."
+msgstr ""
+
+#: templates/500.html:4 templates/base.html:55
+msgid "Home"
+msgstr ""
+
+#: templates/500.html:4
+msgid "Server error"
+msgstr ""
+
+#: templates/500.html:6
+msgid "Server error (500)"
+msgstr ""
+
+#: templates/500.html:9
+msgid "Server Error <em>(500)</em>"
+msgstr ""
+
+#: templates/500.html:10
+msgid ""
+"There's been an error. It's been reported to the site administrators via e-"
+"mail and should be fixed shortly. Thanks for your patience."
+msgstr ""
+
+#: templates/500.html:11
+msgid ""
+"Ce message d'erreur peut survenir lorsque vous essayez d'accéder à une "
+"ressource dont vous ne disposez pas les autorisations appropriées."
+msgstr ""
+
+#: templates/base.html:47
+msgid "Welcome,"
+msgstr ""
+
+#: templates/base.html:48
+msgid "Documentation"
+msgstr ""
+
+#: templates/base.html:48
+msgid "Change password"
+msgstr ""
+
+#: templates/base.html:48
+msgid "Log out"
+msgstr ""
+
+#: templates/base.html:48
+msgid "Administration"
+msgstr ""
+
+#: templates/base_site.html:5 templates/base_site.html.py:8
+#: templates/registration/login.html:6 templates/registration/login.html:22
+msgid "Outil Scrum"
+msgstr ""
+
+#: templates/projects/archives.html:23
+msgid "Nom de fichier"
+msgstr ""
+
+#: templates/projects/archives.html:52 templates/projects/documents.html:49
+#: templates/projects/history.html:27 templates/projects/logs.html:27
+msgid "Supprimer"
+msgstr ""
+
+#: templates/projects/burndown.html:9 templates/projects/documents.html:9
+#: templates/projects/feature.html:9 templates/projects/feature_new.html:9
+#: templates/projects/features.html:9 templates/projects/meteo.html:9
+#: templates/projects/note.html:9 templates/projects/note_new.html:9
+#: templates/projects/notes.html:9 templates/projects/pareto.html:9
+#: templates/projects/poker.html:9 templates/projects/problem.html:9
+#: templates/projects/problem_new.html:9 templates/projects/problems.html:9
+#: templates/projects/project.html:9 templates/projects/projects.html:36
+#: templates/projects/release.html:9 templates/projects/releases.html:9
+#: templates/projects/scrumwall.html:9 templates/projects/snote.html:9
+#: templates/projects/snotes.html:9 templates/projects/sprint.html:9
+#: templates/projects/sprint_new.html:9 templates/projects/sprints.html:9
+#: templates/projects/summary.html:9 templates/projects/task.html:9
+#: templates/projects/task_new.html:9 templates/projects/tasks.html:9
+#: templates/projects/velocity.html:9
+msgid "Scrum Wall"
+msgstr ""
+
+#: templates/projects/burndown.html:10 templates/projects/documents.html:10
+#: templates/projects/feature.html:10 templates/projects/feature_new.html:10
+#: templates/projects/features.html:10 templates/projects/meteo.html:10
+#: templates/projects/note.html:10 templates/projects/note_new.html:10
+#: templates/projects/notes.html:10 templates/projects/pareto.html:10
+#: templates/projects/poker.html:10 templates/projects/problem.html:10
+#: templates/projects/problem_new.html:10 templates/projects/problems.html:10
+#: templates/projects/project.html:10 templates/projects/release.html:10
+#: templates/projects/releases.html:10 templates/projects/scrumwall.html:10
+#: templates/projects/snote.html:10 templates/projects/snotes.html:10
+#: templates/projects/sprint.html:10 templates/projects/sprint_new.html:10
+#: templates/projects/sprints.html:10 templates/projects/summary.html:10
+#: templates/projects/task.html:10 templates/projects/task_new.html:10
+#: templates/projects/tasks.html:10 templates/projects/velocity.html:10
+msgid "Planning Poker"
+msgstr ""
+
+#: templates/projects/burndown.html:11 templates/projects/documents.html:11
+#: templates/projects/feature.html:11 templates/projects/feature_new.html:11
+#: templates/projects/features.html:11 templates/projects/meteo.html:11
+#: templates/projects/note.html:11 templates/projects/note_new.html:11
+#: templates/projects/notes.html:11 templates/projects/pareto.html:11
+#: templates/projects/poker.html:11 templates/projects/problem.html:11
+#: templates/projects/problem_new.html:11 templates/projects/problems.html:11
+#: templates/projects/project.html:11 templates/projects/release.html:11
+#: templates/projects/releases.html:11 templates/projects/scrumwall.html:11
+#: templates/projects/snote.html:11 templates/projects/snotes.html:11
+#: templates/projects/sprint.html:11 templates/projects/sprint_new.html:11
+#: templates/projects/sprints.html:11 templates/projects/summary.html:11
+#: templates/projects/task.html:11 templates/projects/task_new.html:11
+#: templates/projects/tasks.html:11 templates/projects/velocity.html:11
+msgid "Indicateurs"
+msgstr ""
+
+#: templates/projects/burndown.html:18 templates/projects/meteo.html:18
+#: templates/projects/release.html:18 templates/projects/releases.html:18
+#: templates/projects/snote.html:18 templates/projects/snotes.html:18
+#: templates/projects/sprint.html:18 templates/projects/task.html:18
+#: templates/projects/task_new.html:19 templates/projects/tasks.html:18
+msgid "Burndown Chart"
+msgstr ""
+
+#: templates/projects/burndown.html:31
+msgid "Exporter en CSV"
+msgstr ""
+
+#: templates/projects/burndown.html:35 templates/projects/poker.html:29
+#: templates/projects/releases.html:32 templates/projects/scrumwall.html:24
+#: templates/projects/summary.html:32
+msgid "Afficher :"
+msgstr ""
+
+#: templates/projects/burndown.html:36 templates/projects/snotes.html:41
+#: templates/projects/tasks.html:47
+msgid "en cours"
+msgstr ""
+
+#: templates/projects/burndown.html:38 templates/projects/releases.html:35
+msgid "livrés"
+msgstr ""
+
+#: templates/projects/burndown.html:40 templates/projects/features.html:39
+#: templates/projects/notes.html:51 templates/projects/problems.html:39
+#: templates/projects/snotes.html:43 templates/projects/sprints.html:39
+#: templates/projects/tasks.html:49
+msgid "terminés"
+msgstr ""
+
+#: templates/projects/burndown.html:51
+msgid "Temps total"
+msgstr ""
+
+#: templates/projects/burndown.html:52
+msgid "Terminée ?"
+msgstr ""
+
+#: templates/projects/burndown.html:59 templates/projects/history.html:43
+#: templates/projects/logs.html:46 templates/projects/poker.html:59
+#: templates/projects/releases.html:54
+msgid "Aucun élément à afficher"
+msgstr ""
+
+#: templates/projects/burndown.html:78
+msgid "Temps réalisé :"
+msgstr ""
+
+#: templates/projects/burndown.html:78
+msgid "Par :"
+msgstr ""
+
+#: templates/projects/burndown.html:86
+msgid "Non"
+msgstr ""
+
+#: templates/projects/burndown.html:87
+msgid "Oui"
+msgstr ""
+
+#: templates/projects/burndown.html:90 templates/projects/meteo.html:91
+#: templates/projects/notes.html:92 templates/projects/sprints.html:65
+msgid "OK"
+msgstr ""
+
+#: templates/projects/documents.html:28 templates/projects/feature_new.html:26
+#: templates/projects/note_new.html:32 templates/projects/problem_new.html:26
+#: templates/projects/project_new.html:18
+#: templates/projects/sprint_new.html:26 templates/projects/task_new.html:36
+#: templates/projects/user_new.html:18
+msgid "Enregistrer"
+msgstr ""
+
+#: templates/projects/documents.html:36
+msgid "Taille"
+msgstr ""
+
+#: templates/projects/documents.html:37
+msgid "Actions"
+msgstr ""
+
+#: templates/projects/documents.html:45
+msgid "octets"
+msgstr ""
+
+#: templates/projects/documents.html:48
+msgid "Télécharger"
+msgstr ""
+
+#: templates/projects/feature.html:16 templates/projects/note_new.html:16
+#: templates/projects/notes.html:16
+msgid "Notes de backlog"
+msgstr ""
+
+#: templates/projects/feature.html:42
+msgid "Notes de backlog urgentes"
+msgstr ""
+
+#: templates/projects/feature.html:56 templates/projects/features.html:53
+#: templates/projects/notes.html:65 templates/projects/problems.html:53
+#: templates/projects/project.html:66 templates/projects/project.html.py:91
+#: templates/projects/project.html:116 templates/projects/snotes.html:57
+#: templates/projects/sprint.html:84 templates/projects/sprint.html.py:109
+#: templates/projects/sprints.html:53 templates/projects/tasks.html:63
+msgid "Confiance développeur(s)"
+msgstr ""
+
+#: templates/projects/features.html:28
+msgid "Nouvelle fonctionnalité"
+msgstr ""
+
+#: templates/projects/features.html:34 templates/projects/problems.html:34
+#: templates/projects/snotes.html:32 templates/projects/sprints.html:34
+#: templates/projects/tasks.html:42
+msgid "Trier :"
+msgstr ""
+
+#: templates/projects/features.html:35 templates/projects/tasks.html:43
+msgid "par priorité et état"
+msgstr ""
+
+#: templates/projects/features.html:36 templates/projects/poker.html:36
+#: templates/projects/problems.html:36 templates/projects/snotes.html:38
+#: templates/projects/sprints.html:36 templates/projects/tasks.html:44
+msgid "Filtrer :"
+msgstr ""
+
+#: templates/projects/features.html:37 templates/projects/notes.html:47
+#: templates/projects/problems.html:37 templates/projects/snotes.html:39
+#: templates/projects/sprints.html:37 templates/projects/tasks.html:45
+msgid "à faire"
+msgstr ""
+
+#: templates/projects/features.html:49 templates/projects/project.html:62
+#: templates/projects/scrumwall.html:40
+msgid "Terminée"
+msgstr ""
+
+#: templates/projects/history.html:19
+msgid "Historiques de :"
+msgstr ""
+
+#: templates/projects/history.html:21 templates/projects/logs.html:21
+msgid "( Tous )"
+msgstr ""
+
+#: templates/projects/history.html:26 templates/projects/logs.html:26
+msgid "Afficher"
+msgstr ""
+
+#: templates/projects/history.html:30
+msgid "Archiver les historiques les plus anciens"
+msgstr ""
+
+#: templates/projects/history.html:34 templates/projects/logs.html:34
+msgid "ID"
+msgstr ""
+
+#: templates/projects/history.html:52
+msgid "Modifier"
+msgstr ""
+
+#: templates/projects/history.html:61 templates/projects/logs.html:67
+msgid "Page précédente"
+msgstr ""
+
+#: templates/projects/history.html:63 templates/projects/logs.html:69
+msgid "Page suivante"
+msgstr ""
+
+#: templates/projects/logs.html:19
+msgid "Logs de :"
+msgstr ""
+
+#: templates/projects/logs.html:30
+msgid "Archiver les logs les plus anciens"
+msgstr ""
+
+#: templates/projects/logs.html:35
+msgid "Objet"
+msgstr ""
+
+#: templates/projects/logs.html:37
+msgid "Action"
+msgstr ""
+
+#: templates/projects/logs.html:39
+msgid "Message"
+msgstr ""
+
+#: templates/projects/meteo.html:40
+msgid "Équipe"
+msgstr ""
+
+#: templates/projects/meteo.html:41
+msgid "Avance."
+msgstr ""
+
+#: templates/projects/notes.html:34
+msgid "Nouvelle note"
+msgstr ""
+
+#: templates/projects/notes.html:41 templates/projects/problems.html:35
+#: templates/projects/snotes.html:33
+msgid "par priorité"
+msgstr ""
+
+#: templates/projects/notes.html:43 templates/projects/snotes.html:35
+msgid "par état"
+msgstr ""
+
+#: templates/projects/notes.html:45 templates/projects/snotes.html:37
+msgid "par les deux"
+msgstr ""
+
+#: templates/projects/notes.html:49
+msgid "à définir"
+msgstr ""
+
+#: templates/projects/notes.html:74
+msgid "( Dissocier du sprint )"
+msgstr ""
+
+#: templates/projects/notes.html:74
+msgid "( Associer à un sprint )"
+msgstr ""
+
+#: templates/projects/notes.html:90 templates/projects/tasks.html:85
+msgid "Temps :"
+msgstr ""
+
+#: templates/projects/pareto.html:23 templates/projects/velocity.html:23
+msgid "Indicateurs :"
+msgstr ""
+
+#: templates/projects/pareto.html:24 templates/projects/summary.html:24
+#: templates/projects/velocity.html:24
+msgid "Synthèse des sprints"
+msgstr ""
+
+#: templates/projects/pareto.html:26 templates/projects/summary.html:26
+#: templates/projects/velocity.html:26
+msgid "Vélocité et progression"
+msgstr ""
+
+#: templates/projects/pareto.html:28 templates/projects/summary.html:28
+#: templates/projects/velocity.html:28
+msgid "Diagramme de Pareto"
+msgstr ""
+
+#: templates/projects/pareto.html:41 templates/projects/pareto.html.py:60
+#: templates/projects/summary.html:76
+msgid "Total"
+msgstr ""
+
+#: templates/projects/pareto.html:42
+#, python-format
+msgid "Total (%%)"
+msgstr ""
+
+#: templates/projects/poker.html:25
+msgid ""
+"Attention ! Aucun élément n'est affiché par défaut, veuillez préciser votre "
+"recherche avec les filtres."
+msgstr ""
+
+#: templates/projects/poker.html:30 templates/projects/scrumwall.html:25
+msgid "Tout"
+msgstr ""
+
+#: templates/projects/poker.html:37
+msgid "Tous"
+msgstr ""
+
+#: templates/projects/poker.html:39
+msgid "À définir"
+msgstr ""
+
+#: templates/projects/poker.html:41
+msgid "Définis"
+msgstr ""
+
+#: templates/projects/poker.html:43
+msgid "À valider"
+msgstr ""
+
+#: templates/projects/poker.html:91 templates/projects/releases.html:69
+msgid "Valider"
+msgstr ""
+
+#: templates/projects/poker.html:106
+msgid "Sauvegarder la charge moyenne et le temps estimé ?"
+msgstr ""
+
+#: templates/projects/problems.html:28
+msgid "Nouveau problème"
+msgstr ""
+
+#: templates/projects/problems.html:49 templates/projects/problems.html:70
+#: templates/projects/project.html:112
+msgid "Résolu"
+msgstr ""
+
+#: templates/projects/problems.html:49
+msgid "À résoudre"
+msgstr ""
+
+#: templates/projects/problems.html:67
+msgid "Reporté"
+msgstr ""
+
+#: templates/projects/project.html:21
+msgid "Membres du projet :"
+msgstr ""
+
+#: templates/projects/project.html:52
+msgid "Fonctionnalités urgentes"
+msgstr ""
+
+#: templates/projects/project.html:77
+msgid "Sprints récents"
+msgstr ""
+
+#: templates/projects/project.html:102
+msgid "Problèmes urgents"
+msgstr ""
+
+#: templates/projects/projects.html:37
+msgid "Velocité et progression"
+msgstr ""
+
+#: templates/projects/projects.html:38
+msgid "Synthèse"
+msgstr ""
+
+#: templates/projects/projects.html:40
+msgid "Sprint en cours"
+msgstr ""
+
+#: templates/projects/projects.html:42
+msgid "Aucun sprint en cours"
+msgstr ""
+
+#: templates/projects/releases.html:33
+msgid "à livrer"
+msgstr ""
+
+#: templates/projects/releases.html:37
+msgid "refusés"
+msgstr ""
+
+#: templates/projects/releases.html:39
+msgid "validés"
+msgstr ""
+
+#: templates/projects/releases.html:47
+msgid "Options"
+msgstr ""
+
+#: templates/projects/releases.html:67
+msgid "Livrer"
+msgstr ""
+
+#: templates/projects/releases.html:68
+msgid "Refuser"
+msgstr ""
+
+#: templates/projects/releases.html:70
+msgid "Terminer"
+msgstr ""
+
+#: templates/projects/releases.html:95
+msgid "Commentaire (facultatif) :"
+msgstr ""
+
+#: templates/projects/sprint.html:35
+msgid "Burndown chart"
+msgstr ""
+
+#: templates/projects/sprint.html:70
+msgid "Notes de sprint urgentes"
+msgstr ""
+
+#: templates/projects/sprint.html:95
+msgid "Tâches urgentes"
+msgstr ""
+
+#: templates/projects/sprints.html:28
+msgid "Nouveau sprint"
+msgstr ""
+
+#: templates/projects/sprints.html:35
+msgid "par date"
+msgstr ""
+
+#: templates/projects/sprints.html:61
+msgid "Dates du sprint :"
+msgstr ""
+
+#: templates/projects/summary.html:33
+msgid "Aucun"
+msgstr ""
+
+#: templates/projects/summary.html:43
+msgid "Progression générale :"
+msgstr ""
+
+#: templates/projects/summary.html:66 templates/projects/summary.html.py:86
+msgid "Tendance"
+msgstr ""
+
+#: templates/projects/summary.html:71
+msgid "Progression"
+msgstr ""
+
+#: templates/projects/summary.html:99
+msgid "Afficher les graphiques"
+msgstr ""
+
+#: templates/projects/tasks.html:36
+msgid "Nouvelle tâche"
+msgstr ""
+
+#: templates/projects/velocity.html:31
+msgid "Velocity Chart"
+msgstr ""
+
+#: templates/projects/velocity.html:35
+msgid "Progression Chart"
+msgstr ""
+
+#: templates/registration/login.html:40
+msgid "Nouvel utilisateur ?"
+msgstr ""
+
+#: templates/registration/login.html:44
+msgid "Nom d'utilisateur"
+msgstr ""
+
+#: templates/registration/login.html:48
+msgid "Mot de passe"
+msgstr ""
+
+#: templates/registration/login.html:53
+msgid "Log in"
+msgstr ""
+
+#: templates/registration/login.html:63
+msgid "Ne fonctionne pas avec Internet Explorer !"
+msgstr ""
+
+#: templates/registration/login.html:65
+msgid "Veuillez utiliser"
+msgstr ""
+
+#: templates/registration/login.html:65
+msgid "ou"
+msgstr ""
